@@ -71,5 +71,13 @@ return [
         'LA' => 'Laos',
         'VN' => 'Vietnam',
     ],
+    // Native-language labels and currencies used in country/payment selectors.
+    'payment_markets' => [
+        'MM' => ['flag' => '🇲🇲', 'language' => 'မြန်မာ', 'currency' => 'MMK'],
+        'TH' => ['flag' => '🇹🇭', 'language' => 'ภาษาไทย · ไทย', 'currency' => 'THB'],
+        'CN' => ['flag' => '🇨🇳', 'language' => '中文', 'currency' => 'CNY'],
+        'LA' => ['flag' => '🇱🇦', 'language' => 'ພາສາລາວ · ລາວ', 'currency' => 'LAK'],
+        'VN' => ['flag' => '🇻🇳', 'language' => 'Tiếng Việt', 'currency' => 'VND'],
+    ],
     'currencies' => ['MMK', 'USD'],
 ];

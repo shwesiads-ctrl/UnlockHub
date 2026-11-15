@@ -6,7 +6,11 @@
 @if ($tabs->isNotEmpty())
     <nav class="flex flex-wrap gap-2" aria-label="{{ __('Country') }}">
         @foreach ($tabs as $code => $label)
-            <a href="{{ route('account.funds.index', ['country' => $code]) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => $country === $code]) @if ($country === $code) aria-current="true" @endif>{{ __($label) }}</a>
+            @php $market = $marketDetails[$code] ?? []; @endphp
+            <a href="{{ route('account.funds.index', ['country' => $code]) }}" @class(['btn h-9 text-[13px] inline-flex flex-col items-start justify-center', 'btn-primary' => $country === $code]) @if ($country === $code) aria-current="true" @endif>
+                <span>{{ $market['flag'] ?? '' }} {{ __($label) }}</span>
+                <span class="text-[10px] opacity-75">{{ $market['language'] ?? '' }}{{ isset($market['currency']) ? ' · '.$market['currency'] : '' }}</span>
+            </a>
         @endforeach
     </nav>
 @endif
@@ -15,7 +19,17 @@
     @if ($tabs->isEmpty() && $country !== 'MM')
         <p class="m-0"><a href="{{ route('account.funds.index', ['country' => 'MM']) }}">{{ __('Show Myanmar payment methods') }}</a></p>
     @endif
-    <div class="card p-8 text-center text-muted">{{ __('Top-ups are not available right now. Please contact support.') }}</div>
+        <div class="card p-8 text-center text-muted">
+            <p class="m-0">{{ __('Top-ups are not available right now. Please contact support.') }}</p>
+            <p class="m-0 mt-2 text-sm">{{ __('Payment methods for this country are being configured. You can contact support or choose another country.') }}</p>
+            <div class="mt-4 flex flex-wrap justify-center gap-2">
+                @foreach (config('unlockhub.countries', []) as $code => $label)
+                    @if ($code !== $country)
+                        <a href="{{ route('account.funds.index', ['country' => $code]) }}" class="btn h-9 text-xs">{{ config('unlockhub.payment_markets.'.$code.'.flag') }} {{ __($label) }}</a>
+                    @endif
+                @endforeach
+            </div>
+        </div>
 @else
 <div class="flex flex-wrap gap-6 items-start">
     <section class="flex-[999_1_560px] min-w-0 flex flex-col gap-5">
@@ -77,7 +91,13 @@
                         </span>
                     </div>
                     @if ($selected->instructions)
-                        <div class="px-3 py-2.5 rounded-lg bg-warn-soft text-warn text-[13px] font-medium leading-normal whitespace-pre-line">{{ str_replace(':username', auth()->user()->username, $selected->instructions) }}</div>
+                        @php
+                            $instructions = $selected->instructions;
+                            if ($instructions === 'Write your username in the transfer note, then upload the receipt screenshot.') {
+                                $instructions = __('Write your username in the transfer note, then upload the receipt screenshot.');
+                            }
+                        @endphp
+                        <div class="px-3 py-2.5 rounded-lg bg-warn-soft text-warn text-[13px] font-medium leading-normal whitespace-pre-line">{{ str_replace(':username', auth()->user()->username, $instructions) }}</div>
                     @endif
                     @if ($selected->isForeign())
                         <div class="text-[13px]">{{ __('Pay in') }} <strong>{{ $selected->currency }}</strong> · 1 {{ $selected->currency }} = {{ rtrim(rtrim(number_format((float) $selected->rate, 4), '0'), '.') }} Ks</div>

@@ -4,7 +4,7 @@
 <nav class="flex flex-wrap gap-2 mb-5" aria-label="Filter by country">
     <a href="{{ route('admin.payment-methods.index') }}" @class(['btn h-9 text-[13px]', 'btn-primary' => ! $country])>All</a>
     @foreach ($countries as $code => $label)
-        <a href="{{ route('admin.payment-methods.index', ['country' => $code]) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => $country === $code])>{{ $label }}</a>
+        <a href="{{ route('admin.payment-methods.index', ['country' => $code]) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => $country === $code])>{{ config('unlockhub.payment_markets.'.$code.'.flag') }} {{ $label }} · {{ config('unlockhub.payment_markets.'.$code.'.language') }} · {{ config('unlockhub.payment_markets.'.$code.'.currency') }}</a>
     @endforeach
     <a href="{{ route('admin.payment-methods.index', ['country' => 'all']) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => $country === 'all'])>Every country</a>
 </nav>
@@ -14,7 +14,7 @@
             @csrf @method('PUT')
             <div class="flex justify-between items-center gap-3">
                 <h2 class="m-0 text-lg font-bold">{{ $m->name }}
-                    <span class="badge ml-1 align-middle">{{ $m->country ? ($countries[$m->country] ?? $m->country) : 'Every country' }} · {{ $m->currency }}</span>
+                    <span class="badge ml-1 align-middle">{{ $m->country ? (config('unlockhub.payment_markets.'.$m->country.'.flag').' '.($countries[$m->country] ?? $m->country)) : 'Every country' }} · {{ $m->currency }}</span>
                 </h2>
                 <div class="flex items-center gap-2">
                     @if ($m->pending_count) <span class="badge badge-pending">{{ $m->pending_count }} pending</span> @endif

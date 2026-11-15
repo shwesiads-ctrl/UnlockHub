@@ -46,6 +46,7 @@ class FundsController extends Controller
             'methods' => $methods,
             'selected' => $selected,
             'country' => $country,
+            'marketDetails' => config('unlockhub.payment_markets', []),
             'tabs' => $tabs->count() > 1 ? $tabs : collect(),
             'history' => $user->paymentRequests()->with('method:id,name')->latest()->paginate(10)->withQueryString(),
             'pendingCount' => $user->paymentRequests()->where('status', PaymentRequest::PENDING)->count(),
@@ -75,9 +76,9 @@ class FundsController extends Controller
             'transaction_id' => ['required', 'string', 'min:4', 'max:64', 'regex:/^[A-Za-z0-9\-\s]+$/'],
             'receipt' => ['required', 'file', 'image', 'mimes:'.implode(',', $receipt['mimes']), 'max:'.$receipt['max_kb']],
         ], [
-            'amount.min' => 'Minimum top-up for '.$method->name.' is '.pay_amount($method->min_amount, $method->currency).'.',
-            'amount.max' => 'Maximum top-up for '.$method->name.' is '.pay_amount($method->max_amount, $method->currency).'.',
-            'transaction_id.regex' => 'Transaction ID can only contain letters, numbers, spaces and dashes.',
+            'amount.min' => __('Minimum top-up for :method is :amount.', ['method' => $method->name, 'amount' => pay_amount($method->min_amount, $method->currency)]),
+            'amount.max' => __('Maximum top-up for :method is :amount.', ['method' => $method->name, 'amount' => pay_amount($method->max_amount, $method->currency)]),
+            'transaction_id.regex' => __('Transaction ID can only contain letters, numbers, spaces and dashes.'),
         ]);
 
         $txn = strtoupper(preg_replace('/\s+/', '', $data['transaction_id']));
@@ -105,7 +106,7 @@ class FundsController extends Controller
 
         if ($duplicate) {
             throw ValidationException::withMessages([
-                'transaction_id' => 'This transaction ID has already been submitted. Contact support if this is a mistake.',
+                'transaction_id' => __('This transaction ID has already been submitted. Contact support if this is a mistake.'),
             ]);
         }
 
@@ -133,8 +134,8 @@ class FundsController extends Controller
             ."\nTxn: ".\App\Support\Notify::e($txn)
             ."\n".route('admin.payments.show', $pr));
 
-        return redirect()->route('account.funds.index')
-            ->with('success', 'Receipt received. Your wallet will be credited after approval ('.setting('site.support_hours', '9 AM – 10 PM').').');
+        return redirect()->route('account.funds.show', $pr)
+            ->with('success', __('Payment submitted. We received your receipt and transaction ID. Your wallet will be credited after admin review.'));
     }
 
     public function show(Request $request, PaymentRequest $paymentRequest): View

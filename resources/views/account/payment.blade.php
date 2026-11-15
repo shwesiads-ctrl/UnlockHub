@@ -8,6 +8,22 @@
             <h2 class="m-0 text-xl font-bold">{{ __('Top-up') }} #{{ $payment->id }}</h2>
             <x-status-badge :status="$payment->status" />
         </div>
+        @if ($payment->status === 'pending')
+            <div class="rounded-xl border border-line bg-warn-soft p-4 text-sm leading-relaxed" role="status">
+                <strong class="block mb-1">{{ __('Awaiting payment confirmation') }}</strong>
+                {{ __('Payment submitted. We received your receipt and transaction ID. Your wallet will be credited after admin review.') }}
+            </div>
+        @elseif ($payment->status === 'approved')
+            <div class="rounded-xl border border-line bg-ok-soft p-4 text-sm leading-relaxed" role="status">
+                <strong class="block mb-1">{{ __('Payment confirmed') }}</strong>
+                {{ __('Your payment was confirmed and the wallet credit is shown below.') }}
+            </div>
+        @elseif ($payment->status === 'rejected')
+            <div class="rounded-xl border border-line bg-danger-soft p-4 text-sm leading-relaxed" role="alert">
+                <strong class="block mb-1">{{ __('Payment could not be confirmed') }}</strong>
+                {{ __('Check the rejection reason below. Contact support if you need help.') }}
+            </div>
+        @endif
         <dl class="m-0 grid gap-4 text-sm">
             <div><dt class="text-muted">{{ __('Payment method') }}</dt><dd class="m-0 font-semibold">{{ $payment->method?->name ?? '—' }}</dd></div>
             <div><dt class="text-muted">{{ __('Transaction ID') }}</dt><dd class="m-0 font-mono break-all">{{ $payment->transaction_id }}</dd></div>
