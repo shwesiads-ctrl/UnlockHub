@@ -9,7 +9,7 @@
         $window['last'],
     ]);
 @endphp
-<nav aria-label="{{ __('Pagination') }}" class="flex flex-wrap items-center gap-1.5">
+<nav aria-label="Page navigation" class="flex flex-wrap items-center gap-1.5">
     @if ($paginator->onFirstPage())
         <span class="btn h-9 px-3 opacity-50" aria-disabled="true" aria-label="{{ __('Previous page') }}">‹</span>
     @else
