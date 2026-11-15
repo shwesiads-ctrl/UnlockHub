@@ -45,3 +45,22 @@ document.addEventListener('click', (e) => {
     setTimeout(() => (btn.textContent = old), 1200);
   });
 });
+
+// Forms with [data-submit-once]: disable the submit button after the first click (no double orders)
+document.addEventListener('submit', (e) => {
+  const form = e.target;
+  if (!form.matches('form[data-submit-once]')) return;
+  if (form.dataset.submitting === '1') { e.preventDefault(); return; }
+  form.dataset.submitting = '1';
+  form.querySelectorAll('button:not([type="button"]), input[type="submit"]').forEach((b) => {
+    b.disabled = true;
+    if (b.tagName === 'BUTTON') { b.dataset.label = b.textContent; b.textContent = 'Please wait…'; }
+  });
+});
+// Back/forward cache: re-enable when the page is shown again
+window.addEventListener('pageshow', () => {
+  document.querySelectorAll('form[data-submit-once][data-submitting="1"]').forEach((form) => {
+    form.dataset.submitting = '';
+    form.querySelectorAll('button[disabled]').forEach((b) => { b.disabled = false; if (b.dataset.label) b.textContent = b.dataset.label; });
+  });
+});

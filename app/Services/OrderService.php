@@ -2,16 +2,19 @@
 
 namespace App\Services;
 
+use App\Exceptions\DuplicateOrderException;
 use App\Exceptions\InsufficientBalanceException;
 use App\Jobs\SubmitOrderToSupplier;
 use App\Models\ActivityLog;
 use App\Models\Order;
+use App\Models\OrderRequest;
 use App\Models\Service;
 use App\Models\User;
 use App\Notifications\BatchFinished;
 use App\Notifications\OrderUpdated;
 use App\Support\Notify;
 use Illuminate\Support\Collection;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -30,22 +33,59 @@ class OrderService
 
     /**
      * @param  array<int, array<string, string>>  $rows  one input array per order (bulk = many rows)
+     * @param  array{key?: ?string, source?: string, allow_duplicates?: bool}  $options
+     *         key: request token (form token / API REFERENCE). Same key again → the first
+     *              request's orders are returned; nothing new is placed or charged.
+     *         allow_duplicates: user confirmed "order anyway" (ignored when the service blocks duplicates)
      * @return Collection<int, Order>
+     *
+     * @throws DuplicateOrderException|InsufficientBalanceException
      */
-    public function place(User $user, Service $service, array $rows, ?string $note = null): Collection
+    public function place(User $user, Service $service, array $rows, ?string $note = null, array $options = []): Collection
     {
         if ($rows === []) {
             throw new RuntimeException('Nothing to order.');
         }
 
+        $key = filled($options['key'] ?? null) ? mb_substr((string) $options['key'], 0, 100) : null;
+
+        try {
+            return $this->placeOnce($user, $service, $rows, $note, $key, $options);
+        } catch (UniqueConstraintViolationException $e) {
+            // Two identical requests raced past each other: the other one won, return its orders
+            if ($key && ($done = $this->replay($user, $key))) {
+                return $done;
+            }
+            throw $e;
+        }
+    }
+
+    /** Orders created by an earlier request with this key, or null. */
+    public function replay(User $user, string $key): ?Collection
+    {
+        $req = OrderRequest::where('user_id', $user->id)->where('key', $key)->first();
+
+        return $req ? Order::whereIn('id', $req->order_ids)->orderBy('id')->get() : null;
+    }
+
+    private function placeOnce(User $user, Service $service, array $rows, ?string $note, ?string $key, array $options): Collection
+    {
         $price = round((float) $service->priceFor($user), 2);
         $cost = round((float) $service->cost_price, 2);
         $points = $service->pointsFor((string) $price);
         $total = round($price * count($rows), 2);
         $useApi = $service->usesApi();
 
-        $orders = DB::transaction(function () use ($user, $service, $rows, $note, $price, $cost, $points, $total, $useApi) {
+        $replayed = null;
+        $orders = DB::transaction(function () use ($user, $service, $rows, $note, $price, $cost, $points, $total, $useApi, $key, $options, &$replayed) {
+            // The user row lock serialises this user's orders: checks below can't race
             $locked = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+            if ($key && ($replayed = $this->replay($user, $key))) {
+                return $replayed;
+            }
+
+            $this->checkDuplicates($user, $service, $rows, (bool) ($options['allow_duplicates'] ?? false));
 
             if ((float) $locked->balance < $total) {
                 throw new InsufficientBalanceException(
@@ -77,8 +117,19 @@ class OrderService
                 $created->push($order);
             }
 
+            if ($key) {
+                OrderRequest::create([
+                    'user_id' => $user->id, 'key' => $key,
+                    'source' => $options['source'] ?? 'web', 'order_ids' => $created->pluck('id')->all(),
+                ]);
+            }
+
             return $created;
         });
+
+        if ($replayed) {
+            return $orders; // already submitted / notified the first time
+        }
 
         if ($useApi) {
             foreach ($orders as $order) {
@@ -93,6 +144,38 @@ class OrderService
         }
 
         return $orders;
+    }
+
+    /** Open orders of this user for the same service + identifier. */
+    public function openDuplicates(User $user, Service $service, array $rows): Collection
+    {
+        $ids = collect($rows)->map(fn ($r) => $this->mainIdentifier($service, $r))->filter()->unique()->values();
+
+        if ($ids->isEmpty()) {
+            return collect();
+        }
+
+        return Order::where('user_id', $user->id)
+            ->where('service_id', $service->id)
+            ->whereIn('imei', $ids)
+            ->whereIn('status', [Order::PENDING, Order::IN_PROCESS])
+            ->orderBy('id')
+            ->get(['id', 'order_no', 'imei', 'status', 'created_at']);
+    }
+
+    private function checkDuplicates(User $user, Service $service, array $rows, bool $allow): void
+    {
+        $policy = $service->duplicate_policy ?? 'warn';
+
+        if ($policy === 'allow' || ($policy === 'warn' && $allow)) {
+            return;
+        }
+
+        $dupes = $this->openDuplicates($user, $service, $rows);
+
+        if ($dupes->isNotEmpty()) {
+            throw new DuplicateOrderException($dupes, $policy === 'block');
+        }
     }
 
     public function markInProcess(Order $order): void
@@ -178,6 +261,7 @@ class OrderService
             }
             $o->forceFill([
                 'processing_mode' => 'manual',
+                'api_submitting_at' => null,
                 'api_failed' => true,
                 'api_error' => Str::limit($error, 1000),
                 'api_next_check_at' => null,
@@ -207,6 +291,7 @@ class OrderService
                 'api_failed' => false,
                 'api_error' => null,
                 'api_attempts' => 0,
+                'api_submitting_at' => null,
                 'status' => Order::PENDING,
             ])->save();
         });

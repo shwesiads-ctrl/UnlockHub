@@ -35,13 +35,26 @@ class SubmitOrderToSupplier implements ShouldQueue
             return;
         }
 
+        // Claim the order atomically: if another worker already sends it, stop here
+        $claimed = Order::whereKey($order->id)
+            ->whereNull('supplier_order_id')
+            ->where('processing_mode', 'api')
+            ->whereIn('status', [Order::PENDING, Order::IN_PROCESS])
+            ->where(fn ($q) => $q->whereNull('api_submitting_at')->orWhere('api_submitting_at', '<', now()->subMinutes(15)))
+            ->update(['api_submitting_at' => now()]);
+
+        if (! $claimed) {
+            return;
+        }
+
         $maxAttempts = (int) config('unlockhub.api.max_attempts', 3);
         $order->increment('api_attempts');
 
         try {
             $reference = $suppliers->driverFor($supplier)->placeOrder($supplier, $order);
         } catch (SupplierException $e) {
-            if ($order->api_attempts < $maxAttempts && $this->isTemporary($e)) {
+            if ($order->api_attempts < $maxAttempts && $e->retryable) {
+                $order->forceFill(['api_submitting_at' => null])->save();
                 self::dispatch($order->id)->delay(now()->addMinute());
 
                 return;
@@ -61,11 +74,5 @@ class SubmitOrderToSupplier implements ShouldQueue
             'status' => Order::IN_PROCESS,
             'api_next_check_at' => now()->addMinutes((int) config('unlockhub.api.check_every_minutes', 5)),
         ])->save();
-    }
-
-    private function isTemporary(SupplierException $e): bool
-    {
-        return str_contains(strtolower($e->getMessage()), 'timeout')
-            || str_contains(strtolower($e->getMessage()), 'connect');
     }
 }

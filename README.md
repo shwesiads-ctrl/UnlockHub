@@ -201,6 +201,19 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Order / Payment ထပ်မဖြစ်အောင် ကာကွယ်ခြင်း
+
+- **Order request token** — Order form တစ်ခါဖွင့်တိုင်း token တစ်ခု ပါတယ်။ ခလုတ်နှစ်ခါနှိပ်တာ၊ Refresh/Resend၊ connection ပြတ်ပြီး ပြန်ပို့တာ ဖြစ်လည်း order နဲ့ ငွေနုတ်တာ **တစ်ကြိမ်ပဲ** ဖြစ်တယ် (`order_requests` table, unique)
+- **API** — Client က `REFERENCE` ပို့ရင် အဲဒါကို token အဖြစ်သုံးတယ်၊ ထပ်ပို့ရင် ပထမ order ရဲ့ REFERENCEID ကိုပဲ ပြန်ပေးတယ်
+- **Order ထပ်တင်မှု စစ်ခြင်း** — User + Service + IMEI/SN တူတဲ့ Pending / In process order ရှိရင် order နံပါတ်နဲ့ status ပြတယ်။ Service › *Same IMEI/SN ordered again* မှာ ရွေး:
+  - **Warn** — သတိပေးပြီး "place anyway" ဆိုတဲ့ checkbox ကို အမှန်ခြစ်မှ ဆက်တင်ခွင့်ပေးတယ် (API ကတော့ ငြင်းတယ်)
+  - **Block** — ဘယ်တော့မှ ခွင့်မပြု (Website + API)
+  - **Allow** — မစစ်ဘူး
+- Bulk list ထဲမှာ ထပ်နေတဲ့ line တွေကို တစ်ခါပဲ order တင်ပြီး ဘယ် line တွေ ထပ်နေလဲ ပြောပြတယ်
+- **Top-up** — Transaction ID တူတာကို တစ်ပြိုင်နက် နှစ်ခါပို့ရင် တစ်ခုပဲ ဝင်တယ် (lock)၊ Approve က တစ်ကြိမ်ပဲ credit ပေါင်းတယ်
+- **Supplier** — Job နှစ်ခု တစ်ပြိုင်နက် run လည်း supplier ဆီ တစ်ခါပဲ ပို့တယ် (atomic claim)။ Connect မရတာ (DNS / refused) ကိုပဲ အလိုအလျောက် ပြန်ကြိုးစားတယ်။ Reply မရ (timeout) ရင် supplier မှာ order ဖြစ်ပြီးသားဖြစ်နိုင်လို့ ပြန်မပို့ဘဲ Manual queue ကို ပို့ပြီး "check the supplier panel" လို့ မှတ်ပေးတယ်
+- Tests: `php artisan test` (SQLite memory DB)
+
 ## Popups (Welcome + Service)
 
 - **Admin › Popups** — ဆိုဒ်ဖွင့်ရင် ပေါ်မယ့် Welcome popup (စည်းကမ်း၊ WhatsApp/Telegram ခလုတ်၊ ငွေဖြည့်နည်း…)

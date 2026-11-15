@@ -18,7 +18,7 @@ class Service extends Model
     protected $fillable = [
         'service_category_id', 'type', 'name', 'slug', 'description', 'delivery_time',
         'cost_price', 'default_price', 'points', 'is_hot', 'allow_bulk', 'max_bulk',
-        'allow_cancel_pending', 'status', 'processing_mode', 'supplier_id',
+        'allow_cancel_pending', 'duplicate_policy', 'status', 'processing_mode', 'supplier_id',
         'supplier_service_id', 'fallback_to_manual', 'sort',
     ];
 

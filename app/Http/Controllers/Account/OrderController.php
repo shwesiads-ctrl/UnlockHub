@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Account;
 
+use App\Exceptions\DuplicateOrderException;
 use App\Exceptions\InsufficientBalanceException;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
@@ -26,12 +27,28 @@ class OrderController extends Controller
             'fields' => ['array'],
             'user_note' => ['nullable', 'string', 'max:255'],
             'confirm' => ['accepted'],
+            'request_token' => ['nullable', 'string', 'max:64'],
         ], ['confirm.accepted' => 'Please confirm you checked the details.']);
 
-        $rows = OrderInput::rows($service, (array) $request->input('fields', []));
+        $fields = (array) $request->input('fields', []);
+        $rows = OrderInput::rows($service, $fields);
+        $repeated = OrderInput::repeatedLines($service, $fields);
 
         try {
-            $placed = $this->orders->place($request->user(), $service, $rows, $request->input('user_note'));
+            $placed = $this->orders->place($request->user(), $service, $rows, $request->input('user_note'), [
+                // Same token again (double click, refresh, resend after lost connection) → same orders, charged once
+                'key' => $request->filled('request_token') ? 'web:'.$request->input('request_token') : null,
+                'source' => 'web',
+                'allow_duplicates' => $request->boolean('confirm_duplicates'),
+            ]);
+        } catch (DuplicateOrderException $e) {
+            return back()->withInput($request->except('confirm_duplicates'))
+                ->with('duplicates', $e->existing->map(fn ($o) => [
+                    'order_no' => $o->order_no, 'imei' => $o->imei, 'status' => $o->statusLabel(),
+                    'url' => route('account.orders.show', $o), 'date' => $o->created_at->format('d M H:i'),
+                ])->all())
+                ->with('duplicates_blocked', $e->blocked)
+                ->with('error', $e->getMessage());
         } catch (InsufficientBalanceException $e) {
             return back()->withInput()->with('error', $e->getMessage().' Add funds and try again.');
         } catch (RuntimeException $e) {
@@ -42,6 +59,9 @@ class OrderController extends Controller
         $message = $placed->count() > 1
             ? "{$placed->count()} orders placed. Total ".money($placed->sum('price')).'.'
             : "Order #{$first->order_no} placed.";
+        if ($repeated) {
+            $message .= ' '.count($repeated).' repeated line(s) were ordered only once: '.\Illuminate\Support\Str::limit(implode(', ', $repeated), 120);
+        }
 
         return $placed->count() > 1
             ? redirect()->route('account.orders.index', ['batch' => $first->batch_id])->with('success', $message)

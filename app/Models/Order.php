@@ -41,6 +41,7 @@ class Order extends Model
             'refunded' => 'boolean',
             'points_awarded' => 'boolean',
             'api_next_check_at' => 'datetime',
+            'api_submitting_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
     }

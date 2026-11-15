@@ -48,7 +48,7 @@
         </div>
 
         {{-- 2. Upload receipt --}}
-        <form method="POST" action="{{ route('account.funds.store') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-4" novalidate>
+        <form method="POST" action="{{ route('account.funds.store') }}" enctype="multipart/form-data" data-submit-once class="card p-6 flex flex-col gap-4" novalidate>
             @csrf
             <input type="hidden" name="method" value="{{ $selected->code }}">
             <h2 class="m-0 text-xl font-bold">2 · Upload receipt</h2>

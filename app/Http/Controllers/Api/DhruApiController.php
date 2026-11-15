@@ -246,7 +246,14 @@ class DhruApiController extends Controller
         try {
             $rows = OrderInput::rows($service, $values);
             $note = 'API'.(! empty($p['REFERENCE']) ? ' · ref '.Str::limit($p['REFERENCE'], 60, '') : '');
-            $order = $this->orders->place($user, $service, array_slice($rows, 0, 1), $note)->first();
+            // REFERENCE (if the client sends one) makes a resent request return the same order
+            $order = $this->orders->place($user, $service, array_slice($rows, 0, 1), $note, [
+                'key' => ! empty($p['REFERENCE']) ? 'api:'.$service->id.':'.Str::limit($p['REFERENCE'], 80, '') : null,
+                'source' => 'api',
+            ])->first();
+        } catch (\App\Exceptions\DuplicateOrderException $e) {
+            // API clients can't confirm "order anyway", so open duplicates are refused
+            return $this->error('Duplicate: IMEI already in order '.$e->existing->first()->id.' ('.$e->existing->first()->statusLabel().')', $echo);
         } catch (ValidationException $e) {
             return $this->error(collect($e->errors())->flatten()->first() ?: 'Invalid parameters', $echo);
         } catch (InsufficientBalanceException) {

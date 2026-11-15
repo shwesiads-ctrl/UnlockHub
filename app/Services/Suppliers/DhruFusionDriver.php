@@ -157,7 +157,12 @@ class DhruFusionDriver implements SupplierDriver
                     'parameters' => $xml,
                 ]);
         } catch (ConnectionException $e) {
-            throw new SupplierException('Could not connect to supplier (timeout or DNS): '.Str::limit($e->getMessage(), 200));
+            $neverSent = (bool) preg_match('/cURL error (6|7)\b|could not resolve|failed to connect|connection refused|connection timed out|resolving timed out/i', $e->getMessage());
+
+            throw new SupplierException($neverSent
+                ? 'Could not connect to supplier: '.Str::limit($e->getMessage(), 200)
+                : 'No reply from supplier (timeout). It may have created the order — check the supplier panel before retrying. '.Str::limit($e->getMessage(), 150),
+                $neverSent);
         }
 
         if ($response->failed()) {

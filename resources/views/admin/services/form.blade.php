@@ -73,6 +73,15 @@
                 <label class="flex items-center gap-2"><input type="checkbox" name="allow_cancel_pending" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('allow_cancel_pending', $service->allow_cancel_pending))>User can cancel while Pending</label>
             </div>
             <x-field-error name="allow_bulk" />
+            <div class="max-w-md">
+                <label for="duplicate_policy" class="label">Same IMEI/SN ordered again while the first order is still open</label>
+                <select id="duplicate_policy" name="duplicate_policy" class="input">
+                    @foreach (['warn' => 'Warn — user can confirm and order again', 'block' => 'Block — never allow (API too)', 'allow' => 'Allow — no check'] as $k => $l)
+                        <option value="{{ $k }}" @selected(old('duplicate_policy', $service->duplicate_policy ?? 'warn') === $k)>{{ $l }}</option>
+                    @endforeach
+                </select>
+                <span class="text-xs text-muted">API orders are refused on Warn too (they can't confirm).</span>
+            </div>
             <div>
                 <label for="description" class="label">Description <span class="font-normal text-muted">(shown to users)</span></label>
                 <textarea id="description" name="description" rows="4" class="input">{{ old('description', $service->description) }}</textarea>

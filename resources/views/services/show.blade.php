@@ -33,8 +33,10 @@
                 @endif
             </div>
 
-            <form id="order" method="POST" action="{{ Route::has('orders.store') ? route('orders.store', $service) : '#' }}" class="card p-6 flex flex-col gap-4">
+            <form id="order" method="POST" action="{{ Route::has('orders.store') ? route('orders.store', $service) : '#' }}" class="card p-6 flex flex-col gap-4" data-submit-once>
                 @csrf
+                {{-- One token per form load: resending the same form never places the order twice --}}
+                <input type="hidden" name="request_token" value="{{ old('request_token', (string) \Illuminate\Support\Str::uuid()) }}">
                 <h2 class="m-0 text-xl font-bold">{{ __('Order details') }}</h2>
                 @forelse ($service->fields as $field)
                     <div>
@@ -74,6 +76,25 @@
                     <span>{{ __('I checked the details. Wrong entries are non-refundable and In Process orders can\'t be cancelled.') }}</span>
                 </label>
                 <x-field-error name="confirm" />
+
+                @if (session('duplicates'))
+                    <div @class(['rounded-xl border p-4 flex flex-col gap-2 text-sm', 'bg-danger-soft border-danger/30' => session('duplicates_blocked'), 'bg-warn-soft border-warn/40' => ! session('duplicates_blocked')]) role="alert">
+                        <strong @class(['text-danger' => session('duplicates_blocked'), 'text-warn' => ! session('duplicates_blocked')])>
+                            {{ session('duplicates_blocked') ? __('You already have an open order for this — duplicates are not allowed for this service.') : __('You already have an open order for this:') }}
+                        </strong>
+                        <ul class="m-0 pl-5 list-disc">
+                            @foreach (session('duplicates') as $d)
+                                <li><span class="font-mono">{{ $d['imei'] }}</span> — <a href="{{ $d['url'] }}">#{{ $d['order_no'] }}</a> · {{ $d['status'] }} · {{ $d['date'] }}</li>
+                            @endforeach
+                        </ul>
+                        @unless (session('duplicates_blocked'))
+                            <label class="flex items-start gap-2.5 mt-1">
+                                <input type="checkbox" name="confirm_duplicates" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]">
+                                <span>{{ __('I know — place a new order anyway (it will be charged again).') }}</span>
+                            </label>
+                        @endunless
+                    </div>
+                @endif
 
                 @guest
                     <a href="{{ route('login') }}" class="btn btn-primary btn-lg">{{ __('Log in to order') }}</a>

@@ -56,6 +56,21 @@ class FundsController extends Controller
 
         $txn = strtoupper(preg_replace('/\s+/', '', $data['transaction_id']));
 
+        // Same receipt sent twice at once (double click / resend): only one request gets through
+        $lock = \Illuminate\Support\Facades\Cache::lock('topup:'.$method->id.':'.$txn, 30);
+        if (! $lock->get()) {
+            throw ValidationException::withMessages(['transaction_id' => 'This transaction ID is being submitted already. Please wait a moment.']);
+        }
+
+        try {
+            return $this->createRequest($request, $user, $method, $data, $txn, $receipt);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function createRequest(Request $request, $user, PaymentMethod $method, array $data, string $txn, array $receipt): RedirectResponse
+    {
         // Same transaction ID already submitted (pending or approved) → stop double credit
         $duplicate = PaymentRequest::where('payment_method_id', $method->id)
             ->where('transaction_id', $txn)

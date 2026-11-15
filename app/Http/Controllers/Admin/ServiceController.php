@@ -124,6 +124,7 @@ class ServiceController extends Controller
             'allow_bulk' => $data['allow_bulk'],
             'max_bulk' => $data['max_bulk'],
             'allow_cancel_pending' => $data['allow_cancel_pending'],
+            'duplicate_policy' => $data['duplicate_policy'],
             'status' => $data['status'],
             'processing_mode' => $data['processing_mode'],
             'supplier_id' => $data['processing_mode'] === 'api' ? $data['supplier_id'] : null,

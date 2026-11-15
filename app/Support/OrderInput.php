@@ -12,6 +12,19 @@ use Illuminate\Validation\ValidationException;
  */
 class OrderInput
 {
+    /** Bulk lines that appear more than once (they are ordered once). */
+    public static function repeatedLines(Service $service, array $submitted): array
+    {
+        $bulkField = $service->allow_bulk ? $service->loadMissing('fields')->fields->firstWhere('is_bulk_field', true) : null;
+        if (! $bulkField) {
+            return [];
+        }
+
+        return collect(preg_split('/\r\n|\r|\n/', (string) ($submitted[$bulkField->name] ?? '')))
+            ->map(fn ($l) => trim($l))->filter(fn ($l) => $l !== '')
+            ->countBy()->filter(fn ($n) => $n > 1)->keys()->values()->all();
+    }
+
     /** @return array<int, array<string, string>> */
     public static function rows(Service $service, array $submitted): array
     {
