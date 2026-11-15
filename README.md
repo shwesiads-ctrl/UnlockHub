@@ -9,6 +9,13 @@ GSM unlock service, tool credit နဲ့ activation တွေကို reseller
 - User group လိုက် ဈေးကွဲ (Customer / Reseller / VIP)
 - Flat UI ဒီဇိုင်း၊ Day / Night mode
 
+## 📦 အားလုံးပါ Zip (XAMPP / cPanel)
+
+`vendor/` နဲ့ compile လုပ်ပြီးသား CSS/JS ပါတဲ့ zip ကို GitHub က push တိုင်း အလိုအလျောက် ထုတ်ပေးပါတယ် (`.github/workflows/release.yml`)။
+**Download:** https://github.com/shwesiads-ctrl/UnlockHub/releases/tag/latest → `UnlockHub-full.zip`
+(Repo private ဖြစ်လို့ GitHub login ဝင်ထားရပါမယ်။ Actions tab မှာ test ရလဒ်လည်း ကြည့်လို့ရတယ်။)
+`v1.0.0` လို tag push လုပ်ရင် နံပါတ်တပ် release တစ်ခုလည်း ထွက်မယ်။ ကိုယ့်စက်မှာ ထုတ်ချင်ရင် `bash scripts/build-release.sh`။
+
 ## ⚡ Fast install (XAMPP / cPanel)
 
 ဆိုဒ်ကို ပထမဆုံး ဖွင့်တာနဲ့ Web installer (`/install.php`) ပေါ်လာတယ် — Server check → Database → Site & admin → Install။ အသေးစိတ်: **[INSTALL.md](INSTALL.md)**။ Upload zip: `scripts\build-release.ps1`။
