@@ -109,6 +109,14 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
     Route::post('/points/check-in', [PointsController::class, 'checkIn'])->name('points.checkin')->middleware('throttle:10,1');
 
+    Route::get('/bulk/{service}', [\App\Http\Controllers\Account\BulkOrderController::class, 'create'])->name('bulk.create');
+    Route::get('/bulk/{service}/template.{format}', [\App\Http\Controllers\Account\BulkOrderController::class, 'template'])->name('bulk.template');
+    Route::post('/bulk/{service}', [\App\Http\Controllers\Account\BulkOrderController::class, 'upload'])->name('bulk.upload')->middleware('throttle:20,10');
+    Route::get('/bulk/{service}/{token}', [\App\Http\Controllers\Account\BulkOrderController::class, 'preview'])->name('bulk.preview');
+    Route::post('/bulk/{service}/{token}/mapping', [\App\Http\Controllers\Account\BulkOrderController::class, 'mapping'])->name('bulk.mapping');
+    Route::get('/bulk/{service}/{token}/errors.csv', [\App\Http\Controllers\Account\BulkOrderController::class, 'errors'])->name('bulk.errors');
+    Route::post('/bulk/{service}/{token}/confirm', [\App\Http\Controllers\Account\BulkOrderController::class, 'confirm'])->name('bulk.confirm')->middleware('throttle:10,1');
+
     Route::get('/favorites', [\App\Http\Controllers\Account\FavoriteController::class, 'index'])->name('favorites');
     Route::post('/favorites/{service}', [\App\Http\Controllers\Account\FavoriteController::class, 'toggle'])->name('favorites.toggle')->middleware('throttle:60,1');
     Route::get('/orders/{order}/reorder', [OrderController::class, 'reorder'])->name('orders.reorder');

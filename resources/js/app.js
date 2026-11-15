@@ -101,3 +101,14 @@ document.addEventListener('submit', async (e) => {
     form.submit();
   }
 });
+
+// Bulk preview: filter rows by status
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-row-filter]');
+  if (!btn) return;
+  const status = btn.dataset.rowFilter;
+  btn.parentElement.querySelectorAll('[data-row-filter]').forEach((b) => b.classList.toggle('btn-primary', b === btn));
+  document.querySelectorAll('[data-rows] tbody tr').forEach((tr) => {
+    tr.hidden = status !== 'all' && tr.dataset.status !== status;
+  });
+});

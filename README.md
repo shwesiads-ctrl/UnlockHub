@@ -201,6 +201,14 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## CSV / Excel Bulk Order
+
+- Service စာမျက်နှာ › **Bulk from CSV / Excel** → Template (.xlsx / .csv) ဒေါင်း (Excel template က column အားလုံး Text ဖြစ်လို့ IMEI ရှေ့က 0 မပျောက်)
+- File တင် (max 2 MB / 500 rows — setting `bulk.max_kb`, `bulk.max_rows`) → Column ကို IMEI/SN/field တွေနဲ့ ချိတ်ရွေး → Row တစ်ခုချင်း **Valid / Invalid / Duplicate** + အကြောင်းရင်း + line နံပါတ်
+- စုစုပေါင်း order, ကျသင့်ငွေ, Wallet လက်ကျန်၊ ပြဿနာ row တွေကို CSV နဲ့ ဒေါင်း (ပြင်ပြီး ပြန်တင်)
+- **Preview မှာ order မဖန်တီးဘူး** — Confirm နှိပ်မှ ဈေး/balance/duplicate ပြန်စစ်ပြီး Valid row တွေပဲ တင် (Confirm ၂ ခါနှိပ်လည်း တစ်ခါပဲ)
+- .xlsx ကို package မလိုဘဲ PHP `zip` extension နဲ့ ဖတ်တယ် (php.ini မှာ `extension=zip` ဖွင့်ထားဖို့)
+
 ## Favourite + Order again
 
 - Services စာရင်း / Service စာမျက်နှာမှာ ☆ နှိပ်ပြီး Favourite ထည့်/ဖြုတ် (page မပြောင်းဘဲ)

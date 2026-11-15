@@ -45,7 +45,14 @@
                 @csrf
                 {{-- One token per form load: resending the same form never places the order twice --}}
                 <input type="hidden" name="request_token" value="{{ old('request_token', (string) \Illuminate\Support\Str::uuid()) }}">
-                <h2 class="m-0 text-xl font-bold">{{ __('Order details') }}</h2>
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <h2 class="m-0 text-xl font-bold">{{ __('Order details') }}</h2>
+                    @auth
+                        @unless ($service->sales_paused)
+                            <a href="{{ route('account.bulk.create', $service) }}" class="btn h-9 text-[13px]"><x-icon name="upload" size="16" />{{ __('Bulk from CSV / Excel') }}</a>
+                        @endunless
+                    @endauth
+                </div>
                 @forelse ($service->fields as $field)
                     <div>
                         <label for="f_{{ $field->name }}" class="label">
