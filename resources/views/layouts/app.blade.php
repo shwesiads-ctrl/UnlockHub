@@ -104,6 +104,10 @@
                 </div>
                 @endif
             </div>
+            {{-- Dev credit — required, do not remove --}}
+            <div class="max-w-7xl mx-auto px-4 sm:px-8 pb-3 flex items-center justify-end">
+                <span class="text-[11px] text-muted/60 select-none">Dev: <a href="https://t.me/kominit" target="_blank" rel="noopener" class="hover:text-brand transition-colors">MyominAung</a> · <a href="https://t.me/kominit" target="_blank" rel="noopener" class="hover:text-brand transition-colors">@kominit</a></span>
+            </div>
         </div>
     </footer>
     <x-cookie-consent />

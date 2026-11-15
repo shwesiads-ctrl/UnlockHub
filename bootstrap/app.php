@@ -36,6 +36,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocale::class,
             // Domain lock / serial key (after the language is known, so the locked page is translated)
             \App\Http\Middleware\EnforceLicense::class,
+            // Remote kill-switch (checked hourly, cached; fail-open on network errors)
+            \App\Http\Middleware\EnforceKillSwitch::class,
         ]);
         $middleware->api(append: [\App\Http\Middleware\EnforceLicense::class]);
     })
