@@ -9,6 +9,31 @@ GSM unlock service, tool credit နဲ့ activation တွေကို reseller
 - User group လိုက် ဈေးကွဲ (Customer / Reseller / VIP)
 - Flat UI ဒီဇိုင်း၊ Day / Night mode
 
+## 🌐 Multi-Language & Multi-Country Support
+
+UnlockHub supports **5 languages** and **5 countries** out of the box — the UI, payments, and currency all auto-switch by visitor location.
+
+| Country | Language | UI Language | Payment Methods | Currency |
+|---|---|---|---|---|
+| 🇲🇲 Myanmar | မြန်မာဘာသာ | မြန်မာ | KBZPay · WavePay · AYA Pay · CB Pay | MMK |
+| 🇹🇭 Thailand | ภาษาไทย | ไทย | PromptPay · TrueMoney Wallet | THB |
+| 🇨🇳 China | 中文 | 中文 | Alipay · WeChat Pay | CNY |
+| 🇱🇦 Laos | ພາສາລາວ | ລາວ | BCEL One · U-Money | LAK |
+| 🇻🇳 Vietnam | Tiếng Việt | Tiếng Việt | MoMo · VietQR | VND |
+
+**ဘာသာစကားများ / Languages:**
+- Header ရှိ 🌐 dropdown မှ **English · မြန်မာ · ไทย · 中文 · ລາວ · Tiếng Việt** ကို ပြောင်းနိုင်သည်
+- ไทย: ระบบรองรับภาษาไทยเต็มรูปแบบ รวมถึง PromptPay และ TrueMoney
+- 中文: 系统完全支持中文界面，支持支付宝和微信支付
+- ລາວ: ລະບົບຮອງຮັບພາສາລາວ ລວມທັງ BCEL One ແລະ U-Money
+- Tiếng Việt: Hệ thống hỗ trợ đầy đủ tiếng Việt, bao gồm MoMo và VietQR
+
+**Auto-detect:** ပထမဆုံးဝင်လာသောအခါ Cloudflare `CF-IPCountry` → GeoIP → `Accept-Language` အစဉ်ဖြင့် နိုင်ငံ/ဘာသာ အလိုအလျောက်ရွေးပေးသည်။ User ကိုယ်တိုင်ပြောင်းထားရင် (သို့) Profile ထဲ Country သိမ်းထားရင် ၎င်းကိုဦးစားပေးသည်။
+
+**Font:** ဘာသာပြောင်းသည့်အခါ Noto Sans Myanmar / Thai / Lao / SC ကိုသာ load လုပ်သည် (performance-first lazy loading)。
+
+**ဘာသာသစ်ထည့်ရန်:** `config/unlockhub.php` → `locales` တွင်ထည့်ပြီး `lang/xx.json` ဖန်တီးပါ။
+
 ## 📦 အားလုံးပါ Zip (XAMPP / cPanel)
 
 `vendor/` နဲ့ compile လုပ်ပြီးသား CSS/JS ပါတဲ့ zip ကို GitHub က push တိုင်း အလိုအလျောက် ထုတ်ပေးပါတယ် (`.github/workflows/release.yml`)။
