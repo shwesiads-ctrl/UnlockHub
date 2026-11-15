@@ -66,9 +66,7 @@ class ReconciliationTest extends TestCase
         $u = $this->fundedCustomer();
         $u->forceFill(['balance' => 1])->save();
 
-        $r1 = app(ReconciliationService::class)->run();
-        $after = ['run' => $r1->toArray(), 'issues' => ReconciliationIssue::all()->toArray()];
-        $this->assertSame('', json_encode($after, JSON_PRETTY_PRINT), 'PROBE2');
+        app(ReconciliationService::class)->run();
         app(ReconciliationService::class)->run();
 
         $this->assertSame(1, ReconciliationIssue::where('type', 'balance_mismatch')->count());

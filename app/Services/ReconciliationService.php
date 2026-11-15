@@ -73,15 +73,24 @@ class ReconciliationService
     private function checks(): \Generator
     {
         // 1. users.balance vs SUM(transactions)
-        $ledger = DB::table('wallet_transactions')->selectRaw('user_id, SUM(amount) AS ledger')->groupBy('user_id');
-        $rows = DB::table('users')
-            ->leftJoinSub($ledger, 'l', 'l.user_id', '=', 'users.id')
-            ->whereRaw('ABS(COALESCE(users.balance, 0) - COALESCE(l.ledger, 0)) > ?', [self::EPS])
-            ->limit(self::LIMIT)
-            ->get(['users.id', 'users.balance', DB::raw('COALESCE(l.ledger, 0) AS ledger')]);
-        foreach ($rows as $r) {
-            yield $this->issue('balance_mismatch', "user:{$r->id}", 'high', $r->id, null, (float) $r->ledger, (float) $r->balance,
-                'Balance is '.money($r->balance).' but transactions add up to '.money($r->ledger).'.');
+        // Ledger total per user (one grouped query), then compare each balance in PHP.
+        $ledgers = DB::table('wallet_transactions')
+            ->selectRaw('user_id, SUM(amount) AS ledger')
+            ->groupBy('user_id')
+            ->pluck('ledger', 'user_id');
+
+        $found = 0;
+        foreach (DB::table('users')->select('id', 'balance')->orderBy('id')->cursor() as $u) {
+            $balance = round((float) $u->balance, 2);
+            $ledger = round((float) ($ledgers[$u->id] ?? 0), 2);
+            if (abs($balance - $ledger) <= self::EPS) {
+                continue;
+            }
+            if (++$found > self::LIMIT) {
+                break;
+            }
+            yield $this->issue('balance_mismatch', "user:{$u->id}", 'high', $u->id, null, $ledger, $balance,
+                'Balance is '.money($balance).' but transactions add up to '.money($ledger).'.');
         }
 
         // 2. Running balance: previous balance_after + amount must equal balance_after
