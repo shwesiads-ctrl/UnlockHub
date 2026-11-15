@@ -22,11 +22,13 @@
         <span class="font-display text-[30px] font-bold">{{ money($user->balance) }}</span>
         <a href="{{ route('account.funds.index') }}" class="text-white hover:text-white text-[13px] font-semibold">Add funds →</a>
     </div>
+    @if (\App\Services\PointService::systemOn())
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">Points</span>
         <span class="font-display text-[30px] font-bold text-point">{{ number_format($user->points) }} pts</span>
         <span class="text-[13px] text-muted">= {{ money($pointsValue) }} credit · <a href="{{ route('account.points') }}">Redeem</a></span>
     </div>
+    @endif
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">Orders in process</span>
         <span class="font-display text-[30px] font-bold">{{ $stats['open'] }}</span>

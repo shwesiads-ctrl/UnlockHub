@@ -37,7 +37,9 @@ class PointsController extends Controller
         ];
 
         return view('admin.points.index', [
-            'rules' => PointService::rules(),
+            'rules' => PointService::rawRules(),
+            'effective' => PointService::rules(),
+            'features' => PointService::FEATURES,
             'groups' => UserGroup::orderBy('sort')->get(),
             'transactions' => $transactions,
             'totals' => $totals,
@@ -62,6 +64,11 @@ class PointsController extends Controller
             'thresholds' => ['array'],
             'thresholds.*' => ['nullable', 'integer', 'min:1'],
         ]);
+
+        Setting::put('points.enabled', $request->boolean('enabled') ? '1' : '0');
+        foreach (array_keys(PointService::FEATURES) as $feature) {
+            Setting::put("points.on.{$feature}", $request->boolean("on_{$feature}") ? '1' : '0');
+        }
 
         foreach (['per_ks', 'redeem_rate', 'redeem_min', 'referral_bonus', 'signup_bonus', 'profile_bonus', 'topup_per_ks', 'checkin_points', 'checkin_streak_bonus', 'checkin_streak_max'] as $key) {
             Setting::put('points.'.$key, (string) $data[$key]);

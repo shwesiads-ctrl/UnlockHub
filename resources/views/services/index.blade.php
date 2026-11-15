@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => 'Services & Pricing'])
 
 @section('content')
+@php $pointsOn = \App\Services\PointService::on('order'); @endphp
 <div class="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex flex-col gap-5">
     <div class="flex flex-col gap-1.5">
         <h1 class="m-0 text-[34px] font-bold">{{ __('Services & Reseller Pricing') }}</h1>
@@ -65,7 +66,7 @@
                     <tr>
                         <th>{{ __('Service') }}</th>
                         <th>{{ __('Delivery time') }}</th>
-                        <th>{{ __('Points') }}</th>
+                        @if ($pointsOn) <th>{{ __('Points') }}</th> @endif
                         <th class="text-right">{{ __('Price') }}</th>
                         <th><span class="sr-only">Action</span></th>
                     </tr>
@@ -88,7 +89,7 @@
                                 @endif
                             </td>
                             <td class="text-muted whitespace-nowrap">{{ $service->delivery_time ?: '—' }}</td>
-                            <td class="text-point font-semibold whitespace-nowrap">+{{ $service->pointsFor($p) }}</td>
+                            @if ($pointsOn) <td class="text-point font-semibold whitespace-nowrap">+{{ $service->pointsFor($p) }}</td> @endif
                             <td class="text-right font-display font-bold text-[15px] whitespace-nowrap">{{ price($p) }}</td>
                             <td class="text-right"><a href="{{ route('services.show', $service) }}" class="btn btn-primary h-10">{{ __('Order') }}</a></td>
                         </tr>

@@ -36,8 +36,55 @@ class PointService
         return $points > 0 ? $this->apply($user, -$points, $type, $reference, $description) : null;
     }
 
-    /** Settings with defaults, in one place for views and logic. */
+    /** Parts of the point system that can be switched on/off in Admin › Points. */
+    public const FEATURES = [
+        'order' => 'Points for successful orders',
+        'referral' => 'Referral bonus',
+        'signup' => 'Welcome bonus',
+        'profile' => 'Profile-complete bonus',
+        'topup' => 'Top-up bonus',
+        'checkin' => 'Daily check-in',
+        'redeem' => 'Redeem points to wallet',
+        'upgrade' => 'Group auto-upgrade by points',
+    ];
+
+    /** Master switch for the whole point system. */
+    public static function systemOn(): bool
+    {
+        return setting('points.enabled', '1') === '1';
+    }
+
+    public static function on(string $feature): bool
+    {
+        return self::systemOn() && setting("points.on.{$feature}", '1') === '1';
+    }
+
+    /**
+     * Effective rules: anything switched off counts as 0, so every caller
+     * (orders, check-in, top-ups, views) respects the switches automatically.
+     */
     public static function rules(): array
+    {
+        $r = self::rawRules();
+
+        $off = [
+            'order' => ['per_ks'], 'referral' => ['referral_bonus'], 'signup' => ['signup_bonus'],
+            'profile' => ['profile_bonus'], 'topup' => ['topup_per_ks'], 'checkin' => ['checkin_points'],
+            'redeem' => ['redeem_rate'],
+        ];
+        foreach ($off as $feature => $keys) {
+            if (! self::on($feature)) {
+                foreach ($keys as $k) {
+                    $r[$k] = 0;
+                }
+            }
+        }
+
+        return $r;
+    }
+
+    /** Values as saved (for the admin form). */
+    public static function rawRules(): array
     {
         return [
             'per_ks' => (int) setting('points.per_ks', 1000),
@@ -59,7 +106,7 @@ class PointService
         $rules = self::rules();
 
         if ($rules['redeem_rate'] <= 0) {
-            throw new InvalidArgumentException('Redeeming points is turned off.');
+            throw new InvalidArgumentException('Redeeming points is turned off right now.');
         }
 
         if ($points < $rules['redeem_min']) {
@@ -203,6 +250,10 @@ class PointService
     /** Move the user up to the highest group whose threshold they've reached. Never moves down. */
     public function maybeUpgradeGroup(User $user): void
     {
+        if (! self::on('upgrade')) {
+            return;
+        }
+
         $groups = UserGroup::whereNotNull('min_points_for_auto_upgrade')
             ->where('min_points_for_auto_upgrade', '>', 0)
             ->orderByDesc('min_points_for_auto_upgrade')->get();

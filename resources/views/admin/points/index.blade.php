@@ -49,7 +49,25 @@
     <aside class="flex-[1_1_360px] min-w-0 flex flex-col gap-5">
         <form method="POST" action="{{ route('admin.points.rules') }}" class="card p-5 flex flex-col gap-4">
             @csrf @method('PUT')
-            <h2 class="m-0 text-lg font-bold">Rules</h2>
+            <h2 class="m-0 text-lg font-bold">On / Off</h2>
+            <label class="flex items-center justify-between gap-3 p-3 rounded-xl {{ setting('points.enabled', '1') === '1' ? 'bg-ok-soft' : 'bg-danger-soft' }}">
+                <span class="flex flex-col">
+                    <span class="font-bold">Point system</span>
+                    <span class="text-xs text-muted">Off = no points are given or redeemed anywhere, and points are hidden from users.</span>
+                </span>
+                <input type="checkbox" name="enabled" value="1" class="w-6 h-6 accent-[var(--uh-brand)]" @checked(setting('points.enabled', '1') === '1')>
+            </label>
+            <fieldset class="m-0 p-0 border-0 grid gap-1.5">
+                <legend class="sr-only">Features</legend>
+                @foreach ($features as $key => $label)
+                    <label class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface-2 text-sm">
+                        <span>{{ $label }}</span>
+                        <input type="checkbox" name="on_{{ $key }}" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting("points.on.{$key}", '1') === '1')>
+                    </label>
+                @endforeach
+            </fieldset>
+
+            <h2 class="m-0 text-lg font-bold pt-2">Rules</h2>
             <div>
                 <label for="per_ks" class="label">Earn 1 point per … Ks spent</label>
                 <input id="per_ks" name="per_ks" type="number" min="0" value="{{ old('per_ks', $rules['per_ks']) }}" class="input h-11">

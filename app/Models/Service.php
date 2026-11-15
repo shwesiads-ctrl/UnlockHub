@@ -89,11 +89,15 @@ class Service extends Model
     /** Points earned for one successful order of this service. */
     public function pointsFor(string $price): int
     {
+        if (! \App\Services\PointService::on('order')) {
+            return 0;
+        }
+
         if ($this->points !== null) {
             return $this->points;
         }
 
-        $perKs = (int) setting('points.per_ks', 1000); // 1 point per X Ks
+        $perKs = \App\Services\PointService::rules()['per_ks']; // 1 point per X Ks
 
         return $perKs > 0 ? intdiv((int) $price, $perKs) : 0;
     }

@@ -36,7 +36,9 @@
                 <x-notification-bell />
                 @auth
                     <a href="{{ route('account.dashboard') }}" class="btn bg-ok-soft text-ok border-transparent font-bold hover:text-ok"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</a>
-                    <a href="{{ route('account.dashboard') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
+                    @if (\App\Services\PointService::systemOn())
+                        <a href="{{ route('account.points') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
+                    @endif
                     <a href="{{ route('account.profile') }}" class="no-underline" aria-label="My profile"><x-avatar :user="auth()->user()" :size="44" /></a>
                 @else
                     <a href="{{ route('login') }}" class="btn">{{ __('Login') }}</a>

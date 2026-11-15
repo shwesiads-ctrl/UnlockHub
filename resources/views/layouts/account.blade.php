@@ -25,6 +25,7 @@
         @endphp
         <nav aria-label="Account" class="flex flex-col gap-0.5">
             @foreach ($nav as [$label, $icon, $route])
+                @continue($route === 'account.points' && ! \App\Services\PointService::systemOn())
                 <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs($route)])>
                     <x-icon :name="$icon" /><span>{{ __($label) }}</span>
                 </a>
@@ -47,7 +48,9 @@
             </div>
             <div class="ml-auto flex items-center gap-2 flex-wrap">
                 <span class="btn bg-ok-soft text-ok border-transparent font-bold"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</span>
-                <span class="btn bg-point-soft text-point border-transparent font-bold"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</span>
+                @if (\App\Services\PointService::systemOn())
+                    <a href="{{ route('account.points') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
+                @endif
                 <x-notification-bell />
                 <x-theme-toggle />
                 <a href="{{ route('account.profile') }}" aria-label="My profile" class="no-underline"><x-avatar :user="auth()->user()" :size="44" /></a>

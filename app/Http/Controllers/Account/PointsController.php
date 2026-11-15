@@ -30,6 +30,8 @@ class PointsController extends Controller
 
     public function index(Request $request): View
     {
+        abort_unless(PointService::systemOn(), 404);
+
         $user = $request->user()->load('group');
         $rules = PointService::rules();
 
@@ -76,6 +78,8 @@ class PointsController extends Controller
 
     public function redeem(Request $request): RedirectResponse
     {
+        abort_unless(PointService::on('redeem'), 403, 'Redeeming points is turned off.');
+
         $user = $request->user();
         $rules = PointService::rules();
 

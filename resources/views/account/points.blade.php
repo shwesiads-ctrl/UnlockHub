@@ -92,6 +92,8 @@
                 </div>
                 <div class="flex justify-between text-sm p-3 rounded-[10px] bg-point-soft text-point font-semibold"><span>You get</span><span data-redeem-value>{{ money(old('points', $user->points) * $rules['redeem_rate']) }}</span></div>
                 <button class="btn btn-primary">Convert to wallet credit</button>
+            @elseif ($rules['redeem_rate'] <= 0)
+                <div class="rounded-[10px] px-3 py-2.5 bg-surface-2 text-sm text-muted">Redeeming points is turned off right now. Your points are kept.</div>
             @else
                 <div class="rounded-[10px] px-3 py-2.5 bg-surface-2 text-sm text-muted">
                     You need {{ number_format(max(0, $rules['redeem_min'] - $user->points)) }} more points to redeem.
