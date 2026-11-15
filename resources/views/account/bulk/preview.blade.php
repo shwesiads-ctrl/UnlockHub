@@ -50,7 +50,21 @@
             <a href="{{ route('account.bulk.errors', [$service, $token]) }}" class="btn h-8 text-xs">{{ __('Download problem rows') }}</a>
         @endif
     </div>
-    <div class="table-wrap max-h-[60vh] overflow-y-auto">
+    <ol class="sm:hidden m-0 p-0 list-none flex flex-col divide-y divide-line max-h-[65vh] overflow-y-auto" data-rows>
+        @foreach ($preview['rows'] as $r)
+            <li class="px-4 py-3 flex flex-col gap-1" data-status="{{ $r['status'] }}">
+                <div class="flex justify-between items-center gap-2">
+                    <span class="text-xs text-muted">{{ __('Line') }} {{ $r['line'] }}</span>
+                    <span @class(['badge', 'badge-success' => $r['status'] === 'valid', 'badge-rejected' => $r['status'] === 'invalid', 'badge-pending' => $r['status'] === 'duplicate'])>{{ __(ucfirst($r['status'])) }}</span>
+                </div>
+                @foreach ($service->fields as $f)
+                    @if ($r['input'][$f->name] !== '') <div class="text-[13px]"><span class="text-muted">{{ $f->label }}:</span> <span class="font-mono break-all">{{ $r['input'][$f->name] }}</span></div> @endif
+                @endforeach
+                @if ($r['reason']) <div class="text-xs text-danger">{{ $r['reason'] }}</div> @endif
+            </li>
+        @endforeach
+    </ol>
+    <div class="hidden sm:block table-wrap max-h-[60vh] overflow-y-auto">
         <table class="table min-w-[560px]" data-rows>
             <thead class="sticky top-0 bg-surface"><tr><th>{{ __('Line') }}</th>@foreach ($service->fields as $f)<th>{{ $f->label }}</th>@endforeach<th>{{ __('Check') }}</th></tr></thead>
             <tbody>

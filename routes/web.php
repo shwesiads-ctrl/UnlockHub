@@ -78,7 +78,13 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 Route::delete('/account/social/{provider}', [SocialAuthController::class, 'unlink'])->middleware(['auth', 'active'])->name('social.unlink');
 
 /* ---------------- Signed-in user ---------------- */
-Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->group(function () {
+Route::get('/manifest.webmanifest', [\App\Http\Controllers\PwaController::class, 'manifest'])->name('pwa.manifest');
+
+Route::middleware(['auth', 'active', 'nostore'])->prefix('account')->name('account.')->group(function () {
+    Route::post('/push', [\App\Http\Controllers\PwaController::class, 'subscribe'])->name('push.subscribe')->middleware('throttle:20,1');
+    Route::delete('/push', [\App\Http\Controllers\PwaController::class, 'unsubscribe'])->name('push.unsubscribe');
+    Route::get('/push/latest', [\App\Http\Controllers\PwaController::class, 'latest'])->name('push.latest')->middleware('throttle:60,1');
+
     Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
@@ -145,7 +151,7 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
 });
 
 /* ---------------- Admin ---------------- */
-Route::middleware(['auth', 'active', 'admin', 'staff'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', Admin\DashboardController::class)->name('dashboard');
 
     Route::get('/tickets', [Admin\TicketController::class, 'index'])->name('tickets.index');
@@ -244,6 +250,8 @@ Route::middleware(['auth', 'active', 'admin', 'staff'])->prefix('admin')->name('
 
     Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
+    Route::put('/settings/pwa', [Admin\SettingsController::class, 'updatePwa'])->name('settings.pwa');
+    Route::post('/settings/push-keys', [Admin\SettingsController::class, 'pushKeys'])->name('settings.push-keys');
     Route::put('/settings/statements', [Admin\SettingsController::class, 'updateStatements'])->name('settings.statements');
     Route::put('/settings/social', [Admin\SettingsController::class, 'updateSocial'])->name('settings.social');
     Route::put('/settings/telegram',[Admin\SettingsController::class, 'updateTelegram'])->name('settings.telegram');

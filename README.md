@@ -201,6 +201,16 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## ဖုန်း / PWA
+
+- **App အဖြစ် ထည့်လို့ရ** — Android: Browser menu › *Install app* (Dashboard/Notifications မှာ **Install app** ခလုတ်ပေါ်)၊ iPhone: Share › *Add to Home Screen*
+- **Admin › Settings › Mobile app (PWA)** — Icon (PNG/JPG တင်ရင် 192/512/maskable/Apple icon အလိုအလျောက်ထုတ်), အမည်, Theme colour, Push ဖွင့်/ပိတ်, Push keys ဖန်တီး
+- Service worker (`public/sw.js`) က **static file (CSS/JS/icon) ပဲ cache** လုပ်တယ်။ Page, Wallet, Receipt, API key, ကိုယ်ရေးအချက်အလက် ဘာမှ offline cache ထဲ မသိမ်း (Account/Admin page တွေ `Cache-Control: no-store`)
+- Internet မရှိရင် Offline စာမျက်နှာ + အနီရောင် banner၊ Form ပို့လို့မရ ("nothing was sent and nothing was charged") — offline order ကို ငွေနုတ်ပြီးလို့ ဘယ်တော့မှ မပြ
+- Version အသစ်ထွက်ရင် "A new version is available — Update" ပြ
+- **Push notification** — Account › Notifications › *Phone notifications › Turn on* (ခွင့်ပြုချက် တောင်း)။ Push ထဲမှာ data မပါ (phone က site ကို login နဲ့ နောက်ဆုံး notification ကို မေးတယ်)။ HTTPS လိုတယ် (localhost မှာ စမ်းလို့ရ)။ iPhone က Home Screen app ကနေမှ ရ
+- ဖုန်းမှာ Account/Admin menu ကို ☰ နဲ့ ဖွင့်၊ Account အောက်ခြေမှာ Home / Order / Orders / Funds / Support bar၊ Public menu ☰၊ Input 16px (iPhone zoom မဖြစ်)၊ Bulk preview က card list
+
 ## Service အမှန်တကယ်ကြာချိန်
 
 - နာရီတိုင်း (`services:delivery-stats`) Success order တွေရဲ့ **တင်ချိန် → ပြီးချိန်** ကို Service အလိုက်၊ Supplier အလိုက်၊ နောက်ဆုံး ၇ ရက် / ၃၀ ရက် တွက်တယ်: order အရေအတွက်, ပျမ်းမျှ, အလယ်တန်ဖိုး (median), အများစုကြာချိန် (25–75%), 90% ပြီးချိန်, နောက်ဆုံးတွက်ချိန်

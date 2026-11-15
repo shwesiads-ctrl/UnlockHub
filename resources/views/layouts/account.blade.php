@@ -4,8 +4,9 @@
     @include('partials.head')
 </head>
 <body class="min-h-screen">
-<div class="flex flex-wrap min-h-screen">
-    <aside class="flex-[1_1_240px] max-w-full bg-surface border-r border-line px-4 py-5 flex flex-col gap-1">
+<div class="flex flex-wrap lg:flex-nowrap min-h-screen">
+    <div class="nav-backdrop" aria-hidden="true"></div>
+    <aside id="side-nav" class="side-nav flex-[1_1_240px] lg:flex-[0_0_260px] max-w-full bg-surface border-r border-line px-4 py-5 flex flex-col gap-1">
         <a href="{{ route('home') }}" class="flex items-center gap-2.5 no-underline text-ink px-2 pb-5">
             <x-site-logo />
         </a>
@@ -43,7 +44,8 @@
     </aside>
 
     <div class="flex-[999_1_560px] min-w-0 flex flex-col">
-        <header class="bg-surface border-b border-line px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3">
+        <header class="bg-surface border-b border-line px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3 sticky top-0 z-30">
+            <button type="button" class="btn btn-icon lg:hidden" data-nav-toggle aria-controls="side-nav" aria-label="{{ __('Menu') }}"><x-icon name="menu" /></button>
             <div class="flex flex-col">
                 <span class="font-display text-[22px] font-bold">{{ __($title ?? 'Account') }}</span>
                 <span class="text-[13px] text-muted">{{ __('Group') }}: {{ auth()->user()->group?->name ?? '—' }}</span>
@@ -59,12 +61,17 @@
             </div>
         </header>
 
-        <main class="px-4 sm:px-8 py-7 flex flex-col gap-5">
+        <main class="px-4 sm:px-8 py-7 pb-28 lg:pb-7 flex flex-col gap-5">
             @if (session('success')) <div class="badge-success rounded-xl px-4 py-3 text-sm font-medium" role="status">{{ session('success') }}</div> @endif
             @if (session('error')) <div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium" role="alert">{{ session('error') }}</div> @endif
             @yield('content')
         </main>
     </div>
 </div>
+<nav class="bottom-bar lg:hidden fixed bottom-0 inset-x-0 z-30 bg-surface border-t border-line grid grid-cols-5" aria-label="{{ __('Quick menu') }}">
+    @foreach ([['Home', 'grid', 'account.dashboard'], ['Order', 'phone', 'services.index'], ['Orders', 'list', 'account.orders.index'], ['Funds', 'wallet', 'account.funds.index'], ['Support', 'bell', 'account.tickets.index']] as [$l, $i, $r])
+        <a href="{{ route($r) }}" @class(['active' => request()->routeIs($r) || ($r === 'account.orders.index' && request()->routeIs('account.orders.*')) || ($r === 'account.tickets.index' && request()->routeIs('account.tickets.*'))])><x-icon :name="$i" size="20" />{{ __($l) }}</a>
+    @endforeach
+</nav>
 </body>
 </html>

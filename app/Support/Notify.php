@@ -24,6 +24,11 @@ class Notify
         DB::afterCommit(function () use ($user, $notification) {
             try {
                 $user->notify($notification);
+
+                // Phone / browser push (if this user turned it on)
+                if (\App\Services\WebPush::enabled() && \App\Models\PushSubscription::where('user_id', $user->id)->exists()) {
+                    \App\Jobs\SendWebPush::dispatch($user->id);
+                }
             } catch (Throwable $e) {
                 report($e);
             }

@@ -20,7 +20,8 @@
                 <x-site-logo />
             </a>
 
-            <nav aria-label="Main" class="flex flex-wrap gap-1 sm:ml-3">
+            <button type="button" class="btn btn-icon md:hidden order-2" data-toggle-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="{{ __('Menu') }}"><x-icon name="menu" /></button>
+            <nav id="main-nav" aria-label="Main" class="hidden md:flex order-3 md:order-none basis-full md:basis-auto flex-col md:flex-row md:flex-wrap gap-1 md:ml-3">
                 <a href="{{ route('home') }}" @class(['nav-link', 'active' => request()->routeIs('home')])>{{ __('Home') }}</a>
                 <a href="{{ route('services.index') }}" @class(['nav-link', 'active' => request()->routeIs('services.*')])>{{ __('Services & Pricing') }}</a>
                 <a href="{{ route('track') }}" @class(['nav-link', 'active' => request()->routeIs('track')])>{{ __('Track Order') }}</a>
@@ -29,7 +30,7 @@
                 <a href="{{ route('contact') }}" @class(['nav-link', 'active' => request()->routeIs('contact')])>{{ __('Contact') }}</a>
             </nav>
 
-            <div class="ml-auto flex flex-wrap items-center gap-2">
+            <div class="ml-auto order-1 md:order-none flex flex-wrap items-center gap-2">
                 @php $other = app()->getLocale() === 'my' ? 'en' : 'my'; @endphp
                 <a href="{{ route('locale', $other) }}" class="btn text-[13px]" lang="{{ $other }}" aria-label="{{ $other === 'my' ? 'Switch to Myanmar' : 'Switch to English' }}">{{ $other === 'my' ? 'မြန်မာ' : 'English' }}</a>
                 <x-theme-toggle />

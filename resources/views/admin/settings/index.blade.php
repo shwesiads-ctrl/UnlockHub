@@ -8,6 +8,7 @@
     <a href="#social-login">Social login</a>
     <a href="#telegram-alerts">Telegram alerts</a>
     <a href="#monthly-statements">Monthly statements</a>
+    <a href="#mobile-app">Mobile app (PWA)</a>
 </nav>
 <div class="settings-content">
 <form id="site-settings" method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
@@ -181,6 +182,34 @@
                 <li>Paste both here, Save, then <strong class="text-ink">Send test message</strong>.</li>
             </ol>
         </section>
+        <form id="mobile-app" method="POST" action="{{ route('admin.settings.pwa') }}" enctype="multipart/form-data" class="card p-5 flex flex-col gap-3 text-sm">
+            @csrf @method('PUT')
+            <h2 class="m-0 text-lg font-bold">Mobile app (PWA)</h2>
+            <p class="m-0 text-muted">Customers can add the site to their home screen (Android: browser menu › Install app; iPhone: Share › Add to Home Screen).</p>
+            <div class="flex items-center gap-3">
+                <img src="{{ setting('pwa.icon_version') ? Storage::disk('public')->url('pwa/icon-192.png').'?v='.setting('pwa.icon_version') : asset('icons/icon-192.png') }}" alt="App icon" class="w-14 h-14 rounded-xl">
+                <div class="flex-1"><label for="pwa_icon" class="label text-xs">App icon (PNG/JPG, square, 512×512 best)</label><input id="pwa_icon" name="icon" type="file" accept="image/png,image/jpeg" class="input py-2"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div><label for="pwa_short" class="label text-xs">Name under the icon (max 20)</label><input id="pwa_short" name="short_name" maxlength="20" value="{{ setting('pwa.short_name') }}" class="input h-10" placeholder="{{ \Illuminate\Support\Str::limit(setting('site.name', config('app.name')), 12, '') }}"></div>
+                <div><label for="pwa_color" class="label text-xs">Theme colour</label><input id="pwa_color" name="theme_color" type="color" value="{{ setting('pwa.theme_color', '#2459E8') }}" class="input h-10 p-1"></div>
+            </div>
+            <div class="rounded-[10px] bg-surface-2 p-3 flex flex-col gap-2">
+                <span class="font-semibold">Push notifications</span>
+                @if (\App\Services\WebPush::publicKey())
+                    <label class="flex items-center gap-2"><input type="checkbox" name="push_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('push.enabled') === '1')>On — {{ \App\Models\PushSubscription::count() }} device(s) subscribed</label>
+                @else
+                    <span class="text-muted">Not set up yet. Create keys below (needs HTTPS on the live site).</span>
+                @endif
+                <span class="text-xs text-muted">Pushes carry no personal data: the phone asks the site for the latest notification.</span>
+            </div>
+            <button class="btn btn-primary self-start">Save app settings</button>
+        </form>
+        <form method="POST" action="{{ route('admin.settings.push-keys') }}" class="card p-5 flex flex-wrap gap-3 items-center text-sm" onsubmit="return confirm('{{ \App\Services\WebPush::publicKey() ? 'New keys sign everyone out of push; they must enable it again. Continue?' : 'Create push keys?' }}')">
+            @csrf
+            <span class="flex-1">{{ \App\Services\WebPush::publicKey() ? 'Push keys exist.' : 'Create the VAPID keys used to send push notifications.' }}</span>
+            <button class="btn">{{ \App\Services\WebPush::publicKey() ? 'Replace push keys' : 'Create push keys' }}</button>
+        </form>
         <form id="monthly-statements" method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Monthly statements</h2>

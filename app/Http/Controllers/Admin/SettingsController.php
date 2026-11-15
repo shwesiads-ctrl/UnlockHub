@@ -112,6 +112,74 @@ class SettingsController extends Controller
         return back()->with('success', 'Social login settings saved.');
     }
 
+    /** App (PWA): name on the home screen, colour, icon, push notifications. */
+    public function updatePwa(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'short_name' => ['nullable', 'string', 'max:20'],
+            'theme_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'icon' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:2048', 'dimensions:min_width=192,min_height=192'],
+            'push_enabled' => ['boolean'],
+        ]);
+
+        Setting::put('pwa.short_name', $data['short_name'] ?? '');
+        Setting::put('pwa.theme_color', $data['theme_color']);
+        Setting::put('push.enabled', $request->boolean('push_enabled') && \App\Services\WebPush::publicKey() ? '1' : '0');
+
+        if ($request->hasFile('icon')) {
+            try {
+                $this->makeIcons($request->file('icon')->getRealPath(), $data['theme_color']);
+                Setting::put('pwa.icon_version', (string) time());
+            } catch (\Throwable $e) {
+                report($e);
+
+                return back()->with('error', 'Could not read that image (PNG or JPG, at least 192×192). The PHP GD extension is needed.');
+            }
+        }
+
+        ActivityLog::record('settings.pwa', null, ['push' => $request->boolean('push_enabled'), 'icon' => $request->hasFile('icon')]);
+
+        return back()->with('success', 'App settings saved.');
+    }
+
+    public function pushKeys(): RedirectResponse
+    {
+        \App\Services\WebPush::generateKeys();
+        Setting::put('push.enabled', '1');
+        ActivityLog::record('settings.push_keys');
+
+        return back()->with('success', 'Push keys created and push turned on. Customers can now enable notifications on their phones.');
+    }
+
+    /** 192, 512, maskable 512 (logo on brand colour with safe padding) and the 180px Apple icon. */
+    private function makeIcons(string $path, string $hex): void
+    {
+        $src = imagecreatefromstring((string) file_get_contents($path));
+        if (! $src) {
+            throw new \RuntimeException('Not an image');
+        }
+        [$r, $g, $b] = sscanf($hex, '#%02x%02x%02x');
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+        foreach (['icon-192.png' => [192, 0, false], 'icon-512.png' => [512, 0, false], 'maskable-512.png' => [512, 0.2, true], 'apple-touch-icon.png' => [180, 0.08, true]] as $file => [$size, $pad, $bg]) {
+            $dst = imagecreatetruecolor($size, $size);
+            imagesavealpha($dst, true);
+            imagefill($dst, 0, 0, $bg ? imagecolorallocate($dst, $r, $g, $b) : imagecolorallocatealpha($dst, 0, 0, 0, 127));
+            $inner = (int) round($size * (1 - 2 * $pad));
+            $w = imagesx($src);
+            $h = imagesy($src);
+            $scale = min($inner / $w, $inner / $h);
+            $nw = (int) round($w * $scale);
+            $nh = (int) round($h * $scale);
+            imagecopyresampled($dst, $src, (int) (($size - $nw) / 2), (int) (($size - $nh) / 2), 0, 0, $nw, $nh, $w, $h);
+            ob_start();
+            imagepng($dst);
+            $disk->put('pwa/'.$file, (string) ob_get_clean());
+            imagedestroy($dst);
+        }
+        imagedestroy($src);
+    }
+
     public function updateStatements(Request $request): RedirectResponse
     {
         Setting::put('statements.monthly', $request->boolean('monthly') ? '1' : '0');

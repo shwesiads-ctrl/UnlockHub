@@ -1,6 +1,18 @@
 @extends('layouts.account', ['title' => 'Notifications'])
 
 @section('content')
+<section class="card p-5 flex flex-wrap gap-3 items-center" data-push-panel hidden>
+    <div class="flex-1 min-w-56">
+        <h2 class="m-0 text-base font-bold">{{ __('Phone notifications') }}</h2>
+        <p class="m-0 text-sm text-muted" data-push-status>…</p>
+    </div>
+    <button type="button" class="btn btn-primary" data-push-on hidden>{{ __('Turn on') }}</button>
+    <button type="button" class="btn" data-push-off hidden>{{ __('Turn off') }}</button>
+</section>
+<section class="card p-4 flex flex-wrap gap-3 items-center" data-install-app hidden>
+    <span class="flex-1 text-sm">{{ __('Install the app on this device for one-tap access.') }}</span>
+    <button type="button" class="btn btn-primary" data-install-app>{{ __('Install app') }}</button>
+</section>
 <div class="flex flex-wrap gap-2 items-center">
     <p class="m-0 text-sm text-muted flex-1">Order results, top-up decisions and points. Email copies can be turned off in <a href="{{ route('account.security') }}">Settings</a>.</p>
     @if (auth()->user()->unreadNotifications()->exists())

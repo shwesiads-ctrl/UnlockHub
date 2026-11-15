@@ -4,8 +4,9 @@
     @include('partials.head')
 </head>
 <body class="min-h-screen">
-<div class="flex flex-wrap min-h-screen">
-    <aside class="flex-[1_1_240px] max-w-full bg-surface border-r border-line px-4 py-5 flex flex-col gap-1">
+<div class="flex flex-wrap lg:flex-nowrap min-h-screen">
+    <div class="nav-backdrop" aria-hidden="true"></div>
+    <aside id="side-nav" class="side-nav flex-[1_1_240px] lg:flex-[0_0_260px] max-w-full bg-surface border-r border-line px-4 py-5 flex flex-col gap-1">
         <div class="flex items-center gap-2.5 px-2 pb-5">
             <span class="flex flex-col gap-0.5">
                 <x-site-logo />
@@ -57,7 +58,8 @@
     </aside>
 
     <div class="flex-[999_1_560px] min-w-0 flex flex-col">
-        <header class="bg-surface border-b border-line px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3">
+        <header class="bg-surface border-b border-line px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3 sticky top-0 z-30">
+            <button type="button" class="btn btn-icon lg:hidden" data-nav-toggle aria-controls="side-nav" aria-label="{{ __('Menu') }}"><x-icon name="menu" /></button>
             <div class="flex flex-col">
                 <h1 class="m-0 text-2xl font-bold">{{ $title ?? 'Admin' }}</h1>
                 @isset($subtitle) <span class="text-[13px] text-muted">{{ $subtitle }}</span> @endisset

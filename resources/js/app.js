@@ -2,6 +2,7 @@ import './theme';
 import './admin';
 import './popup';
 import './popup-editor';
+import './pwa';
 import './receipt-preview';
 
 // Quick-fill buttons: <button data-fill="#input" data-value="10000">
@@ -108,7 +109,7 @@ document.addEventListener('click', (e) => {
   if (!btn) return;
   const status = btn.dataset.rowFilter;
   btn.parentElement.querySelectorAll('[data-row-filter]').forEach((b) => b.classList.toggle('btn-primary', b === btn));
-  document.querySelectorAll('[data-rows] tbody tr').forEach((tr) => {
+  document.querySelectorAll('[data-rows] [data-status]').forEach((tr) => {
     tr.hidden = status !== 'all' && tr.dataset.status !== status;
   });
 });

@@ -40,6 +40,11 @@
     </div>
 </div>
 
+<section class="card p-4 flex flex-wrap gap-3 items-center" data-install-app hidden>
+    <span class="flex-1 text-sm">📱 {{ __('Add') }} {{ setting('site.name', config('app.name')) }} {{ __('to your home screen — faster ordering and order alerts.') }}</span>
+    <button type="button" class="btn btn-primary h-10" data-install-app>{{ __('Install app') }}</button>
+</section>
+
 <section class="card p-5 flex flex-col gap-3">
     <div class="flex justify-between items-center gap-3">
         <h2 class="m-0 text-lg font-bold">★ {{ __('Favourite services') }}</h2>
