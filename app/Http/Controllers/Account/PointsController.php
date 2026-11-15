@@ -55,6 +55,7 @@ class PointsController extends Controller
             'rules' => $rules,
             'history' => $history,
             'referrals' => $referrals,
+            'referralsWithOrders' => $user->referrals()->whereHas('orders', fn ($q) => $q->where('status', Order::SUCCESS))->count(),
             'lifetime' => $lifetime,
             'nextGroup' => $nextGroup,
             'types' => self::TYPES,

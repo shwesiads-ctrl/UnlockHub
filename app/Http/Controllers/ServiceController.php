@@ -20,28 +20,23 @@ class ServiceController extends Controller
 
         $allCategories = ServiceCategory::active()->where('type', $type)->orderBy('sort')->orderBy('name')->get();
 
-        $categories = ServiceCategory::active()
-            ->where('type', $type)
-            ->when($categoryId, fn ($q) => $q->whereKey($categoryId))
-            ->orderBy('sort')->orderBy('name')
-            ->with(['services' => function ($q) use ($hotOnly, $search, $groupId) {
-                $q->visible()
-                    ->when($hotOnly, fn ($s) => $s->where('is_hot', true))
-                    ->when($search !== '', fn ($s) => $s->where('name', 'like', '%'.$search.'%'))
-                    ->with([
-                        'prices' => fn ($p) => $p->where('user_group_id', $groupId ?? 0),
-                        'fields:id,service_id,label,sort',
-                    ]);
-            }])
-            ->get()
-            ->filter(fn ($c) => $c->services->isNotEmpty());
-
-        $servicePage = \App\Support\ListPage::from($categories->flatMap->services, 25);
-        $visibleIds = $servicePage->getCollection()->pluck('id');
-        $categories = $categories->map(function ($category) use ($visibleIds) {
-            $category->setRelation('services', $category->services->whereIn('id', $visibleIds));
-            return $category;
-        })->filter(fn ($category) => $category->services->isNotEmpty());
+        $servicePage = Service::visible()
+            ->whereHas('category', fn ($q) => $q->active()->where('type', $type)
+                ->when($categoryId, fn ($q) => $q->whereKey($categoryId)))
+            ->when($hotOnly, fn ($q) => $q->where('is_hot', true))
+            ->when($search !== '', fn ($q) => $q->where('name', 'like', '%'.$search.'%'))
+            ->with([
+                'category',
+                'prices' => fn ($q) => $q->where('user_group_id', $groupId ?? 0),
+                'fields:id,service_id,label,sort',
+            ])
+            ->orderBy(ServiceCategory::select('sort')->whereColumn('service_categories.id', 'services.service_category_id'))
+            ->orderBy(ServiceCategory::select('name')->whereColumn('service_categories.id', 'services.service_category_id'))
+            ->orderBy('service_category_id')->orderBy('sort')->orderBy('name')->orderBy('id')
+            ->paginate(25)->withQueryString();
+        $categories = $servicePage->getCollection()->groupBy('service_category_id')->map(function ($services) {
+            return (clone $services->first()->category)->setRelation('services', $services);
+        });
 
         // A search with no hits in this tab: tell the user which tabs have matches
         $otherTabHits = [];

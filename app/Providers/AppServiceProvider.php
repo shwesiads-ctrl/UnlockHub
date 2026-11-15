@@ -72,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('adminBadges', rescue(fn () => [
                 'manual' => Order::manualQueue()->count(),
                 'payments' => PaymentRequest::where('status', PaymentRequest::PENDING)->count(),
+                'support' => \App\Models\SupportTicket::where('status', 'open')->count(),
                 'approvals' => \App\Models\WalletAdjustment::where('status', 'pending')->count(),
                 'pricing' => \App\Models\PriceChangeRequest::where('status', 'pending')->count() + \App\Models\Service::where('sales_paused', true)->count(),
                 'resellers' => \App\Models\ResellerProfile::where('status', 'pending')->count(),

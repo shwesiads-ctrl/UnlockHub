@@ -28,6 +28,7 @@
                 ['Users', 'users', 'admin.users.index', null, ['admin.users.*']],
                 ['Resellers', 'users', 'admin.resellers.index', 'resellers', ['admin.resellers.*']],
                 ['Withdrawals', 'wallet', 'admin.withdrawals.index', 'withdrawals', ['admin.withdrawals.*']],
+                ['Live Chat', 'users', 'admin.support.index', 'support', ['admin.support.*']],
                 ['Groups & Pricing', 'sliders', 'admin.groups.index', null, ['admin.groups.*']],
                 ['Profit guard', 'chart', 'admin.pricing.index', 'pricing', ['admin.pricing.*']],
                 ['Points', 'star', 'admin.points.index', null, ['admin.points.*']],

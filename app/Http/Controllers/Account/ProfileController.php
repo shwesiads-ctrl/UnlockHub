@@ -89,11 +89,7 @@ class ProfileController extends Controller
         $request->validate(['avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:min_width=64,min_height=64']]);
 
         $user = $request->user();
-        if ($user->avatar_path) {
-            Storage::disk('public')->delete($user->avatar_path);
-        }
-
-        $user->forceFill(['avatar_path' => $request->file('avatar')->store('avatars', 'public')])->save();
+        $this->replacePhoto($request, 'avatar', 'avatar_path', 'avatars');
 
         $msg = 'Photo updated.';
         if ($awarded = $this->points->maybeAwardProfileBonus($user)) {
@@ -107,10 +103,49 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         if ($user->avatar_path) {
-            Storage::disk('public')->delete($user->avatar_path);
+            $old = $user->avatar_path;
             $user->forceFill(['avatar_path' => null])->save();
+            Storage::disk('public')->delete($old);
         }
 
         return back()->with('success', 'Photo removed.');
+    }
+
+    private function replacePhoto(Request $request, string $input, string $column, string $directory): void
+    {
+        $user = $request->user();
+        $old = $user->$column;
+        $path = $request->file($input)->store($directory, 'public');
+        try {
+            $user->forceFill([$column => $path])->save();
+        } catch (\Throwable $e) {
+            Storage::disk('public')->delete($path);
+            throw $e;
+        }
+        if ($old) Storage::disk('public')->delete($old);
+    }
+
+    public function cover(Request $request): RedirectResponse
+    {
+        $request->validate(['cover' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=600,min_height=180,max_width=6000,max_height=4000']]);
+        $this->replacePhoto($request, 'cover', 'cover_path', 'covers');
+        return back()->with('success', 'Cover photo updated.');
+    }
+
+    public function removeCover(Request $request): RedirectResponse
+    {
+        $old = $request->user()->cover_path;
+        $request->user()->forceFill(['cover_path' => null])->save();
+        if ($old) Storage::disk('public')->delete($old);
+        return back()->with('success', 'Cover photo removed.');
+    }
+
+    public function verify(Request $request, \App\Models\User $user): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+        $data = $request->validate(['is_verified' => ['required', 'boolean']]);
+        $user->forceFill(['is_verified' => (bool) $data['is_verified']])->save();
+        \App\Models\ActivityLog::record('user.verification_updated', $user, ['verified' => $user->is_verified]);
+        return back()->with('success', 'Verification badge updated.');
     }
 }

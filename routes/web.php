@@ -110,6 +110,14 @@ Route::middleware(['auth', 'active', 'nostore'])->prefix('account')->name('accou
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/avatar', [ProfileController::class, 'avatar'])->name('profile.avatar')->middleware('throttle:10,1');
     Route::delete('/profile/avatar', [ProfileController::class, 'removeAvatar'])->name('profile.avatar.remove');
+    Route::post('/profile/cover', [ProfileController::class, 'cover'])->name('profile.cover')->middleware('throttle:10,1');
+    Route::delete('/profile/cover', [ProfileController::class, 'removeCover'])->name('profile.cover.remove');
+    Route::get('/support', [\App\Http\Controllers\SupportController::class, 'index'])->name('support.index');
+    Route::post('/support', [\App\Http\Controllers\SupportController::class, 'store'])->name('support.store')->middleware('throttle:5,1');
+    Route::get('/support/{ticket}', [\App\Http\Controllers\SupportController::class, 'show'])->name('support.show');
+    Route::get('/support/{ticket}/attachments/{message}', [\App\Http\Controllers\SupportController::class, 'attachment'])->name('support.attachment');
+    Route::get('/support/{ticket}/messages', [\App\Http\Controllers\SupportController::class, 'messages'])->name('support.messages')->middleware('throttle:30,1');
+    Route::post('/support/{ticket}/messages', [\App\Http\Controllers\SupportController::class, 'reply'])->name('support.reply')->middleware('throttle:20,1');
 
     Route::get('/funds', [FundsController::class, 'index'])->name('funds.index');
     Route::post('/funds', [FundsController::class, 'store'])->name('funds.store')->middleware('throttle:10,1');
@@ -221,6 +229,13 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     Route::post('/wallet-approvals/{adjustment}/reject', [Admin\WalletApprovalController::class, 'reject'])->name('wallet-approvals.reject');
 
     Route::get('/users', [Admin\UserController::class, 'index'])->name('users.index');
+    Route::put('/users/{user}/verification', [ProfileController::class, 'verify'])->name('users.verification');
+    Route::get('/support', [\App\Http\Controllers\SupportController::class, 'index'])->name('support.index');
+    Route::get('/support/{ticket}', [\App\Http\Controllers\SupportController::class, 'show'])->name('support.show');
+    Route::get('/support/{ticket}/attachments/{message}', [\App\Http\Controllers\SupportController::class, 'attachment'])->name('support.attachment');
+    Route::get('/support/{ticket}/messages', [\App\Http\Controllers\SupportController::class, 'messages'])->name('support.messages')->middleware('throttle:30,1');
+    Route::post('/support/{ticket}/messages', [\App\Http\Controllers\SupportController::class, 'reply'])->name('support.reply')->middleware('throttle:20,1');
+    Route::put('/support/{ticket}/status', [\App\Http\Controllers\SupportController::class, 'status'])->name('support.status');
     Route::get('/users/{user}', [Admin\UserController::class, 'show'])->name('users.show');
     Route::put('/users/{user}', [Admin\UserController::class, 'update'])->name('users.update');
     Route::post('/users/{user}/wallet', [Admin\UserController::class, 'wallet'])->name('users.wallet');

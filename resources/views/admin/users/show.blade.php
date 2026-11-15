@@ -109,6 +109,15 @@
             <button class="btn btn-primary">Save</button>
         </form>
 
+@if (auth()->user()->canDo('users.update'))
+        <form method="POST" action="{{ route('admin.users.verification', $user) }}" class="card p-5 flex flex-col gap-3">
+            @csrf @method('PUT')
+            <h2 class="m-0 text-lg font-bold">Verified account</h2>
+            <p class="m-0 text-sm text-muted">Blue mark indicates this account has been reviewed by an administrator.</p>
+            <label class="flex items-center gap-2"><input type="hidden" name="is_verified" value="0"><input type="checkbox" name="is_verified" value="1" @checked($user->is_verified)>Show blue verification mark</label>
+            <button class="btn btn-primary">Save verification</button>
+        </form>
+        @endif
         @if (auth()->user()->canDo('wallet.adjust'))
         <form method="POST" action="{{ route('admin.users.wallet', $user) }}" class="card p-5 flex flex-col gap-3.5">
             @csrf

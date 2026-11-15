@@ -1,10 +1,19 @@
 @extends('layouts.account', ['title' => 'My Profile'])
 
 @section('content')
+<div class="user-profile-page">
 {{-- Header card --}}
 <section class="card overflow-hidden">
-    <div class="h-28 bg-brand" aria-hidden="true"></div>
-    <div class="px-6 pb-6 -mt-12 flex flex-wrap gap-5 items-end">
+    <div class="profile-cover">
+        @if ($user->cover_path)<img src="{{ Storage::disk('public')->url($user->cover_path) }}" alt="Profile cover" class="profile-cover-image">@endif
+        <div class="profile-cover-actions">
+            <form method="POST" action="{{ route('account.profile.cover') }}" enctype="multipart/form-data" data-auto-submit>
+                @csrf <label for="profile-cover" class="btn cursor-pointer">Upload cover</label><input id="profile-cover" name="cover" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only">
+            </form>
+            @if ($user->cover_path)<form method="POST" action="{{ route('account.profile.cover.remove') }}">@csrf @method('DELETE')<button class="btn">Remove cover</button></form>@endif
+        </div>
+    </div>
+    <div class="profile-identity">
         <div class="relative">
             <x-avatar :user="$user" :size="104" class="ring-4 ring-[var(--uh-surface)]" />
             <form method="POST" action="{{ route('account.profile.avatar') }}" enctype="multipart/form-data" class="absolute -bottom-1 -right-1" data-auto-submit>
@@ -18,6 +27,9 @@
         <div class="flex-1 min-w-[220px] flex flex-col gap-1 pb-1">
             <div class="flex flex-wrap items-center gap-2">
                 <h2 class="m-0 text-2xl font-bold">{{ $user->name }}</h2>
+                @if ($user->is_verified)
+                    <span class="profile-verified" title="Verified by UnlockHub administrator" role="img" aria-label="Admin verified account"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 1 3 2 3.6.4.9 3.5L22 10l-1 3.5.3 3.6-3.2 1.7L16 22l-4-1-4 1-2.1-3.2-3.2-1.7.3-3.6L2 10l2.5-3.1.9-3.5L9 3z"/><path d="m7.5 11.8 3 3 6-6" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                @endif
                 <x-user-badges :user="$user" />
                 @if ($user->hasTwoFactor()) <span class="badge badge-success">2FA</span> @endif
             </div>
@@ -29,6 +41,8 @@
         @endif
     </div>
     <x-field-error name="avatar" />
+    <div class="px-6"><x-field-error name="cover" /></div>
+    <p class="px-6 pb-4 m-0 text-xs text-muted">Profile photo: JPG, PNG or WebP up to 2 MB. Cover: up to 5 MB, recommended 1500 × 450 px.</p>
 
     <div class="grid grid-cols-2 sm:grid-cols-5 border-t border-line">
         @foreach ([
@@ -46,11 +60,11 @@
     </div>
 </section>
 
-<div class="flex flex-wrap gap-5 items-start">
-    <form method="POST" action="{{ route('account.profile.update') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4">
+<div class="profile-body-grid">
+    <form method="POST" action="{{ route('account.profile.update') }}" class="min-w-0 card p-6 flex flex-col gap-5">
         @csrf @method('PUT')
-        <h2 class="m-0 text-lg font-bold">{{ __('Details') }}</h2>
-        <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
+        <div><h2 class="m-0 text-xl font-bold">{{ __('Personal information') }}</h2><p class="m-0 mt-2 text-sm text-muted">{{ __('Keep your shop and contact details up to date.') }}</p></div>
+        <div class="settings-fields">
             <div>
                 <label for="name" class="label">{{ __('Full name') }}</label>
                 <input id="name" name="name" value="{{ old('name', $user->name) }}" class="input" required>
@@ -122,6 +136,13 @@
 
     <aside class="flex-[1_1_320px] min-w-0 flex flex-col gap-5">
         <section class="card p-5 flex flex-col gap-3">
+            <span class="badge badge-info self-start">Here to help</span><h2 class="m-0 text-lg font-bold">Support Desk</h2>
+            <p class="m-0 text-sm text-muted">Get help with orders, payments and account verification.</p>
+            <a href="{{ route('account.tickets.index') }}" class="btn">Open Support Desk</a>
+            <form method="POST" action="{{ route('account.support.store') }}">@csrf<input type="hidden" name="channel" value="chat"><input type="hidden" name="subject" value="Live chat"><input type="hidden" name="message" value="Hello, I need assistance with my account."><button class="btn btn-primary w-full">Start / resume Live Chat</button></form>
+            <span class="text-xs text-muted">Support hours: {{ setting('site.support_hours', '9 AM – 10 PM') }}</span>
+        </section>
+        <section class="card p-5 flex flex-col gap-3">
             <div class="flex justify-between items-center">
                 <h2 class="m-0 text-lg font-bold">{{ __('Profile completion') }} {{ $user->profilePercent() }}%</h2>
                 @if ($bonus > 0)
@@ -151,5 +172,18 @@
             <a href="{{ route('account.security') }}" class="btn mt-2">{{ __('Password, 2FA & logins') }}</a>
         </section>
     </aside>
+</div>
+<section class="card p-6 flex flex-col gap-4">
+    <div class="flex flex-wrap items-center justify-between gap-3"><div><h2 class="m-0 text-xl font-bold">Social accounts</h2><p class="m-0 mt-2 text-sm text-muted">Manage the accounts connected to your login.</p></div><a href="{{ route('account.security') }}" class="btn">Manage connected accounts</a></div>
+    <div class="profile-social-grid">
+    @foreach (\App\Services\Social\SocialProviders::PROVIDERS as $provider => $info)
+        @php $connected = $user->socialAccounts->firstWhere('provider', $provider); @endphp
+        <div class="profile-social-card"><div class="flex justify-between gap-3"><strong>{{ $info['label'] }}</strong><span class="badge {{ $connected ? 'badge-success' : 'bg-surface-2 text-muted' }}">{{ $connected ? 'Connected' : 'Not connected' }}</span></div>
+            @if ($connected)<p class="m-0 text-sm text-muted break-all">{{ $connected->name ?: $connected->email ?: 'Linked account' }}</p><span class="text-xs text-muted">Last used: {{ $connected->last_login_at?->diffForHumans() ?? '—' }}</span>
+            @else <p class="m-0 text-sm text-muted">Connect this account from security settings when available.</p> @endif
+        </div>
+    @endforeach
+    </div>
+</section>
 </div>
 @endsection

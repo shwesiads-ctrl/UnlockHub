@@ -25,6 +25,7 @@
                 ['API Access', 'plug', 'account.api'],
                 ['Earnings', 'chart', 'account.earnings'],
                 ['Settings & 2FA', 'sliders', 'account.security'],
+                ['Live Chat', 'users', 'account.support.index'],
             ];
         @endphp
         <nav aria-label="{{ __('Account') }}" class="flex flex-col gap-0.5">

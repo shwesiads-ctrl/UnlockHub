@@ -15,7 +15,7 @@
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">{{ __('Friends referred') }}</span>
         <span class="font-display text-[32px] font-bold">{{ $referrals->total() }}</span>
-        <span class="text-[13px] text-muted">{{ __(':count have ordered', ['count' => $referrals->where('success_orders', '>', 0)->count()]) }}</span>
+        <span class="text-[13px] text-muted">{{ __(':count have ordered', ['count' => $referralsWithOrders]) }}</span>
     </div>
     @if ($nextGroup)
         @php $pct = min(100, (int) round($lifetime / max(1, $nextGroup->min_points_for_auto_upgrade) * 100)); @endphp
