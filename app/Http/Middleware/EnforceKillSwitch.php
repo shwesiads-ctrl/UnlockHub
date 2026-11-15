@@ -17,7 +17,7 @@ class EnforceKillSwitch
 {
     /** These paths are always reachable so the owner can still log in. */
     private const OPEN = [
-        'admin/*',
+        'admin', 'admin/*',
         'login',
         'login/*',
         'logout',

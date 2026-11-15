@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Models\PaymentRequest;
 use App\Models\Supplier;
+use App\Models\Ticket;
 use App\Models\User;
 use Carbon\CarbonPeriod;
 use Illuminate\View\View;
@@ -19,6 +20,8 @@ class DashboardController extends Controller
         $salesExpr = "CASE WHEN price_currency = 'points' THEN COALESCE(reseller_price, price) * COALESCE(price_rate, {$pointRate}) ELSE COALESCE(reseller_price, price) END";
         $today = Order::whereDate('created_at', today());
         $doneToday = Order::where('status', Order::SUCCESS)->whereDate('completed_at', today());
+        $monthStart = now()->startOfMonth();
+        $doneMonth = Order::where('status', Order::SUCCESS)->where('completed_at', '>=', $monthStart);
 
         $stats = [
             'sales_today' => (float) (clone $doneToday)->sum(\Illuminate\Support\Facades\DB::raw($salesExpr)),
@@ -29,6 +32,11 @@ class DashboardController extends Controller
             'api_failed' => Order::where('api_failed', true)->whereIn('status', [Order::PENDING, Order::IN_PROCESS])->count(),
             'new_users_today' => User::whereDate('created_at', today())->count(),
             'wallets' => (float) User::sum('balance'),
+            'sales_month' => (float) (clone $doneMonth)->sum(\Illuminate\Support\Facades\DB::raw($salesExpr)),
+            'profit_month' => (float) (clone $doneMonth)->selectRaw("COALESCE(SUM({$salesExpr} - cost), 0) AS p")->value('p'),
+            'completed_month' => (clone $doneMonth)->count(),
+            'open_tickets' => Ticket::whereIn('status', ['open', 'in_progress'])->count(),
+            'new_users_week' => User::where('created_at', '>=', now()->subDays(7)->startOfDay())->count(),
         ];
 
         // Last 7 days of completed sales

@@ -192,6 +192,7 @@ input[type="file"]:not(.sr-only):disabled { opacity: .55; cursor: not-allowed; }
   padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
   background: var(--uh-bg);
 }
+.settings-mode-option { flex-direction: row; align-items: flex-start; cursor: pointer; }
 .settings-subpanel > .settings-subpanel-title {
   font-size: 0.875rem; font-weight: 700; color: var(--uh-ink);
   margin: 0;

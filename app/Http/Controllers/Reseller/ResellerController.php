@@ -9,6 +9,7 @@ use App\Models\ResellerPrice;
 use App\Models\ResellerProfile;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\WithdrawalRequest;
 use App\Services\AffiliateService;
 use App\Services\ResellerService;
 use App\Support\Notify;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Carbon\CarbonPeriod;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -83,21 +85,43 @@ class ResellerController extends Controller
         $me = $request->user()->load('resellerProfile');
         $month = now()->startOfMonth();
         $orders = Order::where('reseller_id', $me->id);
-        $done = (clone $orders)->where('status', Order::SUCCESS)->where('completed_at', '>=', $month);
         $rate = max(1, (int) setting('points.convert_rate', 10));
         $saleExpr = "CASE WHEN price_currency = 'points' THEN price * COALESCE(price_rate, {$rate}) ELSE price END";
         $profitExpr = "CASE WHEN price_currency = 'points' THEN (price - reseller_price) * COALESCE(price_rate, {$rate}) ELSE price - reseller_price END";
+        $weekFrom = now()->subDays(6)->startOfDay();
+        $dailyOrders = (clone $orders)->where('status', Order::SUCCESS)->where('completed_at', '>=', $weekFrom)
+            ->selectRaw("DATE(completed_at) AS day, COUNT(*) AS total, SUM({$profitExpr}) AS profit, SUM({$saleExpr}) AS sales")
+            ->groupBy('day')->get()->keyBy('day');
+        $week = [];
+        foreach (CarbonPeriod::create($weekFrom, '1 day', now()->startOfDay()) as $day) {
+            $row = $dailyOrders->get($day->toDateString());
+            $week[] = [
+                'label' => $day->format('D'),
+                'date' => $day->toDateString(),
+                'orders' => (int) ($row?->total ?? 0),
+                'sales' => (float) ($row?->sales ?? 0),
+                'profit' => (float) ($row?->profit ?? 0),
+            ];
+        }
+        $monthOrders = (clone $orders)->where('created_at', '>=', $month);
+        $completedMonth = (clone $monthOrders)->where('status', Order::SUCCESS)->where('completed_at', '>=', $month);
+        $customers = $me->subUsers()->count();
 
         return view('reseller.dashboard', [
             'me' => $me,
-            'customers' => $me->subUsers()->count(),
+            'customers' => $customers,
             'customerBalance' => (float) $me->subUsers()->sum('balance'),
             'month' => [
-                'orders' => (clone $orders)->where('created_at', '>=', $month)->count(),
-                'sales' => (float) (clone $done)->sum(\Illuminate\Support\Facades\DB::raw($saleExpr)),
-                'profit' => (float) (clone $done)->selectRaw("COALESCE(SUM({$profitExpr}), 0) AS p")->value('p'),
+                'orders' => (clone $monthOrders)->count(),
+                'completed' => (clone $completedMonth)->count(),
+                'sales' => (float) (clone $completedMonth)->sum(\Illuminate\Support\Facades\DB::raw($saleExpr)),
+                'profit' => (float) (clone $completedMonth)->selectRaw("COALESCE(SUM({$profitExpr}), 0) AS p")->value('p'),
             ],
             'open' => (clone $orders)->whereIn('status', [Order::PENDING, Order::IN_PROCESS])->count(),
+            'rejected' => (clone $orders)->where('status', Order::REJECTED)->where('updated_at', '>=', $month)->count(),
+            'newCustomers' => $me->subUsers()->where('created_at', '>=', $month)->count(),
+            'pendingWithdrawals' => WithdrawalRequest::where('user_id', $me->id)->where('status', 'pending')->count(),
+            'week' => $week,
             'recent' => (clone $orders)->with('user:id,username')->latest('id')->limit(10)->get(),
             'withdrawable' => AffiliateService::withdrawable($me),
         ]);

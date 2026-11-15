@@ -16,6 +16,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\ContentController;
+use App\Http\Controllers\EmailPreferenceController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+Route::get('/email/preferences/{user}', [EmailPreferenceController::class, 'show'])
+    ->middleware(['signed', 'throttle:30,10'])->name('email.preferences.unsubscribe.form');
+Route::post('/email/preferences/{user}', [EmailPreferenceController::class, 'unsubscribe'])
+    ->middleware(['signed', 'throttle:10,10'])->name('email.preferences.unsubscribe');
 
 /* ---------------- Social login (guest = sign in / register, signed in = connect) ---------------- */
 Route::get('/auth/telegram/callback', [SocialAuthController::class, 'telegram'])->middleware('throttle:20,1')->name('social.telegram');
@@ -302,12 +308,16 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     });
 
     Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
+    Route::get('/mail-campaigns', [Admin\MailCampaignController::class, 'index'])->name('mail-campaigns.index');
+    Route::post('/mail-campaigns/preview', [Admin\MailCampaignController::class, 'preview'])->name('mail-campaigns.preview')->middleware('throttle:5,10');
+    Route::post('/mail-campaigns', [Admin\MailCampaignController::class, 'send'])->name('mail-campaigns.send')->middleware('throttle:3,10');
     // Serial key / domain lock (owner only: not in Permissions::ROUTES)
     Route::get('/license', [Admin\LicenseController::class, 'show'])->name('license');
     Route::post('/license', [Admin\LicenseController::class, 'activate'])->name('license.activate')->middleware('throttle:10,1');
     Route::post('/license/check', [Admin\LicenseController::class, 'check'])->name('license.check')->middleware('throttle:10,1');
     Route::post('/license/deactivate', [Admin\LicenseController::class, 'deactivate'])->name('license.deactivate')->middleware('throttle:5,1');
     Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
+    Route::put('/settings/site-mode', [Admin\SettingsController::class, 'updateSiteMode'])->name('settings.site-mode');
     Route::put('/settings/home-page', [Admin\SettingsController::class, 'updateHomePage'])->name('settings.home-page');
     Route::put('/settings/seo', [Admin\SettingsController::class, 'updateSeo'])->name('settings.seo');
     Route::put('/settings/analytics', [Admin\SettingsController::class, 'updateAnalytics'])->name('settings.analytics');

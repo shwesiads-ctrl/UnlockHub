@@ -3,6 +3,9 @@
 return [
     'version' => '1.0.0',
 
+    // Business timezone for local schedules and customer-facing dates.
+    'timezone' => env('APP_TIMEZONE', 'Asia/Yangon'),
+
 
     // Run queued jobs from the scheduler cron (shared hosting without a worker)
     'queue_in_scheduler' => (bool) env('QUEUE_IN_SCHEDULER', false),

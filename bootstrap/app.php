@@ -38,8 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\EnforceLicense::class,
             // Remote kill-switch (checked hourly, cached; fail-open on network errors)
             \App\Http\Middleware\EnforceKillSwitch::class,
+            \App\Http\Middleware\SiteMode::class,
         ]);
-        $middleware->api(append: [\App\Http\Middleware\EnforceLicense::class]);
+        $middleware->api(append: [\App\Http\Middleware\EnforceLicense::class, \App\Http\Middleware\SiteMode::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

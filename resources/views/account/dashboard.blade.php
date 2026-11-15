@@ -44,11 +44,47 @@
         <span class="font-display text-[30px] font-bold text-ok">{{ $stats['success_month'] }}</span>
         <span class="text-[13px] text-muted">{{ __(':count rejected · refunded', ['count' => $stats['rejected_month']]) }}</span>
     </div>
+    <div class="card p-5 flex flex-col gap-2">
+        <span class="text-[13px] font-semibold text-muted">{{ __('Spent this month') }}</span>
+        <span class="font-display text-2xl font-bold">{{ money($stats['month_spent']) }}</span>
+        <span class="text-[13px] text-muted">{{ number_format($stats['month_orders']) }} {{ __('orders placed') }}</span>
+    </div>
+    <div class="card p-5 flex flex-col gap-2">
+        <span class="text-[13px] font-semibold text-muted">{{ __('Successful outcomes') }}</span>
+        <span class="font-display text-2xl font-bold text-ok">{{ $stats['success_rate'] }}%</span>
+        <span class="text-[13px] text-muted">{{ __('Of completed or rejected orders') }}</span>
+    </div>
 </div>
+
+<section class="card p-4 flex flex-wrap items-center gap-2">
+    <strong class="mr-auto text-sm">{{ __('Quick actions') }}</strong>
+    <a href="{{ route('services.index') }}" class="btn btn-primary h-9 text-xs">{{ __('Place order') }}</a>
+    @if ($paymentCurrency !== 'points') <a href="{{ route('account.funds.index') }}" class="btn h-9 text-xs">{{ __('Add funds') }}</a> @endif
+    <a href="{{ route('account.orders.index') }}" class="btn h-9 text-xs">{{ __('Order history') }}</a>
+    <a href="{{ route('account.statement') }}" class="btn h-9 text-xs">{{ __('Statement') }}</a>
+    <a href="{{ route('account.tickets.index') }}" class="btn h-9 text-xs">{{ __('Get support') }}</a>
+</section>
 
 <section class="card p-4 flex flex-wrap gap-3 items-center" data-install-app hidden>
     <span class="flex-1 text-sm">📱 {{ __('Add') }} {{ setting('site.name', config('app.name')) }} {{ __('to your home screen — faster ordering and order alerts.') }}</span>
     <button type="button" class="btn btn-primary h-10" data-install-app>{{ __('Install app') }}</button>
+</section>
+
+<section class="card p-5 flex flex-col gap-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <div><h2 class="m-0 text-lg font-bold">{{ __('Your activity') }}</h2><p class="m-0 mt-1 text-xs text-muted">{{ __('Orders placed over the last 7 days') }}</p></div>
+        <a href="{{ route('account.orders.index') }}" class="text-sm">{{ __('View all orders') }} →</a>
+    </div>
+    @php $weekMax = max(1, max(array_column($week, 'orders'))); @endphp
+    <div class="flex items-end gap-3 h-36" role="img" aria-label="{{ __('Order activity over the last 7 days') }}">
+        @foreach ($week as $day)
+            <div class="flex-1 h-full flex flex-col items-center justify-end gap-2" title="{{ $day['date'] }} · {{ $day['orders'] }} {{ __('orders') }}">
+                <span class="text-xs text-muted">{{ $day['orders'] }}</span>
+                <div @class(['w-full max-w-14 rounded-t-lg', 'bg-brand' => $loop->last, 'bg-brand-soft' => ! $loop->last]) style="height: {{ max(3, round($day['orders'] / $weekMax * 68)) }}%"></div>
+                <span class="text-xs text-muted">{{ $day['label'] }}</span>
+            </div>
+        @endforeach
+    </div>
 </section>
 
 <section class="card p-5 flex flex-col gap-3">

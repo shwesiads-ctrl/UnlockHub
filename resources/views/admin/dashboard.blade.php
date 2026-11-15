@@ -6,11 +6,34 @@
     <div><span class="text-xs font-bold uppercase tracking-wide text-brand-ink">Store overview</span><h2 class="m-0 mt-2 text-2xl font-bold">Welcome back, {{ auth()->user()->name }}</h2><p class="m-0 mt-2 text-sm text-muted">Your sales, order queues and customer payments at a glance.</p></div>
     <div class="flex flex-wrap gap-2"><a href="{{ route('admin.services.create') }}" class="btn btn-primary">+ Add service</a><a href="{{ route('admin.reports.index') }}" class="btn">View reports →</a></div>
 </section>
+@php
+    $maintenanceOn = setting('site.maintenance') === '1';
+    $maintenanceStarts = setting('site.maintenance_starts_at');
+    $maintenanceEnds = setting('site.maintenance_ends_at');
+    $maintenanceState = ! $maintenanceOn ? ''
+        : ($maintenanceStarts && now()->lt(\Illuminate\Support\Carbon::parse($maintenanceStarts)) ? 'Maintenance scheduled'
+            : ($maintenanceEnds && now()->gte(\Illuminate\Support\Carbon::parse($maintenanceEnds)) ? 'Maintenance window ended' : 'Maintenance active'));
+@endphp
+@if ($maintenanceState === 'Maintenance active' || $maintenanceState === 'Maintenance scheduled' || setting('site.demo') === '1')
+    <div class="card p-4 flex flex-wrap items-center gap-3 border border-warn bg-warn-soft text-warn">
+        <strong>Site mode active</strong>
+        <span class="text-sm">{{ $maintenanceState }}{{ $maintenanceState && setting('site.demo') === '1' ? ' · ' : '' }}{{ setting('site.demo') === '1' ? 'Demo mode' : '' }}</span>
+        <a href="{{ route('admin.settings.index', [], false) }}#site-mode" class="btn h-9 ml-auto">Manage site mode</a>
+    </div>
+@endif
 <div class="dashboard-stats">
     <div class="card p-5 flex flex-col gap-2"><span class="text-[13px] font-semibold text-muted">Today's sales</span><span class="font-display text-[28px] font-bold">{{ money($stats['sales_today']) }}</span><span class="text-[13px] text-ok font-semibold">Profit {{ money($stats['profit_today']) }}</span></div>
     <div class="card p-5 flex flex-col gap-2"><span class="text-[13px] font-semibold text-muted">Orders today</span><span class="font-display text-[28px] font-bold">{{ $stats['orders_today'] }}</span><span class="text-[13px] text-muted">{{ $stats['api_today'] }} API · {{ $stats['orders_today'] - $stats['api_today'] }} Manual · {{ $stats['open'] }} open</span></div>
     <a href="{{ route('admin.payments.index') }}" class="rounded-2xl p-5 flex flex-col gap-2 no-underline bg-warn-soft border border-warn text-warn hover:text-warn"><span class="text-[13px] font-semibold">Payments to approve</span><span class="font-display text-[28px] font-bold">{{ $adminBadges['payments'] ?? 0 }}</span><span class="text-[13px] font-semibold">Review receipts →</span></a>
     <a href="{{ route('admin.orders.manual') }}" class="rounded-2xl p-5 flex flex-col gap-2 no-underline bg-danger-soft border border-danger text-danger hover:text-danger"><span class="text-[13px] font-semibold">Manual queue</span><span class="font-display text-[28px] font-bold">{{ $adminBadges['manual'] ?? 0 }}</span><span class="text-[13px] font-semibold">{{ $stats['api_failed'] ? $stats['api_failed'].' from API failures →' : 'Process orders →' }}</span></a>
+</div>
+
+<div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
+    <div class="card p-4 flex flex-col gap-1"><span class="text-xs font-semibold text-muted">Sales this month</span><strong class="font-display text-xl">{{ money($stats['sales_month']) }}</strong><span class="text-xs text-muted">Completed orders only</span></div>
+    <div class="card p-4 flex flex-col gap-1"><span class="text-xs font-semibold text-muted">Profit this month</span><strong class="font-display text-xl text-ok">{{ money($stats['profit_month']) }}</strong><span class="text-xs text-muted">After supplier cost</span></div>
+    <div class="card p-4 flex flex-col gap-1"><span class="text-xs font-semibold text-muted">Completed orders</span><strong class="font-display text-xl">{{ number_format($stats['completed_month']) }}</strong><span class="text-xs text-muted">This month</span></div>
+    <div class="card p-4 flex flex-col gap-1"><span class="text-xs font-semibold text-muted">Support queue</span><strong class="font-display text-xl">{{ number_format($stats['open_tickets']) }}</strong><span class="text-xs text-muted">Open or in progress</span></div>
+    <div class="card p-4 flex flex-col gap-1"><span class="text-xs font-semibold text-muted">New customers</span><strong class="font-display text-xl">{{ number_format($stats['new_users_week']) }}</strong><span class="text-xs text-muted">Last 7 days</span></div>
 </div>
 
 <div class="dashboard-main-grid">

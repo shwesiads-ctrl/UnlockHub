@@ -15,11 +15,16 @@ class AdminUserSeeder extends Seeder
             return;
         }
 
+        $password = (string) env('ADMIN_PASSWORD', '');
+        if (strlen($password) < 12) {
+            throw new \RuntimeException('Set ADMIN_PASSWORD to a unique password of at least 12 characters before creating the first admin account.');
+        }
+
         $admin = new User([
             'name' => 'Administrator',
             'username' => 'admin',
             'email' => $email,
-            'password' => env('ADMIN_PASSWORD', 'ChangeMe123!'),
+            'password' => $password,
         ]);
         $admin->forceFill(['role' => User::ROLE_ADMIN, 'email_verified_at' => now()])->save();
 

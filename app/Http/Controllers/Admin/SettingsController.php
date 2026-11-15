@@ -63,12 +63,12 @@ class SettingsController extends Controller
         // Branding
         foreach (['logo' => 'site.logo', 'favicon' => 'site.favicon'] as $field => $key) {
             if ($request->boolean("remove_{$field}") && ($old = setting($key))) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($old);
+                Storage::disk('public')->delete($old);
                 Setting::put($key, null);
             }
             if ($request->hasFile($field)) {
                 if ($old = setting($key)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($old);
+                    Storage::disk('public')->delete($old);
                 }
                 Setting::put($key, $request->file($field)->store('branding', 'public'));
             }
@@ -78,6 +78,48 @@ class SettingsController extends Controller
         ActivityLog::record('settings.general_updated');
 
         return redirect()->to(route('admin.settings.index').'#site-settings')->with('success', 'Settings saved.');
+    }
+
+    public function updateSiteMode(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'demo' => ['nullable', 'boolean'],
+            'maintenance' => ['nullable', 'boolean'],
+            'demo_message' => ['nullable', 'string', 'max:240'],
+            'maintenance_message' => ['nullable', 'string', 'max:300'],
+            'maintenance_starts_at' => ['nullable', 'date_format:Y-m-d\\TH:i'],
+            'maintenance_ends_at' => ['nullable', 'date_format:Y-m-d\\TH:i'],
+        ]);
+
+        if (filled($data['maintenance_starts_at'] ?? null) && filled($data['maintenance_ends_at'] ?? null)) {
+            $timezone = (string) config('unlockhub.timezone', 'Asia/Yangon');
+            $startsAt = \Illuminate\Support\Carbon::createFromFormat('Y-m-d\\TH:i', $data['maintenance_starts_at'], $timezone);
+            $endsAt = \Illuminate\Support\Carbon::createFromFormat('Y-m-d\\TH:i', $data['maintenance_ends_at'], $timezone);
+            if ($endsAt->lt($startsAt)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'maintenance_ends_at' => 'The maintenance end must be after its start.',
+                ]);
+            }
+        }
+
+        Setting::put('site.demo', $request->boolean('demo') ? '1' : '0');
+        Setting::put('site.maintenance', $request->boolean('maintenance') ? '1' : '0');
+        Setting::put('site.demo_message', trim((string) ($data['demo_message'] ?? '')) ?: null);
+        Setting::put('site.maintenance_message', trim((string) ($data['maintenance_message'] ?? '')) ?: null);
+        foreach (['maintenance_starts_at', 'maintenance_ends_at'] as $field) {
+            $value = $data[$field] ?? null;
+            Setting::put('site.'.$field, $value
+                ? \Illuminate\Support\Carbon::createFromFormat('Y-m-d\\TH:i', $value, (string) config('unlockhub.timezone', 'Asia/Yangon'))->toDateTimeString()
+                : null);
+        }
+        ActivityLog::record('settings.site_mode_updated', null, [
+            'demo' => $request->boolean('demo'),
+            'maintenance' => $request->boolean('maintenance'),
+            'maintenance_starts_at' => $data['maintenance_starts_at'] ?? null,
+            'maintenance_ends_at' => $data['maintenance_ends_at'] ?? null,
+        ]);
+
+        return redirect()->to(route('admin.settings.index').'#site-mode')->with('success', 'Site modes saved.');
     }
 
     public function updateHomePage(Request $request): RedirectResponse
@@ -409,7 +451,7 @@ class SettingsController extends Controller
             throw new \RuntimeException('Not an image');
         }
         [$r, $g, $b] = sscanf($hex, '#%02x%02x%02x');
-        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        $disk = Storage::disk('public');
 
         foreach (['icon-192.png' => [192, 0, false], 'icon-512.png' => [512, 0, false], 'maskable-512.png' => [512, 0.2, true], 'apple-touch-icon.png' => [180, 0.08, true]] as $file => [$size, $pad, $bg]) {
             $dst = imagecreatetruecolor($size, $size);
@@ -443,7 +485,8 @@ class SettingsController extends Controller
         $data = $request->validate([
             'footer_copyright' => ['nullable', 'string', 'max:200'],
             'footer_logos'     => ['nullable', 'array', 'max:8'],
-            'footer_logos.*'   => ['image', 'mimes:png,jpg,jpeg,webp,svg', 'max:512'],
+            // Keep active SVG content out of the public uploads directory.
+            'footer_logos.*'   => ['image', 'mimes:png,jpg,jpeg,webp', 'max:512'],
         ]);
 
         Setting::put('footer.copyright', $data['footer_copyright'] ?? null);
@@ -468,7 +511,7 @@ class SettingsController extends Controller
             Storage::disk('public')->delete($logos[$index]);
             array_splice($logos, $index, 1);
             Setting::put('footer.payment_logos', json_encode(array_values($logos)));
-            ActivityLog::record('settings.footer_logo_removed');
+            ActivityLog::record('settings.footer_logo_removed', null, ['index' => $index]);
         }
         return back()->with('success', 'Logo removed.');
     }

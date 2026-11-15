@@ -7,6 +7,12 @@
 <body class="min-h-screen flex flex-col">
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:p-3">{{ __('Skip to content') }}</a>
 
+    @if (setting('site.demo') === '1')
+        <div class="bg-brand-soft text-brand-ink text-center text-sm font-semibold px-4 py-2" role="status">
+            {{ setting('site.demo_message') ?: 'Demo mode is on — actions that change data are disabled.' }}
+        </div>
+    @endif
+
     @if ($announcement ?? null)
         <div class="badge-{{ $announcement->style === 'danger' ? 'rejected' : ($announcement->style === 'warning' ? 'pending' : 'info') }} text-sm font-medium text-center py-2 px-4">
             {{ $announcement->message }}
@@ -104,9 +110,9 @@
                 </div>
                 @endif
             </div>
-            {{-- Dev credit — required, do not remove --}}
+            {{-- Dev credit is permanent and not managed by the editable footer settings. --}}
             <div class="max-w-7xl mx-auto px-4 sm:px-8 pb-3 flex items-center justify-end">
-                <span class="text-[11px] text-muted/60 select-none">Dev: <a href="https://t.me/kominit" target="_blank" rel="noopener" class="hover:text-brand transition-colors">MyominAung</a> · <a href="https://t.me/kominit" target="_blank" rel="noopener" class="hover:text-brand transition-colors">@kominit</a></span>
+                <span class="text-[11px] text-muted/60 select-none">Dev: <a href="https://t.me/kominit" target="_blank" rel="noopener noreferrer" class="hover:text-brand transition-colors">MyominAung</a> · <a href="https://t.me/kominit" target="_blank" rel="noopener noreferrer" class="hover:text-brand transition-colors">@kominit</a></span>
             </div>
         </div>
     </footer>

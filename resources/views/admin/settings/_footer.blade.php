@@ -52,10 +52,10 @@
         <div class="settings-upload flex flex-col gap-2">
             <label class="label mb-0">
                 Add payment logos
-                <span class="font-normal text-muted">(PNG/JPG/WebP/SVG, transparent, up to 8 total — Visa, Mastercard, PayPal …)</span>
+                <span class="font-normal text-muted">(PNG/JPG/WebP, transparent, up to 8 total — Visa, Mastercard, PayPal …)</span>
             </label>
             <input name="footer_logos[]" type="file"
-                   accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                   accept="image/png,image/jpeg,image/webp"
                    multiple class="text-sm">
             <p class="m-0 text-xs text-muted">Select multiple files at once. Each file max 512 KB.</p>
             <x-field-error name="footer_logos" />
