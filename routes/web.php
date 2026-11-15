@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Account\DashboardController;
+use App\Http\Controllers\Account\FundsController;
+use App\Http\Controllers\Account\StatementController;
 use App\Http\Controllers\Account\SecurityController;
 use App\Http\Controllers\Auth\ChallengeController;
 use App\Http\Controllers\Auth\LoginController;
@@ -40,6 +42,11 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
 
+    Route::get('/funds', [FundsController::class, 'index'])->name('funds.index');
+    Route::post('/funds', [FundsController::class, 'store'])->name('funds.store')->middleware('throttle:10,1');
+    Route::get('/funds/{paymentRequest}/receipt', [FundsController::class, 'receipt'])->name('funds.receipt');
+    Route::get('/statement', StatementController::class)->name('statement');
+
     Route::get('/security', [SecurityController::class, 'show'])->name('security');
     Route::put('/security/profile', [SecurityController::class, 'updateProfile'])->name('security.profile');
     Route::put('/security/password', [SecurityController::class, 'updatePassword'])->name('security.password');
@@ -61,4 +68,14 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
 
     Route::resource('services', Admin\ServiceController::class)->except('show');
     Route::post('/services/{service}/toggle', [Admin\ServiceController::class, 'toggle'])->name('services.toggle');
+
+    Route::get('/payments', [Admin\PaymentRequestController::class, 'index'])->name('payments.index');
+    Route::get('/payments/{paymentRequest}', [Admin\PaymentRequestController::class, 'show'])->name('payments.show');
+    Route::get('/payments/{paymentRequest}/receipt', [Admin\PaymentRequestController::class, 'receipt'])->name('payments.receipt');
+    Route::post('/payments/{paymentRequest}/approve', [Admin\PaymentRequestController::class, 'approve'])->name('payments.approve');
+    Route::post('/payments/{paymentRequest}/reject', [Admin\PaymentRequestController::class, 'reject'])->name('payments.reject');
+
+    Route::get('/payment-methods', [Admin\PaymentMethodController::class, 'index'])->name('payment-methods.index');
+    Route::post('/payment-methods', [Admin\PaymentMethodController::class, 'store'])->name('payment-methods.store');
+    Route::put('/payment-methods/{paymentMethod}', [Admin\PaymentMethodController::class, 'update'])->name('payment-methods.update');
 });

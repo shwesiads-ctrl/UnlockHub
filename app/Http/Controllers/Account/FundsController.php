@@ -1,0 +1,97 @@
+<?php
+
+namespace App\Http\Controllers\Account;
+
+use App\Http\Controllers\Controller;
+use App\Models\PaymentMethod;
+use App\Models\PaymentRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+/** Add funds: transfer by mobile wallet, upload receipt, wait for admin approval. */
+class FundsController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $methods = PaymentMethod::active()->get();
+        $selected = $methods->firstWhere('code', $request->query('method', old('method'))) ?? $methods->first();
+
+        return view('account.funds', [
+            'methods' => $methods,
+            'selected' => $selected,
+            'history' => $request->user()->paymentRequests()->with('method:id,name')->latest()->paginate(10),
+            'pendingCount' => $request->user()->paymentRequests()->where('status', PaymentRequest::PENDING)->count(),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'method' => ['required', 'string'],
+        ]);
+
+        /** @var PaymentMethod $method */
+        $method = PaymentMethod::active()->where('code', $request->input('method'))->firstOrFail();
+
+        $receipt = config('unlockhub.receipts');
+        $amountRules = ['required', 'numeric', 'min:'.(float) $method->min_amount];
+        if ($method->max_amount) {
+            $amountRules[] = 'max:'.(float) $method->max_amount;
+        }
+
+        $data = $request->validate([
+            'amount' => $amountRules,
+            'transaction_id' => ['required', 'string', 'min:4', 'max:64', 'regex:/^[A-Za-z0-9\-\s]+$/'],
+            'receipt' => ['required', 'file', 'image', 'mimes:'.implode(',', $receipt['mimes']), 'max:'.$receipt['max_kb']],
+        ], [
+            'amount.min' => 'Minimum top-up for '.$method->name.' is '.money($method->min_amount).'.',
+            'transaction_id.regex' => 'Transaction ID can only contain letters, numbers, spaces and dashes.',
+        ]);
+
+        $txn = strtoupper(preg_replace('/\s+/', '', $data['transaction_id']));
+
+        // Same transaction ID already submitted (pending or approved) → stop double credit
+        $duplicate = PaymentRequest::where('payment_method_id', $method->id)
+            ->where('transaction_id', $txn)
+            ->where('status', '!=', PaymentRequest::REJECTED)
+            ->exists();
+
+        if ($duplicate) {
+            throw ValidationException::withMessages([
+                'transaction_id' => 'This transaction ID has already been submitted. Contact support if this is a mistake.',
+            ]);
+        }
+
+        // Limit open requests so the queue can't be flooded
+        if ($user->paymentRequests()->where('status', PaymentRequest::PENDING)->count() >= 5) {
+            return back()->with('error', 'You already have 5 top-ups waiting for approval. Please wait for them to be reviewed.');
+        }
+
+        $path = $request->file('receipt')->store('receipts/'.now()->format('Y/m'), $receipt['disk']);
+
+        $user->paymentRequests()->create([
+            'payment_method_id' => $method->id,
+            'amount' => $data['amount'],
+            'transaction_id' => $txn,
+            'receipt_path' => $path,
+            'status' => PaymentRequest::PENDING,
+        ]);
+
+        return redirect()->route('account.funds.index')
+            ->with('success', 'Receipt received. Your wallet will be credited after approval ('.setting('site.support_hours', '9 AM – 10 PM').').');
+    }
+
+    /** Owner can view their own receipt image (private disk). */
+    public function receipt(Request $request, PaymentRequest $paymentRequest): StreamedResponse
+    {
+        abort_unless($paymentRequest->user_id === $request->user()->id, 404);
+
+        return Storage::disk(config('unlockhub.receipts.disk'))->response($paymentRequest->receipt_path);
+    }
+}

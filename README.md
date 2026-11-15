@@ -65,6 +65,19 @@ Seeder က ထည့်ပေးတာတွေ:
 
 Seeder က ထည့်ပေးထားတဲ့ နမူနာ service တွေက Hidden ဖြစ်နေလို့ ဈေးထည့်ပြီး Activate လုပ်ပါ။
 
+## ငွေဖြည့်စနစ် (Add Funds)
+
+**Admin က တစ်ခါပဲ ပြင်ဆင်ရမယ်:** Admin › Payments › **Payment methods** မှာ KBZPay / WavePay / AYA Pay / CB Pay တစ်ခုချင်းစီအတွက် အကောင့်နာမည်၊ ဖုန်းနံပါတ်၊ QR ပုံ (ရှိရင်)၊ အနည်းဆုံး/အများဆုံး ပမာဏ ထည့်ပြီး **On** ကို အမှန်ခြစ်ပါ။ QR ပုံပေါ်ဖို့ `php artisan storage:link` ကို တစ်ခါ run ထားရပါမယ်။
+
+**User:** Account › Add Funds → payment method ရွေး → ငွေလွှဲ → ပမာဏ + Transaction ID + ပြေစာ screenshot တင် → Pending
+
+**Admin:** Payments → **Review** → ပြေစာကို payment app ထဲက မှတ်တမ်းနဲ့ တိုက်စစ် →
+- **Approve & credit** — Wallet ထဲ ငွေဝင်ပြီး Statement မှာ မှတ်တမ်းဝင်တယ်။ လွှဲတဲ့ပမာဏ မတူရင် credit ပမာဏကို ပြင်လို့ရတယ်
+- **Reject** — အကြောင်းပြချက်ကို user မြင်ရတယ်
+- ပြီးတာနဲ့ နောက် Pending တစ်ခုကို အလိုအလျောက် ဖွင့်ပေးတယ်
+
+လုံခြုံရေး: Transaction ID တူတာကို ထပ်တင်လို့မရ (reject ဖြစ်ထားတာကလွဲရင်)၊ user တစ်ယောက် Pending ၅ ခုထက် မပိုရ၊ ပြေစာပုံတွေကို private storage မှာ သိမ်းထားလို့ ပိုင်ရှင်နဲ့ admin ပဲ ကြည့်လို့ရတယ်၊ Approve ကို တစ်ကြိမ်ပဲ လုပ်လို့ရတယ် (row lock)။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -92,7 +105,7 @@ Seeder က ထည့်ပေးထားတဲ့ နမူနာ service တ�
 - [x] **အဆင့် ၁** — Project setup, Database schema, Design system (Day/Night), Seeder
 - [x] **အဆင့် ၂** — Register / Login / Email OTP / Trust device / Google 2FA / Password reset / Account settings
 - [x] **အဆင့် ၃** — Service catalog နဲ့ Reseller pricing စာမျက်နှာ၊ Admin ဘက်က Group / Service စီမံခန့်ခွဲမှု
-- [ ] အဆင့် ၄ — Wallet နဲ့ Myanmar payment (ပြေစာ upload → Admin approve)
+- [x] **အဆင့် ၄** — Wallet နဲ့ Myanmar payment (ပြေစာ upload → Admin approve)၊ Statement၊ Payment method settings
 - [ ] အဆင့် ၅ — Order system (API / Manual, bulk, auto refund)
 - [ ] အဆင့် ၆ — Supplier API (DHRU Fusion)
 - [ ] အဆင့် ၇ — Point system

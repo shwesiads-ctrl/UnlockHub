@@ -143,12 +143,12 @@
             <h2 class="m-0 text-lg font-bold">Pricing (Ks)</h2>
             <div>
                 <label for="cost_price" class="label">Cost price</label>
-                <input id="cost_price" name="cost_price" type="number" min="0" step="1" value="{{ old('cost_price', $service->cost_price ?? 0) }}" class="input" data-cost>
+                <input id="cost_price" name="cost_price" type="number" min="0" step="1" value="{{ old('cost_price', (float) ($service->cost_price ?? 0)) }}" class="input" data-cost>
                 <x-field-error name="cost_price" />
             </div>
             <div>
                 <label for="default_price" class="label">Default selling price</label>
-                <input id="default_price" name="default_price" type="number" min="0" step="1" value="{{ old('default_price', $service->default_price ?? 0) }}" class="input" data-price>
+                <input id="default_price" name="default_price" type="number" min="0" step="1" value="{{ old('default_price', (float) ($service->default_price ?? 0)) }}" class="input" data-price>
                 <x-field-error name="default_price" />
             </div>
             <div class="flex flex-col gap-2.5">
@@ -156,7 +156,7 @@
                 @foreach ($groups as $g)
                     <div class="grid grid-cols-[1fr_9rem] gap-2.5 items-center text-sm">
                         <label for="price_{{ $g->id }}">{{ $g->name }}</label>
-                        <input id="price_{{ $g->id }}" name="prices[{{ $g->id }}]" type="number" min="0" step="1" value="{{ old('prices.'.$g->id, $groupPrices[$g->id] ?? '') }}" class="input h-10" data-group-price>
+                        <input id="price_{{ $g->id }}" name="prices[{{ $g->id }}]" type="number" min="0" step="1" value="{{ old('prices.'.$g->id, isset($groupPrices[$g->id]) ? (float) $groupPrices[$g->id] : '') }}" class="input h-10" data-group-price>
                     </div>
                     <x-field-error :name="'prices.'.$g->id" />
                 @endforeach
