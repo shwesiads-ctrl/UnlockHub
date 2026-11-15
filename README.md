@@ -78,6 +78,22 @@ Seeder က ထည့်ပေးထားတဲ့ နမူနာ service တ�
 
 လုံခြုံရေး: Transaction ID တူတာကို ထပ်တင်လို့မရ (reject ဖြစ်ထားတာကလွဲရင်)၊ user တစ်ယောက် Pending ၅ ခုထက် မပိုရ၊ ပြေစာပုံတွေကို private storage မှာ သိမ်းထားလို့ ပိုင်ရှင်နဲ့ admin ပဲ ကြည့်လို့ရတယ်၊ Approve ကို တစ်ကြိမ်ပဲ လုပ်လို့ရတယ် (row lock)။
 
+## Order လုပ်ပုံ
+
+**User:** Service စာမျက်နှာ → field တွေ ဖြည့် (Bulk ဆိုရင် တစ်ကြောင်းကို တစ်ခု) → **Place order**
+- Wallet ထဲက ငွေကို ချက်ချင်း နုတ်တယ် (Bulk ဆိုရင် အရေအတွက်အလိုက် ပေါင်းတွက်)၊ ငွေမလုံလောက်ရင် order မတင်ရဘူး
+- IMEI ကို Luhn check နဲ့ စစ်တယ်၊ Bulk မှာ မှားတဲ့စာကြောင်းကို "Line 3: …" လို့ ပြတယ်၊ ထပ်နေတာတွေကို ဖယ်ပေးတယ်
+- Order History မှာ filter / ရှာ / CSV download လုပ်လို့ရတယ်။ Service က ခွင့်ပြုထားရင် Pending ဖြစ်နေတုန်း cancel လုပ်လို့ရတယ်
+
+**Status:** Pending → In Process → **Success** (point ရ) / **Rejected** (ငွေ auto ပြန်အမ်း) / Cancelled (ငွေပြန်အမ်း)
+
+**Admin › Manual Queue** (အဟောင်းဆုံးကို အရင်ပြ):
+1. Order ကိုဖွင့် → IMEI ကို Copy ကူး → supplier / tool မှာ လုပ်
+2. Result (code) ထည့် → **Mark success**၊ မရရင် အကြောင်းပြချက်ထည့် → **Reject & refund**
+3. နောက် order ကို အလိုအလျောက် ဖွင့်ပေးတယ်။ Pending အများကြီးကို တစ်ခါတည်း "In Process" လုပ်လို့ရတယ်
+
+**API mode service:** Order ကို queue job (`SubmitOrderToSupplier`) နဲ့ supplier ဆီ ပို့တယ်။ ပို့မရရင် Manual queue ထဲ "API failed" အမှတ်နဲ့ ရောက်လာမယ် (Fallback ပိတ်ထားရင်တော့ auto reject + refund လုပ်မယ်)။ DHRU API driver ကို အဆင့် ၆ မှာ ထည့်ပါမယ်။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -106,7 +122,7 @@ Seeder က ထည့်ပေးထားတဲ့ နမူနာ service တ�
 - [x] **အဆင့် ၂** — Register / Login / Email OTP / Trust device / Google 2FA / Password reset / Account settings
 - [x] **အဆင့် ၃** — Service catalog နဲ့ Reseller pricing စာမျက်နှာ၊ Admin ဘက်က Group / Service စီမံခန့်ခွဲမှု
 - [x] **အဆင့် ၄** — Wallet နဲ့ Myanmar payment (ပြေစာ upload → Admin approve)၊ Statement၊ Payment method settings
-- [ ] အဆင့် ၅ — Order system (API / Manual, bulk, auto refund)
+- [x] **အဆင့် ၅** — Order system (API / Manual, bulk, auto refund)၊ Manual queue
 - [ ] အဆင့် ၆ — Supplier API (DHRU Fusion)
 - [ ] အဆင့် ၇ — Point system
 - [ ] အဆင့် ၈ — Content စာမျက်နှာ (KB, Blog, Testimonials, Downloads, Track Order)

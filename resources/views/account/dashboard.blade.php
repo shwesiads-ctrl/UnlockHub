@@ -43,7 +43,7 @@
                 <tbody>
                 @foreach ($orders as $order)
                     <tr>
-                        <td class="whitespace-nowrap"><div class="font-semibold">#{{ $order->order_no }}</div><div class="text-xs text-muted">{{ $order->created_at->format('d M H:i') }}</div></td>
+                        <td class="whitespace-nowrap"><a href="{{ route('account.orders.show', $order) }}" class="font-semibold">#{{ $order->order_no }}</a><div class="text-xs text-muted">{{ $order->created_at->format('d M H:i') }}</div></td>
                         <td><div class="font-medium">{{ $order->service_name }}</div><div class="text-xs text-muted font-mono">{{ $order->imei }}</div></td>
                         <td class="font-mono text-[13px] text-muted">{{ $order->result ? \Illuminate\Support\Str::limit($order->result, 40) : '—' }}</td>
                         <td><x-status-badge :status="$order->status" /></td>

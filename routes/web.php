@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\FundsController;
+use App\Http\Controllers\Account\OrderController;
 use App\Http\Controllers\Account\StatementController;
 use App\Http\Controllers\Account\SecurityController;
 use App\Http\Controllers\Auth\ChallengeController;
@@ -17,6 +18,8 @@ Route::get('/', HomeController::class)->name('home');
 
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
 Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+Route::post('/services/{service}/order', [OrderController::class, 'store'])
+    ->middleware(['auth', 'active', 'throttle:30,1'])->name('orders.store');
 
 /* ---------------- Guest: register / login / password reset ---------------- */
 Route::middleware('guest')->group(function () {
@@ -47,6 +50,11 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::get('/funds/{paymentRequest}/receipt', [FundsController::class, 'receipt'])->name('funds.receipt');
     Route::get('/statement', StatementController::class)->name('statement');
 
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
     Route::get('/security', [SecurityController::class, 'show'])->name('security');
     Route::put('/security/profile', [SecurityController::class, 'updateProfile'])->name('security.profile');
     Route::put('/security/password', [SecurityController::class, 'updatePassword'])->name('security.password');
@@ -68,6 +76,12 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
 
     Route::resource('services', Admin\ServiceController::class)->except('show');
     Route::post('/services/{service}/toggle', [Admin\ServiceController::class, 'toggle'])->name('services.toggle');
+
+    Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/manual', [Admin\OrderController::class, 'manual'])->name('orders.manual');
+    Route::post('/orders/bulk-in-process', [Admin\OrderController::class, 'bulkInProcess'])->name('orders.bulk-in-process');
+    Route::get('/orders/{order}', [Admin\OrderController::class, 'show'])->name('orders.show');
+    Route::put('/orders/{order}', [Admin\OrderController::class, 'update'])->name('orders.update');
 
     Route::get('/payments', [Admin\PaymentRequestController::class, 'index'])->name('payments.index');
     Route::get('/payments/{paymentRequest}', [Admin\PaymentRequestController::class, 'show'])->name('payments.show');
