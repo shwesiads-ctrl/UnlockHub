@@ -61,17 +61,20 @@ class WebPush
                 'config' => $configPath,
                 'ec' => ['curve_name' => 'prime256v1'],
             ]);
+
+            if (! $key) {
+                throw new RuntimeException('OpenSSL could not create an EC key.');
+            }
+
+            // Windows OpenSSL needs the same config during export; exporting
+            // after deleting the temporary file fails with "no key set".
+            if (! openssl_pkey_export($key, $pem, null, ['config' => $configPath])) {
+                throw new RuntimeException('OpenSSL could not export the EC private key.');
+            }
         } finally {
             @unlink($configPath);
         }
 
-        if (! $key) {
-            throw new RuntimeException('OpenSSL could not create an EC key.');
-        }
-
-        if (! openssl_pkey_export($key, $pem)) {
-            throw new RuntimeException('OpenSSL could not export the EC private key.');
-        }
         $details = openssl_pkey_get_details($key);
         if (! isset($details['ec']['x'], $details['ec']['y'])) {
             throw new RuntimeException('OpenSSL did not return the EC public key coordinates.');
