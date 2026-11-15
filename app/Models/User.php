@@ -46,6 +46,7 @@ class User extends Authenticatable
             'checkin_streak' => 'integer',
             'api_enabled' => 'boolean',
             'api_last_used_at' => 'datetime',
+            'social_links' => 'array',
         ];
     }
 

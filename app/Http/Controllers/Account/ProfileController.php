@@ -84,6 +84,27 @@ class ProfileController extends Controller
         return back()->with('success', $msg);
     }
 
+    public function updateSocialLinks(Request $request): RedirectResponse
+    {
+        $fields = implode(',', array_keys(\App\Support\ProfileSocialLinks::PROVIDERS));
+        $data = $request->validate([
+            'social_links' => ['required', 'array:'.$fields],
+            'social_links.google' => ['nullable', 'string', 'max:255'],
+            'social_links.facebook' => ['nullable', 'string', 'max:255'],
+            'social_links.discord' => ['nullable', 'string', 'max:64'],
+            'social_links.tiktok' => ['nullable', 'string', 'max:255'],
+            'social_links.telegram' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $links = collect($data['social_links'])
+            ->map(fn ($value) => filled($value) ? trim($value) : null)
+            ->all();
+
+        $request->user()->forceFill(['social_links' => $links])->save();
+
+        return redirect()->to(route('account.profile').'#social-accounts')->with('success', 'Social account information saved.');
+    }
+
     public function avatar(Request $request): RedirectResponse
     {
         $request->validate(['avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:min_width=64,min_height=64']]);

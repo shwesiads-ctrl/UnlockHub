@@ -167,44 +167,43 @@
         <section class="card p-5 flex flex-col gap-2 text-sm">
             <h2 class="m-0 text-lg font-bold">{{ __('Account') }}</h2>
             <div class="flex justify-between"><span class="text-muted">{{ __('Referral code') }}</span><span class="font-mono font-semibold">{{ $user->referral_code }}</span></div>
-            <div class="flex justify-between"><span class="text-muted">{{ __('Connected logins') }}</span><span>{{ $user->socialAccounts->count() ?: '—' }}</span></div>
+            <div class="flex justify-between"><span class="text-muted">{{ __('Login providers') }}</span><span>{{ $user->socialAccounts->count() ?: '—' }}</span></div>
             <div class="flex justify-between"><span class="text-muted">{{ __('Last login') }}</span><span>{{ $user->last_login_at?->diffForHumans() ?? '—' }}</span></div>
             <a href="{{ route('account.security') }}" class="btn mt-2">{{ __('Password, 2FA & logins') }}</a>
         </section>
     </aside>
 </div>
 <section id="social-accounts" class="card p-6 flex flex-col gap-4">
-    <div><h2 class="m-0 text-xl font-bold">Social accounts</h2><p class="m-0 mt-2 text-sm text-muted">Connect or disconnect a login directly from here.</p></div>
+    <div><h2 class="m-0 text-xl font-bold">Social account information</h2><p class="m-0 mt-2 text-sm text-muted">Keep your social usernames and profile links here. This information is separate from your sign-in methods.</p></div>
+    <form method="POST" action="{{ route('account.profile.social-links') }}" class="flex flex-col gap-4">
+        @csrf @method('PUT')
+        @php $socialLinks = $user->social_links ?? []; @endphp
     <div class="profile-social-grid">
-    @foreach (\App\Services\Social\SocialProviders::PROVIDERS as $provider => $info)
-        @php $connected = $user->socialAccounts->firstWhere('provider', $provider); $connectable = \App\Services\Social\SocialProviders::isEnabled($provider); @endphp
-        <div class="profile-social-card"><div class="flex justify-between gap-3"><strong>{{ $info['label'] }}</strong><span class="badge {{ $connected ? 'badge-success' : 'bg-surface-2 text-muted' }}">{{ $connected ? 'Connected' : 'Not connected' }}</span></div>
-            @if ($connected)
-                <p class="m-0 text-sm text-muted break-all">{{ $connected->name ?: $connected->email ?: 'Linked account' }}</p>
-                <span class="text-xs text-muted">Last used: {{ $connected->last_login_at?->diffForHumans() ?? '—' }}</span>
-                @if ($user->password_set || $user->socialAccounts->count() > 1)
-                    <form method="POST" action="{{ route('social.unlink', $provider) }}" class="mt-auto" onsubmit="return confirm('Disconnect {{ $info['label'] }} from your login?')">
-                        @csrf @method('DELETE')
-                        <button class="btn h-9 px-3 text-xs">Disconnect {{ $info['label'] }}</button>
-                    </form>
+    @foreach (\App\Support\ProfileSocialLinks::PROVIDERS as $provider => $info)
+        @php $value = $socialLinks[$provider] ?? ''; $url = \App\Support\ProfileSocialLinks::url($provider, $value); @endphp
+        <div class="profile-social-card">
+            <div class="flex items-center justify-between gap-3"><strong>{{ $info['label'] }}</strong><span class="badge {{ filled($value) ? 'badge-info' : 'bg-surface-2 text-muted' }}">{{ filled($value) ? 'Added' : 'Optional' }}</span></div>
+            <div class="min-h-6 text-sm break-all">
+                @if (filled($value) && $url)
+                    @if (str_starts_with($url, 'mailto:'))
+                        <a href="{{ $url }}">{{ $value }}</a>
+                    @else
+                        <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $value }}</a>
+                    @endif
+                @elseif (filled($value))
+                    <span>{{ $value }}</span>
                 @else
-                    <a href="{{ route('account.security') }}" class="text-xs">Set a password before disconnecting</a>
+                    <span class="text-muted">Not added</span>
                 @endif
-            @elseif ($connectable && $provider === 'telegram')
-                <p class="m-0 text-sm text-muted">Use your Telegram account to sign in.</p>
-                <form method="POST" action="{{ route('social.telegram.start') }}" class="mt-auto">
-                    @csrf
-                    <button class="btn btn-primary h-9 px-3 text-xs">Connect Telegram</button>
-                </form>
-            @elseif ($connectable)
-                <p class="m-0 text-sm text-muted">Use your {{ $info['label'] }} account to sign in.</p>
-                <a href="{{ route('social.redirect', $provider) }}" class="btn btn-primary h-9 px-3 text-xs self-start mt-auto">Connect {{ $info['label'] }}</a>
-            @else
-                <p class="m-0 text-sm text-muted">This sign-in option is not enabled yet.</p>
-            @endif
+            </div>
+            <label for="social_{{ $provider }}" class="label text-xs">Account information</label>
+            <input id="social_{{ $provider }}" name="social_links[{{ $provider }}]" value="{{ old('social_links.'.$provider, $value) }}" class="input h-10" maxlength="255" placeholder="{{ $info['placeholder'] }}">
+            <x-field-error :name="'social_links.'.$provider" />
         </div>
     @endforeach
     </div>
+        <div class="settings-actions"><button class="btn btn-primary">Save social information</button></div>
+    </form>
 </section>
 </div>
 @endsection

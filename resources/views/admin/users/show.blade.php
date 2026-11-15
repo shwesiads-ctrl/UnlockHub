@@ -109,6 +109,29 @@
             <button class="btn btn-primary">Save</button>
         </form>
 
+        @php $socialLinks = $user->social_links ?? []; @endphp
+        <section class="card p-5 flex flex-col gap-3">
+            <h2 class="m-0 text-lg font-bold">Social account information</h2>
+            @foreach (\App\Support\ProfileSocialLinks::PROVIDERS as $provider => $info)
+                @php $value = $socialLinks[$provider] ?? ''; $url = \App\Support\ProfileSocialLinks::url($provider, $value); @endphp
+                @if (filled($value))
+                    <div class="flex items-start justify-between gap-3 text-sm">
+                        <span class="shrink-0 text-muted">{{ $info['label'] }}</span>
+                        @if ($url && str_starts_with($url, 'mailto:'))
+                            <a href="{{ $url }}" class="break-all text-right">{{ $value }}</a>
+                        @elseif ($url)
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="break-all text-right">{{ $value }}</a>
+                        @else
+                            <span class="break-all text-right">{{ $value }}</span>
+                        @endif
+                    </div>
+                @endif
+            @endforeach
+            @if (collect($socialLinks)->filter()->isEmpty())
+                <p class="m-0 text-sm text-muted">No social account information added.</p>
+            @endif
+        </section>
+
 @if (auth()->user()->canDo('users.update'))
         <form method="POST" action="{{ route('admin.users.verification', $user) }}" class="card p-5 flex flex-col gap-3">
             @csrf @method('PUT')

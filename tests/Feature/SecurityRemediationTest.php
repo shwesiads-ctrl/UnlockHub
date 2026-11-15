@@ -40,7 +40,7 @@ class SecurityRemediationTest extends TestCase
     {
         $user = $this->customer();
         $this->actingAs($user)->get('/auth/telegram/callback?'.http_build_query($this->telegramPayload()))
-            ->assertRedirect(route('account.profile').'#social-accounts')->assertSessionHas('error');
+            ->assertRedirect(route('account.security'))->assertSessionHas('error');
         $this->assertSame(0, SocialAccount::count());
     }
 

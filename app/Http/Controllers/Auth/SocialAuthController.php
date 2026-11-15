@@ -20,7 +20,7 @@ use Throwable;
 /**
  * "Continue with Google / Facebook / Discord / TikTok / Telegram".
  * - Known social account → sign in (Google Authenticator still asked if the user turned it on).
- * - Signed-in user → link the account from their profile.
+ * - Signed-in user → link the account (Settings › Connected accounts).
  * - New person → create an account (email filled when the provider gives a verified one).
  */
 class SocialAuthController extends Controller
@@ -150,7 +150,7 @@ class SocialAuthController extends Controller
             || !is_string($pending['state'] ?? null) || !hash_equals($pending['state'], $state)
             || ($pending['expires'] ?? 0) < now()->timestamp
             || ($pending['user_id'] ?? null) !== $request->user()?->id) {
-            return $this->fail($request, 'Telegram session expired. Start again from login or your profile.');
+            return $this->fail($request, 'Telegram session expired. Start again from the login or security page.');
         }
 
         try {
@@ -171,12 +171,12 @@ class SocialAuthController extends Controller
 
         // Don't lock the user out: they need a password or another connected login
         if (! $user->password_set && $user->socialAccounts()->count() <= 1) {
-            return redirect()->to(route('account.profile').'#social-accounts')->with('error', 'Set a password first, or connect another login — otherwise you could not sign in again.');
+            return back()->with('error', 'Set a password first, or connect another login — otherwise you could not sign in again.');
         }
 
         $account->delete();
 
-        return redirect()->to(route('account.profile').'#social-accounts')->with('success', SocialProviders::PROVIDERS[$provider]['label'].' disconnected.');
+        return back()->with('success', SocialProviders::PROVIDERS[$provider]['label'].' disconnected.');
     }
 
     private function complete(Request $request, string $provider, array $profile): RedirectResponse
@@ -188,14 +188,14 @@ class SocialAuthController extends Controller
         // Linking from Settings
         if ($intent === 'link' && $request->user()) {
             if ($account && $account->user_id !== $request->user()->id) {
-                return redirect()->to(route('account.profile').'#social-accounts')->with('error', "This {$label} account is already connected to another user.");
+                return redirect()->route('account.security')->with('error', "This {$label} account is already connected to another user.");
             }
             SocialAccount::updateOrCreate(
                 ['user_id' => $request->user()->id, 'provider' => $provider],
                 ['provider_id' => $profile['id'], 'email' => $profile['email'], 'name' => $profile['name'], 'avatar_url' => $profile['avatar']]
             );
 
-            return redirect()->to(route('account.profile').'#social-accounts')->with('success', "{$label} connected. You can now log in with it.");
+            return redirect()->route('account.security')->with('success', "{$label} connected. You can now log in with it.");
         }
 
         // Existing social login
@@ -209,7 +209,7 @@ class SocialAuthController extends Controller
         // Email already registered: don't merge automatically (could be someone else's email)
         if ($profile['email'] && User::where('email', strtolower($profile['email']))->exists()) {
             return redirect()->route('login')->with('error',
-                "An account with {$profile['email']} already exists. Log in with your password, then connect {$label} from your profile.");
+                "An account with {$profile['email']} already exists. Log in with your password, then connect {$label} in Settings.");
         }
 
         // New account
@@ -264,8 +264,6 @@ class SocialAuthController extends Controller
 
     private function fail(Request $request, string $message): RedirectResponse
     {
-        return $request->user()
-            ? redirect()->to(route('account.profile').'#social-accounts')->with('error', $message)
-            : redirect()->route('login')->with('error', $message);
+        return redirect()->route($request->user() ? 'account.security' : 'login')->with('error', $message);
     }
 }
