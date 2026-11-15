@@ -5,7 +5,10 @@ document.querySelectorAll('[data-support-conversation]').forEach((panel) => {
   const form = panel.querySelector('[data-chat-reply]');
   const feedback = panel.querySelector('[data-send-status]');
   const jump = panel.querySelector('[data-chat-jump]');
+  const file = panel.querySelector('[data-chat-file]');
+  const fileName = panel.querySelector('[data-chat-file-name]');
   const token = form?.querySelector('[name=client_token]');
+  const viewerIsStaff = panel.dataset.viewer === 'staff';
   const labels = { open: 'Open', waiting: 'Waiting for customer', resolved: 'Resolved', closed: 'Closed' };
   let after = Number(panel.dataset.after);
   let stopped = false;
@@ -34,11 +37,11 @@ document.querySelectorAll('[data-support-conversation]').forEach((panel) => {
     for (const message of data.messages) {
       if (Number(message.id) <= after) continue;
       const article = document.createElement('article');
-      article.className = `support-message ${message.is_staff ? 'support-staff' : ''}`;
+      article.className = `support-message ${Boolean(message.is_staff) === viewerIsStaff ? 'support-message-outgoing' : ''}`;
       article.dataset.messageId = message.id;
       const author = document.createElement('strong');
       author.className = 'text-xs';
-      author.textContent = message.is_staff ? 'Support team' : 'Customer';
+      author.textContent = message.is_staff ? (viewerIsStaff ? 'You' : 'Support team') : (viewerIsStaff ? 'Customer' : 'You');
       const body = document.createElement('p');
       body.className = 'm-0 mt-2 whitespace-pre-wrap break-words';
       body.textContent = message.body;
@@ -50,7 +53,7 @@ document.querySelectorAll('[data-support-conversation]').forEach((panel) => {
         const attachment = document.createElement('a');
         attachment.href = message.attachment_url;
         attachment.className = 'block mt-3 text-sm';
-        attachment.textContent = `Download: ${message.attachment_name}`;
+        attachment.textContent = `Attachment: ${message.attachment_name}`;
         article.append(attachment);
       }
       messages.append(article);
@@ -108,6 +111,7 @@ document.querySelectorAll('[data-support-conversation]').forEach((panel) => {
       receive(await parse(response), true);
       form.reset();
       newToken();
+      if (fileName) fileName.textContent = 'Images or PDF · 5 MB max';
       feedback.textContent = 'Message sent.';
     } catch (error) {
       feedback.textContent = `${error.message} Your message has been kept; try sending again.`;
@@ -116,6 +120,16 @@ document.querySelectorAll('[data-support-conversation]').forEach((panel) => {
       updateForm();
       if (!closed && !stopped) form.querySelector('textarea')?.focus();
     }
+  });
+
+  form?.querySelector('textarea[name="message"]')?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && event.keyCode !== 229) {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
+  file?.addEventListener('change', () => {
+    if (fileName) fileName.textContent = file.files?.[0]?.name || 'Images or PDF · 5 MB max';
   });
 
   jump.addEventListener('click', scrollDown);

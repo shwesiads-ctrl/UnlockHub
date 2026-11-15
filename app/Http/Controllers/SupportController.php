@@ -36,7 +36,17 @@ class SupportController extends Controller
             ->when($filters['category'] ?? null, fn ($q, $category) => $q->where('category', $category))
             ->orderByDesc('updated_at')->orderByDesc('id')->paginate(15)->withQueryString();
 
-        return view('support.index', compact('tickets', 'staff'));
+        $activeChat = null;
+        $latestChat = null;
+        if (! $staff) {
+            $chatQuery = SupportTicket::where('user_id', $request->user()->id)->where('channel', 'chat');
+            $activeChat = (clone $chatQuery)->whereIn('status', ['open', 'waiting'])
+                ->with(['messages' => fn ($query) => $query->latest('id')->limit(1)])
+                ->orderByDesc('updated_at')->first();
+            $latestChat = (clone $chatQuery)->orderByDesc('updated_at')->first();
+        }
+
+        return view('support.index', compact('tickets', 'staff', 'activeChat', 'latestChat'));
     }
 
     public function store(Request $request)
@@ -78,7 +88,7 @@ class SupportController extends Controller
     {
         $this->authorizeTicket($request, $ticket);
         $staff = $this->staff($request);
-        $ticket->load('order');
+        $ticket->load(['order', 'user:id,name,username']);
         $messages = $ticket->messages()->orderByDesc('id')->paginate(50)->withQueryString();
         return view('support.show', compact('ticket', 'staff', 'messages'));
     }

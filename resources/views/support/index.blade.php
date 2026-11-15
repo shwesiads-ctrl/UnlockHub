@@ -17,13 +17,40 @@
         <div><label for="ticket-file" class="label">Screenshot / document <span class="text-muted font-normal">(optional)</span></label><input id="ticket-file" type="file" name="attachment" accept=".jpg,.jpeg,.png,.webp,.pdf" class="block w-full text-sm"><p class="m-0 mt-2 text-xs text-muted">JPG, PNG, WebP or PDF up to 5 MB. Visible only to you and support staff.</p><x-field-error name="attachment" /></div>
         <button class="btn btn-primary self-start">Submit support ticket</button>
     </form>
-    <form method="POST" action="{{ route('account.support.store') }}" class="card p-6 flex flex-col gap-4">
-        @csrf <input type="hidden" name="channel" value="chat"><input type="hidden" name="subject" value="Live chat">
-        <h2 class="m-0 text-lg font-bold">Live chat</h2>
-        <p class="m-0 text-muted text-sm">Messages update automatically while the conversation is open. If the team is away, leave a message and return later.</p>
-        <label class="label" for="chat-message">How can we help?</label><textarea id="chat-message" name="message" class="input" rows="4" maxlength="5000" required></textarea>
-        <button class="btn btn-primary self-start">Start / resume chat</button>
-    </form>
+    @if ($activeChat)
+        @php $lastChatMessage = $activeChat->messages->first(); @endphp
+        <section class="card live-chat-resume">
+            <div class="live-chat-heading">
+                <span class="live-chat-symbol"><x-icon name="chat" size="22" /></span>
+                <div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><h2 class="m-0 text-lg font-bold">Live chat</h2><span class="badge {{ $activeChat->status === 'waiting' ? 'badge-pending' : 'badge-success' }}">{{ $activeChat->status === 'waiting' ? 'Reply needed' : 'In progress' }}</span></div>
+                    <p class="m-0 mt-1 text-sm text-muted">Conversation #{{ $activeChat->id }} · Updated {{ $activeChat->updated_at->diffForHumans() }}</p></div>
+            </div>
+            @if ($lastChatMessage)
+                <div class="live-chat-last-message"><span class="text-xs font-semibold text-muted">{{ $lastChatMessage->is_staff ? 'Support team replied' : 'Your last message' }}</span><p class="m-0 mt-1 text-sm line-clamp-2 whitespace-pre-wrap break-words">{{ $lastChatMessage->body }}</p></div>
+            @endif
+            <p class="m-0 text-sm text-muted">Messages refresh automatically while the conversation is open.</p>
+            <a href="{{ route('account.support.show', $activeChat) }}" class="btn btn-primary self-start">Continue conversation →</a>
+        </section>
+    @else
+        <form method="POST" action="{{ route('account.support.store') }}" enctype="multipart/form-data" class="card live-chat-start">
+            @csrf <input type="hidden" name="channel" value="chat"><input type="hidden" name="subject" value="Live chat">
+            <div class="live-chat-heading">
+                <span class="live-chat-symbol"><x-icon name="chat" size="22" /></span>
+                <div><h2 class="m-0 text-lg font-bold">Start a live chat</h2><p class="m-0 mt-1 text-sm text-muted">Support hours: {{ setting('site.support_hours', '9 AM – 10 PM') }}</p></div>
+            </div>
+            @if ($latestChat)
+                <a class="text-xs self-start" href="{{ route('account.support.show', $latestChat) }}">View your previous conversation #{{ $latestChat->id }} →</a>
+            @endif
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div><label class="label" for="chat-category">Topic</label><select id="chat-category" name="category" class="input h-11">@foreach (\App\Models\SupportTicket::CATEGORIES as $key => $label)<option value="{{ $key }}" @selected(old('category', 'general') === $key)>{{ $label }}</option>@endforeach</select></div>
+                <div><label class="label" for="chat-order">Related order <span class="text-muted font-normal">(optional)</span></label><input id="chat-order" name="order_no" value="{{ old('order_no') }}" class="input h-11" placeholder="UH…"><x-field-error name="order_no" /></div>
+            </div>
+            <div><label class="label" for="chat-message">Your message</label><textarea id="chat-message" name="message" class="input" rows="3" maxlength="5000" placeholder="Tell us what happened. Never include passwords or API keys." required>{{ old('message') }}</textarea><x-field-error name="message" /></div>
+            <div><label for="chat-file" class="label">Attach a screenshot or document <span class="text-muted font-normal">(optional, up to 5 MB)</span></label><input id="chat-file" name="attachment" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf"><p class="m-0 mt-1 text-xs text-muted">JPG, PNG, WebP or PDF. Only you and support staff can see it.</p><x-field-error name="attachment" /></div>
+            <button class="btn btn-primary self-start">Start chat →</button>
+            <p class="m-0 text-xs text-muted">If support is away, your message will stay here and you can return later.</p>
+        </form>
+    @endif
 </div>
 @endunless
 <form method="GET" class="card p-4 flex flex-wrap items-end gap-3">
