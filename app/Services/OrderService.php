@@ -114,6 +114,8 @@ class OrderService
                 $o->forceFill(['points_awarded' => true])->save();
             }
 
+            $this->points->rewardReferrer($o);
+
             ActivityLog::record('order.success', $o);
         });
     }

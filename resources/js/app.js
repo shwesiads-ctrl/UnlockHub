@@ -17,6 +17,15 @@ document.addEventListener('change', (e) => {
   if (label && e.target.files[0]) label.textContent = e.target.files[0].name;
 });
 
+// Points redeem: live "You get" value
+document.addEventListener('input', (e) => {
+  const form = e.target.closest('[data-redeem]');
+  if (!form || e.target.name !== 'points') return;
+  const out = form.querySelector('[data-redeem-value]');
+  const ks = Math.max(0, Number(e.target.value || 0)) * Number(form.dataset.rate || 0);
+  if (out) out.textContent = ks.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' Ks';
+});
+
 // Copy-to-clipboard buttons: <button data-copy="text">
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-copy]');

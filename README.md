@@ -115,6 +115,19 @@ php artisan schedule:work   # result စစ်တယ်၊ balance update လု
 
 Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်: `imei`→IMEI, `sn`/`serial`→SN, `modelid`, `providerid`, `networkid`, `pin`, `kbh`, `mep`, `prd`, `type`, `reference`, `qnt`။ တခြား key တွေ (ဥပမာ `username`) ကို `CUSTOMFIELD` (base64 JSON) နဲ့ ပို့တယ်။
 
+## Point System
+
+| ဘယ်လိုရမလဲ | ဘယ်လောက် |
+|---|---|
+| Order success တစ်ခုစီ | Service မှာ သတ်မှတ်ထားတဲ့ point (မသတ်မှတ်ရင် 1,000 Ks = 1 point) |
+| မိတ်ဆွေကို ဖိတ်ခေါ် — သူ့ရဲ့ ပထမဆုံး order success ဖြစ်ရင် | 50 point (မိတ်ဆွေ တစ်ယောက်ကို တစ်ကြိမ်ပဲ) |
+| Admin က ပေးတာ | Admin › Points › Adjust |
+
+- **Redeem:** Account › Points မှာ point ကို wallet credit အဖြစ် ပြောင်းလို့ရတယ် (default: 1 point = 10 Ks၊ အနည်းဆုံး 100 point)
+- **Group auto-upgrade:** Admin › Points › Rules မှာ Reseller / VIP အတွက် "lifetime points" ကန့်သတ်ချက် ထည့်ထားရင် အဲဒီ point ပြည့်တာနဲ့ user ကို အဲဒီ group ကို အလိုအလျောက် တင်ပေးမယ် (တက်ပဲတက်မယ်၊ မကျဘူး)
+- Reject / Cancel ဖြစ်တဲ့ order တွေက point မရပါ
+- Rule အားလုံးကို Admin › **Points** မှာ ပြင်လို့ရတယ်
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -145,7 +158,7 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 - [x] **အဆင့် ၄** — Wallet နဲ့ Myanmar payment (ပြေစာ upload → Admin approve)၊ Statement၊ Payment method settings
 - [x] **အဆင့် ၅** — Order system (API / Manual, bulk, auto refund)၊ Manual queue
 - [x] **အဆင့် ၆** — Supplier API (DHRU Fusion)၊ Service import၊ Order result auto-check
-- [ ] အဆင့် ၇ — Point system
+- [x] **အဆင့် ၇** — Point system (Redeem၊ Referral bonus၊ Group auto-upgrade၊ Admin adjust)
 - [ ] အဆင့် ၈ — Content စာမျက်နှာ (KB, Blog, Testimonials, Downloads, Track Order)
 - [ ] အဆင့် ၉ — Notification (Email + Telegram bot)
 - [ ] အဆင့် ၁၀ — Admin panel အပြည့်အစုံ

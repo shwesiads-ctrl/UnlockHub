@@ -3,6 +3,7 @@
 use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\FundsController;
 use App\Http\Controllers\Account\OrderController;
+use App\Http\Controllers\Account\PointsController;
 use App\Http\Controllers\Account\StatementController;
 use App\Http\Controllers\Account\SecurityController;
 use App\Http\Controllers\Auth\ChallengeController;
@@ -50,6 +51,9 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::get('/funds/{paymentRequest}/receipt', [FundsController::class, 'receipt'])->name('funds.receipt');
     Route::get('/statement', StatementController::class)->name('statement');
 
+    Route::get('/points', [PointsController::class, 'index'])->name('points');
+    Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
+
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
@@ -82,6 +86,10 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
     Route::get('/suppliers/{supplier}/services', [Admin\SupplierController::class, 'services'])->name('suppliers.services');
     Route::post('/suppliers/{supplier}/import', [Admin\SupplierController::class, 'import'])->name('suppliers.import');
     Route::post('/suppliers/{supplier}/sync-costs', [Admin\SupplierController::class, 'syncCosts'])->name('suppliers.sync-costs');
+
+    Route::get('/points', [Admin\PointsController::class, 'index'])->name('points.index');
+    Route::put('/points/rules', [Admin\PointsController::class, 'updateRules'])->name('points.rules');
+    Route::post('/points/adjust', [Admin\PointsController::class, 'adjust'])->name('points.adjust');
 
     Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/manual', [Admin\OrderController::class, 'manual'])->name('orders.manual');
