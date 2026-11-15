@@ -96,6 +96,40 @@ class OrderController extends Controller
         return view('account.orders.show', compact('order'));
     }
 
+    /**
+     * "Order again": open the service form pre-filled with this order's details (a bulk
+     * order brings back all its IMEIs). Nothing is placed or charged until the customer
+     * checks the details and submits.
+     */
+    public function reorder(Request $request, Order $order): RedirectResponse
+    {
+        abort_unless($order->user_id === $request->user()->id, 404);
+        $service = $order->service()->with('fields')->first();
+
+        if (! $service || $service->status !== 'active') {
+            return back()->with('error', 'This service is no longer available. Please choose another one.');
+        }
+
+        $orders = $order->batch_id
+            ? $request->user()->orders()->where('batch_id', $order->batch_id)->orderBy('id')->get(['input', 'price', 'user_note'])
+            : collect([$order]);
+
+        $fields = [];
+        $bulk = $service->allow_bulk ? $service->fields->firstWhere('is_bulk_field', true) : null;
+        foreach ($service->fields as $f) {
+            $values = $orders->map(fn ($o) => (string) (((array) $o->input)[$f->name] ?? ''))->filter(fn ($v) => $v !== '');
+            $fields[$f->name] = $bulk && $f->is($bulk) ? $values->unique()->implode("\n") : (string) $values->first();
+        }
+
+        return redirect()->route('services.show', $service)
+            ->withInput(['fields' => $fields, 'user_note' => $order->user_note])
+            ->with('reorder', [
+                'order_no' => $order->order_no,
+                'old_price' => (float) $order->price,
+                'items' => $orders->count(),
+            ]);
+    }
+
     public function cancel(Request $request, Order $order): RedirectResponse
     {
         abort_unless($order->user_id === $request->user()->id, 404);

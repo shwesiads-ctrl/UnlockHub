@@ -59,6 +59,12 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
+    /** Favourite services (pivot: favorites). */
+    public function favorites(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'favorites')->withPivot('created_at');
+    }
+
     public function tickets(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Ticket::class);

@@ -25,6 +25,10 @@ class DashboardController extends Controller
 
         $pointsValue = $user->points * (float) setting('points.redeem_rate', 10);
 
-        return view('account.dashboard', compact('user', 'orders', 'stats', 'pointsValue'));
+        $favorites = $user->favorites()->visible()
+            ->with(['prices' => fn ($p) => $p->where('user_group_id', $user->user_group_id ?? 0)])
+            ->orderBy('services.name')->limit(8)->get();
+
+        return view('account.dashboard', compact('user', 'orders', 'stats', 'pointsValue', 'favorites'));
     }
 }

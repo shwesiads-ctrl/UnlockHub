@@ -75,3 +75,29 @@ document.addEventListener('change', (e) => {
   ta.focus();
   sel.value = '';
 });
+
+// Favourite star: toggle without leaving the page (falls back to a normal post)
+document.addEventListener('submit', async (e) => {
+  const form = e.target.closest('form[data-favorite]');
+  if (!form) return;
+  e.preventDefault();
+  const btn = form.querySelector('button');
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'X-CSRF-TOKEN': form.querySelector('[name=_token]').value },
+    });
+    if (!res.ok) throw new Error();
+    const { favorite } = await res.json();
+    btn.setAttribute('aria-pressed', favorite ? 'true' : 'false');
+    btn.classList.toggle('text-point', favorite);
+    btn.classList.toggle('text-muted', !favorite && btn.classList.contains('text-lg'));
+    const star = btn.querySelector('[aria-hidden]') || btn;
+    if (star === btn && !btn.querySelector('[data-fav-label]')) btn.textContent = favorite ? '★' : '☆';
+    else star.textContent = favorite ? '★' : '☆';
+    const label = btn.querySelector('[data-fav-label]');
+    if (label) label.textContent = favorite ? 'Favourite' : 'Add to favourites';
+  } catch {
+    form.submit();
+  }
+});

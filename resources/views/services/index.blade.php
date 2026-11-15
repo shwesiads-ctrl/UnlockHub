@@ -81,6 +81,12 @@
                         <tr>
                             <td>
                                 <div class="flex items-center gap-2 font-medium">
+                                    @auth
+                                        <form method="POST" action="{{ route('account.favorites.toggle', $service) }}" data-favorite>
+                                            @csrf
+                                            <button class="text-lg leading-none bg-transparent border-0 cursor-pointer p-0 {{ in_array($service->id, $favoriteIds, true) ? 'text-point' : 'text-muted' }}" aria-pressed="{{ in_array($service->id, $favoriteIds, true) ? 'true' : 'false' }}" aria-label="Favourite">{{ in_array($service->id, $favoriteIds, true) ? '★' : '☆' }}</button>
+                                        </form>
+                                    @endauth
                                     <a href="{{ route('services.show', $service) }}" class="text-ink hover:text-brand-ink no-underline">{{ $service->name }}</a>
                                     @if ($service->is_hot) <span class="badge badge-hot text-[11px]">HOT</span> @endif
                                 </div>

@@ -66,7 +66,7 @@
         <a href="{{ route('account.tickets.create', ['order' => $order->order_no]) }}" class="btn w-full"><x-icon name="bell" size="16" />{{ __('Get help with this order') }}</a>
 
         @if ($order->service?->status === 'active')
-            <a href="{{ route('services.show', $order->service) }}" class="btn w-full">Order this again</a>
+            <a href="{{ route('account.orders.reorder', $order) }}" class="btn w-full">{{ $order->batch_id ? __('Order this bulk again') : __('Order again') }}</a>
         @endif
     </aside>
 </div>

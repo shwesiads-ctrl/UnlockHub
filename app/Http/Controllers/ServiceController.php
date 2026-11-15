@@ -50,7 +50,9 @@ class ServiceController extends Controller
                 ->selectRaw('type, count(*) as n')->groupBy('type')->pluck('n', 'type')->all();
         }
 
-        return view('services.index', compact('type', 'hotOnly', 'search', 'categoryId', 'allCategories', 'categories', 'otherTabHits', 'servicePage'));
+        $favoriteIds = $request->user()?->favorites()->pluck('services.id')->all() ?? [];
+
+        return view('services.index', compact('type', 'hotOnly', 'search', 'categoryId', 'allCategories', 'categories', 'otherTabHits', 'servicePage', 'favoriteIds'));
     }
 
     public function show(Request $request, Service $service): View
@@ -65,6 +67,7 @@ class ServiceController extends Controller
             'service' => $service,
             'price' => $price,
             'points' => $service->pointsFor($price),
+            'isFavorite' => (bool) $request->user()?->favorites()->whereKey($service->id)->exists(),
         ]);
     }
 }

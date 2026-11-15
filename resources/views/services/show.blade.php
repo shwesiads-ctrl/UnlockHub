@@ -15,7 +15,15 @@
                     <span class="badge badge-info">{{ \App\Models\Service::TYPES[$service->type] }}</span>
                     @if ($service->is_hot) <span class="badge badge-hot">HOT</span> @endif
                 </div>
-                <h1 class="m-0 text-[30px] font-bold">{{ $service->name }}</h1>
+                <div class="flex items-start gap-3">
+                    <h1 class="m-0 text-[30px] font-bold flex-1">{{ $service->name }}</h1>
+                    @auth
+                        <form method="POST" action="{{ route('account.favorites.toggle', $service) }}" data-favorite>
+                            @csrf
+                            <button class="btn h-10 {{ $isFavorite ? 'text-point' : '' }}" aria-pressed="{{ $isFavorite ? 'true' : 'false' }}"><span aria-hidden="true">{{ $isFavorite ? '★' : '☆' }}</span> <span data-fav-label>{{ $isFavorite ? __('Favourite') : __('Add to favourites') }}</span></button>
+                        </form>
+                    @endauth
+                </div>
                 <div class="flex flex-wrap gap-6 text-sm text-muted">
                     @if ($service->delivery_time)
                         <span class="flex items-center gap-1.5"><x-icon name="clock" size="16" />{{ $service->delivery_time }}</span>
@@ -76,6 +84,18 @@
                     <span>{{ __('I checked the details. Wrong entries are non-refundable and In Process orders can\'t be cancelled.') }}</span>
                 </label>
                 <x-field-error name="confirm" />
+
+                @if ($re = session('reorder'))
+                    @php $balance = auth()->check() ? (float) auth()->user()->balance : 0; $total = (float) $price * max(1, $re['items']); @endphp
+                    <div class="rounded-xl border border-brand/30 bg-brand-soft p-4 flex flex-col gap-1.5 text-sm" role="status">
+                        <strong>{{ __('Ordering again from') }} #{{ $re['order_no'] }} — {{ __('check the details above, then place the order.') }}</strong>
+                        <span>{{ __('Price now') }}: <strong>{{ price($price) }}</strong>
+                            @if (abs((float) $price - $re['old_price']) >= 0.01) ({{ __('was') }} {{ price($re['old_price']) }}) @endif
+                            @if ($re['items'] > 1) × {{ $re['items'] }} = <strong>{{ price($total) }}</strong> @endif</span>
+                        <span @class(['text-danger font-semibold' => $balance < $total])>{{ __('Wallet') }}: {{ price($balance) }}{{ $balance < $total ? ' — '.__('not enough, add funds first') : '' }}</span>
+                        <span class="text-xs text-muted">{{ __('Nothing is charged until you press Place order.') }}</span>
+                    </div>
+                @endif
 
                 @if (session('duplicates'))
                     <div @class(['rounded-xl border p-4 flex flex-col gap-2 text-sm', 'bg-danger-soft border-danger/30' => session('duplicates_blocked'), 'bg-warn-soft border-warn/40' => ! session('duplicates_blocked')]) role="alert">

@@ -14,6 +14,7 @@
                 ['Dashboard', 'grid', 'account.dashboard'],
                 ['My Profile', 'hand', 'account.profile'],
                 ['Place Order', 'phone', 'services.index'],
+                ['Favourites', 'star', 'account.favorites'],
                 ['Order History', 'list', 'account.orders.index'],
                 ['Add Funds', 'wallet', 'account.funds.index'],
                 ['Statement', 'receipt', 'account.statement'],

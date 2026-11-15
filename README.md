@@ -201,6 +201,14 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Favourite + Order again
+
+- Services စာရင်း / Service စာမျက်နှာမှာ ☆ နှိပ်ပြီး Favourite ထည့်/ဖြုတ် (page မပြောင်းဘဲ)
+- Account Dashboard မှာ Favourite service ၈ ခု၊ **Account › Favourites** မှာ အကုန် + ရှာဖွေ
+- Order detail / Bulk order စာရင်းက **Order again** — Service form ကို IMEI, email, username… (Bulk ဆို IMEI အကုန်) နဲ့ ဖြည့်ပေးတယ်၊ ပြင်ပြီးမှ တင်လို့ရ
+- ဈေးအသစ်/အဟောင်း၊ စုစုပေါင်း၊ Wallet လက်ကျန် လုံလောက်မှု ပြတယ်။ Service ပိတ်ထား/Pause ဖြစ်နေရင် order မတင်ရ
+- **Order again နှိပ်ရုံနဲ့ ငွေမနုတ်ဘူး** — Place order နှိပ်ပြီး confirm လုပ်မှ order အသစ်ဖြစ်
+
 ## ဈေးနှုန်းနဲ့ အမြတ်ကာကွယ်မှု (Profit guard)
 
 - **Groups & Pricing** — Group တစ်ခုချင်းစီမှာ Markup (`%` သို့ `Ks` ပုံသေ) + အနည်းဆုံးအမြတ်၊ ဈေးအဝိုင်း (10/50/100/500/1000 Ks)၊ Cost ≥ ရောင်းဈေး ဖြစ်ရင် **Pause new orders** / Warn only၊ Auto ဈေးပြောင်းမှု X% ထက်ကြီးရင် Admin အတည်ပြုမှ

@@ -40,6 +40,26 @@
     </div>
 </div>
 
+<section class="card p-5 flex flex-col gap-3">
+    <div class="flex justify-between items-center gap-3">
+        <h2 class="m-0 text-lg font-bold">★ {{ __('Favourite services') }}</h2>
+        <a href="{{ route('account.favorites') }}" class="text-sm">{{ __('All favourites') }}</a>
+    </div>
+    @if ($favorites->isEmpty())
+        <p class="m-0 text-sm text-muted">{{ __('Tap ☆ next to a service to keep it here for quick ordering.') }}</p>
+    @else
+        <div class="grid gap-3 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+            @foreach ($favorites as $f)
+                <a href="{{ route('services.show', $f) }}" class="rounded-xl border border-line bg-bg p-3 flex flex-col gap-1 no-underline text-ink hover:border-brand">
+                    <span class="font-semibold text-sm leading-snug">{{ \Illuminate\Support\Str::limit($f->name, 70) }}</span>
+                    <span class="text-xs text-muted">{{ $f->delivery_time ?: '—' }}</span>
+                    <span class="font-display font-bold">{{ price($f->priceFor($user)) }}</span>
+                </a>
+            @endforeach
+        </div>
+    @endif
+</section>
+
 <section class="card overflow-hidden">
     <div class="flex justify-between items-center px-5 py-4">
         <h2 class="m-0 text-lg font-bold">Recent orders</h2>

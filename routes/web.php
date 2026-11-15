@@ -109,6 +109,10 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
     Route::post('/points/check-in', [PointsController::class, 'checkIn'])->name('points.checkin')->middleware('throttle:10,1');
 
+    Route::get('/favorites', [\App\Http\Controllers\Account\FavoriteController::class, 'index'])->name('favorites');
+    Route::post('/favorites/{service}', [\App\Http\Controllers\Account\FavoriteController::class, 'toggle'])->name('favorites.toggle')->middleware('throttle:60,1');
+    Route::get('/orders/{order}/reorder', [OrderController::class, 'reorder'])->name('orders.reorder');
+
     Route::get('/tickets', [\App\Http\Controllers\Account\TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/new', [\App\Http\Controllers\Account\TicketController::class, 'create'])->name('tickets.create');
     Route::post('/tickets', [\App\Http\Controllers\Account\TicketController::class, 'store'])->name('tickets.store')->middleware('throttle:10,10');

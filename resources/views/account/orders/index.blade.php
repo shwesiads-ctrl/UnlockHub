@@ -22,6 +22,7 @@
     <div class="rounded-xl px-4 py-3 text-sm bg-brand-soft text-brand-ink flex flex-wrap gap-3 items-center">
         <span class="flex-1">Showing one bulk order ({{ $orders->total() }} items).</span>
         <a href="{{ route('account.orders.export', ['batch' => request('batch')]) }}" class="btn h-9 text-[13px]">Download CSV</a>
+        @if ($orders->first()) <a href="{{ route('account.orders.reorder', $orders->first()) }}" class="btn h-9 text-[13px]">{{ __('Order this bulk again') }}</a> @endif
         <a href="{{ route('account.orders.index') }}" class="btn h-9 text-[13px]">Show all orders</a>
     </div>
 @endif
