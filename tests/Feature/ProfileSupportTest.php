@@ -160,9 +160,22 @@ class ProfileSupportTest extends TestCase
         $ticket = SupportTicket::create(['user_id' => $user->id, 'subject' => 'Live chat', 'channel' => 'chat', 'status' => 'waiting']);
         $this->actingAs($user)->post('/account/support', ['subject' => 'Live chat', 'channel' => 'chat', 'message' => 'Following up'])->assertRedirect();
         $this->assertSame(1, SupportTicket::where('user_id', $user->id)->count());
+        $this->assertSame('open', $ticket->fresh()->status);
         $this->actingAs($admin)->put('/admin/support/'.$ticket->id.'/status', ['status' => 'resolved'])->assertRedirect();
         $this->actingAs($user)->postJson('/account/support/'.$ticket->id.'/messages', ['message' => 'Hello'])->assertUnprocessable();
         $this->actingAs($admin)->put('/admin/support/'.$ticket->id.'/status', ['status' => 'open'])->assertRedirect();
         $this->actingAs($user)->postJson('/account/support/'.$ticket->id.'/messages', ['message' => 'Back again'])->assertOk();
+    }
+
+    public function test_support_staff_permissions_are_enforced_for_live_chat(): void
+    {
+        $user = User::factory()->create()->fresh();
+        $support = User::factory()->admin()->create(['staff_role' => 'support'])->fresh();
+        $editor = User::factory()->admin()->create(['staff_role' => 'editor'])->fresh();
+        $ticket = SupportTicket::create(['user_id' => $user->id, 'subject' => 'Account help', 'channel' => 'chat']);
+        $this->actingAs($editor)->get('/admin/support')->assertForbidden();
+        $this->postJson('/admin/support/'.$ticket->id.'/messages', ['message' => 'Forbidden reply'])->assertForbidden();
+        $this->actingAs($support)->get('/admin/support')->assertOk();
+        $this->postJson('/admin/support/'.$ticket->id.'/messages', ['message' => 'Support staff reply'])->assertOk();
     }
 }

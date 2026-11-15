@@ -54,9 +54,10 @@ class SupportController extends Controller
             // Serialize chat creation so double clicks resume the same open chat.
             User::whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
             if ($data['channel'] === 'chat') {
-                $existing = SupportTicket::where('user_id', $request->user()->id)->where('channel', 'chat')->whereIn('status', ['open', 'waiting'])->first();
+                $existing = SupportTicket::where('user_id', $request->user()->id)->where('channel', 'chat')->whereIn('status', ['open', 'waiting'])->lockForUpdate()->first();
                 if ($existing) {
                     $this->addMessage($request, $existing, $data['message']);
+                    $existing->status = 'open';
                     $existing->touch();
                     return $existing;
                 }
@@ -152,6 +153,8 @@ class SupportController extends Controller
         $this->authorizeTicket($request, $ticket);
         abort_unless($message->support_ticket_id === $ticket->id && $message->attachment_path, 404);
         abort_unless(Storage::disk('local')->exists($message->attachment_path), 404);
-        return Storage::disk('local')->download($message->attachment_path, $message->attachment_name, ['X-Content-Type-Options' => 'nosniff']);
+        return Storage::disk('local')->download($message->attachment_path, \App\Support\SafeName::header($message->attachment_name), [
+            'X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, no-store',
+        ]);
     }
 }

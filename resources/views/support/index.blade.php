@@ -1,6 +1,6 @@
 @extends($staff ? 'layouts.admin' : 'layouts.account', ['title' => 'Support Desk & Live Chat'])
 @section('content')
-<div class="profile-support-intro card p-6"><div><span class="badge badge-info">Support center</span><h2 class="text-2xl font-bold mt-3 mb-2">How can we help?</h2><p class="m-0 text-muted text-sm">{{ $staff ? 'Review customer tickets and reply to live conversations.' : 'Ask about orders, payments or your account. Our team replies during support hours.' }}</p></div><span class="badge badge-info">{{ setting('site.support_hours', '9 AM – 10 PM') }}</span></div>
+<div class="profile-support-intro card p-6"><div><span class="badge badge-info">Live support center</span><h2 class="text-2xl font-bold mt-3 mb-2">How can we help?</h2><p class="m-0 text-muted text-sm">{{ $staff ? 'Review customer tickets and reply to live conversations.' : 'Ask about orders, payments or your account. Our team replies during support hours.' }}</p></div><div class="flex flex-wrap items-center gap-3"><span class="badge badge-info">{{ setting('site.support_hours', '9 AM – 10 PM') }}</span><a class="btn" href="{{ route(($staff ? 'admin' : 'account').'.tickets.index') }}">Order support tickets →</a></div></div>
 @unless ($staff)
 <div class="settings-fields">
     <form method="POST" action="{{ route('account.support.store') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-4">
