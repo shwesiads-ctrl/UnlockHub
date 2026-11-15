@@ -201,6 +201,14 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Support Ticket
+
+- **Customer (Account › Support)**: Ticket ဖွင့် (Order / Payment / Account / Other)၊ Order detail ထဲက **Get help with this order** ကနေလည်း ဖွင့်လို့ရ၊ စာ + screenshot/file (၃ ခု၊ JPG/PNG/WebP/PDF/TXT၊ 5 MB)
+- Status: **Open → In Progress → Waiting for Customer → Resolved → Closed**။ Resolved ဖြစ်ပြီး ၇ ရက်အတွင်း (setting `tickets.reopen_days`) ပြန်ဖွင့်/ပြန်ရေးလို့ရ၊ ပြီးရင် `tickets:close-resolved` (နေ့စဉ်) က Closed လုပ်တယ်
+- **Admin › Tickets**: Needs reply / Status / Priority / Topic / Assigned (Me, Unassigned) filter၊ ticket no.·subject·username·order no.·IMEI နဲ့ ရှာ၊ Priority, Assign, **Internal note** (customer မမြင်ရ), **Saved replies** (`{name}` `{ticket}` `{order}`)
+- Customer က ကိုယ့် ticket နဲ့ internal မဟုတ်တဲ့ attachment ကိုပဲ ကြည့်လို့ရ (တခြားသူ့ဟာ 404)၊ File တွေ private disk ပေါ်မှာ
+- Staff ပြန်စာ → customer ကို notification + email၊ Customer ticket/ပြန်စာ → Admin Telegram
+
 ## Staff (ဝန်ထမ်း) ခွင့်ပြုချက်
 
 - **Admin › Staff** (Owner ပဲ ဝင်လို့ရ): ရှိပြီးသား account ကို Staff အဖြစ်ထည့် (Google Authenticator ဖွင့်ထားမှ)၊ Role ပြောင်း၊ ဖယ်ရှား

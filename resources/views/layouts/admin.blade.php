@@ -18,6 +18,7 @@
                 ['Dashboard', 'grid', 'admin.dashboard', null, ['admin.dashboard']],
                 ['Orders', 'list', 'admin.orders.index', null, ['admin.orders.index', 'admin.orders.show']],
                 ['Manual Queue', 'hand', 'admin.orders.manual', 'manual', ['admin.orders.manual']],
+                ['Tickets', 'bell', 'admin.tickets.index', 'tickets', ['admin.tickets.*', 'admin.canned.*']],
                 ['Payments', 'receipt', 'admin.payments.index', 'payments', ['admin.payments.*', 'admin.payment-methods.*']],
                 ['Wallet approvals', 'wallet', 'admin.wallet-approvals.index', 'approvals', ['admin.wallet-approvals.*']],
                 ['Services', 'phone', 'admin.services.index', null, ['admin.services.*', 'admin.categories.*']],

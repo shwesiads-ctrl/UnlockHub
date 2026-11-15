@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
                 'manual' => Order::manualQueue()->count(),
                 'payments' => PaymentRequest::where('status', PaymentRequest::PENDING)->count(),
                 'approvals' => \App\Models\WalletAdjustment::where('status', 'pending')->count(),
-                'tickets' => \Illuminate\Support\Facades\Schema::hasTable('tickets') ? \App\Models\Ticket::whereIn('status', ['open', 'customer_replied'])->count() : 0,
+                'tickets' => \App\Models\Ticket::where('awaiting_staff', true)->whereNotIn('status', ['resolved', 'closed'])->count(),
             ], ['manual' => 0, 'payments' => 0, 'approvals' => 0, 'tickets' => 0], false));
         });
     }

@@ -17,6 +17,7 @@
                 ['Order History', 'list', 'account.orders.index'],
                 ['Add Funds', 'wallet', 'account.funds.index'],
                 ['Statement', 'receipt', 'account.statement'],
+                ['Support', 'bell', 'account.tickets.index'],
                 ['Points', 'star', 'account.points'],
                 ['Notifications', 'bell', 'account.notifications'],
                 ['API Access', 'plug', 'account.api'],
@@ -26,7 +27,7 @@
         <nav aria-label="Account" class="flex flex-col gap-0.5">
             @foreach ($nav as [$label, $icon, $route])
                 @continue($route === 'account.points' && ! \App\Services\PointService::systemOn())
-                <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs($route)])>
+                <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs($route) || ($route === 'account.tickets.index' && request()->routeIs('account.tickets.*'))])>
                     <x-icon :name="$icon" /><span>{{ __($label) }}</span>
                 </a>
             @endforeach

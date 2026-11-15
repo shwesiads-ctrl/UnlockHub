@@ -109,6 +109,14 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
     Route::post('/points/check-in', [PointsController::class, 'checkIn'])->name('points.checkin')->middleware('throttle:10,1');
 
+    Route::get('/tickets', [\App\Http\Controllers\Account\TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/new', [\App\Http\Controllers\Account\TicketController::class, 'create'])->name('tickets.create');
+    Route::post('/tickets', [\App\Http\Controllers\Account\TicketController::class, 'store'])->name('tickets.store')->middleware('throttle:10,10');
+    Route::get('/tickets/{ticket}', [\App\Http\Controllers\Account\TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Account\TicketController::class, 'reply'])->name('tickets.reply')->middleware('throttle:20,10');
+    Route::post('/tickets/{ticket}/reopen', [\App\Http\Controllers\Account\TicketController::class, 'reopen'])->name('tickets.reopen');
+    Route::get('/tickets/{ticket}/files/{attachment}', [\App\Http\Controllers\Account\TicketController::class, 'attachment'])->name('tickets.attachment');
+
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
@@ -127,6 +135,17 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
 /* ---------------- Admin ---------------- */
 Route::middleware(['auth', 'active', 'admin', 'staff'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', Admin\DashboardController::class)->name('dashboard');
+
+    Route::get('/tickets', [Admin\TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/saved-replies', [Admin\CannedReplyController::class, 'index'])->name('canned.index');
+    Route::post('/tickets/saved-replies', [Admin\CannedReplyController::class, 'store'])->name('canned.store');
+    Route::put('/tickets/saved-replies/{canned}', [Admin\CannedReplyController::class, 'update'])->name('canned.update');
+    Route::delete('/tickets/saved-replies/{canned}', [Admin\CannedReplyController::class, 'destroy'])->name('canned.destroy');
+    Route::get('/tickets/{ticket}', [Admin\TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [Admin\TicketController::class, 'reply'])->name('tickets.reply');
+    Route::put('/tickets/{ticket}', [Admin\TicketController::class, 'update'])->name('tickets.update');
+    Route::put('/tickets/{ticket}/assign', [Admin\TicketController::class, 'assign'])->name('tickets.assign');
+    Route::get('/tickets/{ticket}/files/{attachment}', [Admin\TicketController::class, 'attachment'])->name('tickets.attachment');
 
     Route::get('/staff', [Admin\StaffController::class, 'index'])->name('staff.index');
     Route::post('/staff', [Admin\StaffController::class, 'store'])->name('staff.store');

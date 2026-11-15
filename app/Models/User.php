@@ -59,6 +59,11 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
+    public function tickets(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     /** Staff role for admins (old admins without one count as Owner). */
     public function staffRole(): ?string
     {

@@ -64,3 +64,14 @@ window.addEventListener('pageshow', () => {
     form.querySelectorAll('button[disabled]').forEach((b) => { b.disabled = false; if (b.dataset.label) b.textContent = b.dataset.label; });
   });
 });
+
+// Ticket reply: insert a saved reply at the cursor
+document.addEventListener('change', (e) => {
+  const sel = e.target.closest('select[data-canned]');
+  if (!sel || !sel.value) return;
+  const ta = sel.closest('form').querySelector('textarea[name="message"]');
+  const at = ta.selectionStart ?? ta.value.length;
+  ta.value = ta.value.slice(0, at) + sel.value + ta.value.slice(at);
+  ta.focus();
+  sel.value = '';
+});
