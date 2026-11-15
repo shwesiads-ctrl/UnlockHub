@@ -19,6 +19,7 @@
                 ['Orders', 'list', 'admin.orders.index', null, ['admin.orders.index', 'admin.orders.show']],
                 ['Manual Queue', 'hand', 'admin.orders.manual', 'manual', ['admin.orders.manual']],
                 ['Payments', 'receipt', 'admin.payments.index', 'payments', ['admin.payments.*', 'admin.payment-methods.*']],
+                ['Wallet approvals', 'wallet', 'admin.wallet-approvals.index', 'approvals', ['admin.wallet-approvals.*']],
                 ['Services', 'phone', 'admin.services.index', null, ['admin.services.*', 'admin.categories.*']],
                 ['Suppliers & API', 'plug', 'admin.suppliers.index', null, ['admin.suppliers.*']],
                 ['Users', 'users', 'admin.users.index', null, ['admin.users.*']],
@@ -28,8 +29,11 @@
                 ['Content', 'file', 'admin.posts.index', null, ['admin.posts.*', 'admin.testimonials.*', 'admin.downloads.*', 'admin.announcements.*']],
                 ['Reports', 'chart', 'admin.reports.index', null, ['admin.reports.*']],
                 ['Activity Log', 'clock', 'admin.activity.index', null, ['admin.activity.*']],
+                ['Staff', 'lock', 'admin.staff.index', null, ['admin.staff.*']],
                 ['Settings', 'sliders', 'admin.settings.index', null, ['admin.settings.*']],
             ];
+            // Only show what this staff member may open
+            $nav = array_values(array_filter($nav, fn ($item) => \App\Support\Permissions::allowsRoute(auth()->user(), $item[2])));
         @endphp
         <nav aria-label="Admin" class="flex flex-col gap-0.5">
             @foreach ($nav as [$label, $icon, $route, $badgeKey, $patterns])

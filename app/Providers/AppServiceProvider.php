@@ -22,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::defaultView('partials.numbered-pagination');
+
+        // @can('orders.process') etc. → staff permissions
+        \Illuminate\Support\Facades\Gate::before(function ($user, string $ability) {
+            return array_key_exists($ability, \App\Support\Permissions::ALL) ? $user->canDo($ability) : null;
+        });
         Model::preventLazyLoading(! $this->app->isProduction());
 
         // Short names in polymorphic columns (wallet/point/activity references)
@@ -29,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
             'order' => Order::class,
             'payment_request' => PaymentRequest::class,
+            'wallet_adjustment' => \App\Models\WalletAdjustment::class,
             'point_transaction' => \App\Models\PointTransaction::class,
             'service' => \App\Models\Service::class,
             'supplier' => \App\Models\Supplier::class,
@@ -42,7 +48,9 @@ class AppServiceProvider extends ServiceProvider
             $view->with('adminBadges', rescue(fn () => [
                 'manual' => Order::manualQueue()->count(),
                 'payments' => PaymentRequest::where('status', PaymentRequest::PENDING)->count(),
-            ], ['manual' => 0, 'payments' => 0], false));
+                'approvals' => \App\Models\WalletAdjustment::where('status', 'pending')->count(),
+                'tickets' => \Illuminate\Support\Facades\Schema::hasTable('tickets') ? \App\Models\Ticket::whereIn('status', ['open', 'customer_replied'])->count() : 0,
+            ], ['manual' => 0, 'payments' => 0, 'approvals' => 0, 'tickets' => 0], false));
         });
     }
 }

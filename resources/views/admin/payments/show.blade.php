@@ -48,7 +48,7 @@
             @endif
         </section>
 
-        @if ($pr->status === 'pending')
+        @if ($pr->status === 'pending' && auth()->user()->canDo('payments.approve'))
             <form method="POST" action="{{ route('admin.payments.approve', $pr) }}" class="card p-5 flex flex-col gap-3.5">
                 @csrf
                 <h2 class="m-0 text-lg font-bold">Approve</h2>

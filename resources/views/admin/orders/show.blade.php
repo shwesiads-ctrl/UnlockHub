@@ -62,7 +62,7 @@
     </section>
 
     <aside class="flex-[1_1_360px] min-w-0 flex flex-col gap-5">
-        @if ($order->isOpen())
+        @if ($order->isOpen() && auth()->user()->canDo('orders.process'))
             <form method="POST" action="{{ route('admin.orders.update', $order) }}" class="card p-5 flex flex-col gap-3.5">
                 @csrf @method('PUT')
                 <h2 class="m-0 text-lg font-bold">Process</h2>

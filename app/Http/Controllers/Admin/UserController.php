@@ -114,14 +114,15 @@ class UserController extends Controller
         ]);
 
         try {
-            $data['direction'] === 'credit'
-                ? $wallet->credit($user, $data['amount'], 'admin_credit', null, $data['reason'])
-                : $wallet->debit($user, $data['amount'], 'admin_debit', null, $data['reason']);
+            $adj = app(\App\Services\WalletAdjustmentService::class)
+                ->request($user, $data['direction'], (float) $data['amount'], $data['reason'], $request->user());
         } catch (InsufficientBalanceException) {
             return back()->withInput()->with('error', "Can't remove more than the balance (".money($user->balance).').');
         }
 
-        ActivityLog::record('user.wallet_'.$data['direction'], $user, $data);
+        if ($adj->status === 'pending') {
+            return back()->with('success', money($data['amount']).' is waiting for a second staff member to approve (Wallet approvals).');
+        }
 
         return back()->with('success', ($data['direction'] === 'credit' ? 'Added ' : 'Removed ').money($data['amount']).'. New balance '.money($user->fresh()->balance).'.');
     }

@@ -201,6 +201,15 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Staff (ဝန်ထမ်း) ခွင့်ပြုချက်
+
+- **Admin › Staff** (Owner ပဲ ဝင်လို့ရ): ရှိပြီးသား account ကို Staff အဖြစ်ထည့် (Google Authenticator ဖွင့်ထားမှ)၊ Role ပြောင်း၊ ဖယ်ရှား
+- Role: **Owner** (အကုန်), **Finance** (Payment, Wallet, Reconcile, Reports), **Order Operator** (Order ဆောင်ရွက်), **Support** (Ticket, customer/order ကြည့်), **Content Editor** (Blog/KB/Announcement/Popup)
+- Role တစ်ခုချင်းစီ ဘာလုပ်ခွင့်ရှိလဲ (View / Process / Approve / Export…) ကို checkbox table နဲ့ ပြင်လို့ရ။ Supplier API key, Settings (social/Telegram secret), Staff စီမံခြင်း က Default အားဖြင့် Owner ပဲ
+- Menu ဖျောက်ရုံမက **URL တိုက်ရိုက်ခေါ်လည်း 403** (route တိုင်းကို permission နဲ့ map ထားတယ်၊ map မထားတဲ့ route အသစ်က Owner ပဲ)
+- အပြောင်းအလဲတိုင်း Activity Log ထဲ ဘယ်သူ ဘာပြောင်းလဲ မှတ်တယ်
+- **Wallet approvals** — Staff › threshold (ဥပမာ 500,000 Ks) ထက်များတဲ့ manual wallet add/remove က ဒုတိယ ဝန်ထမ်း Approve မှ ဝင်တယ် (ကိုယ့်ဟာကိုယ် approve လို့မရ)
+
 ## Order / Payment ထပ်မဖြစ်အောင် ကာကွယ်ခြင်း
 
 - **Order request token** — Order form တစ်ခါဖွင့်တိုင်း token တစ်ခု ပါတယ်။ ခလုတ်နှစ်ခါနှိပ်တာ၊ Refresh/Resend၊ connection ပြတ်ပြီး ပြန်ပို့တာ ဖြစ်လည်း order နဲ့ ငွေနုတ်တာ **တစ်ကြိမ်ပဲ** ဖြစ်တယ် (`order_requests` table, unique)

@@ -59,6 +59,17 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
+    /** Staff role for admins (old admins without one count as Owner). */
+    public function staffRole(): ?string
+    {
+        return $this->isAdmin() ? ($this->staff_role ?: 'owner') : null;
+    }
+
+    public function canDo(string $permission): bool
+    {
+        return \App\Support\Permissions::allows($this, $permission);
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

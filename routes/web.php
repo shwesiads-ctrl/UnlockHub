@@ -125,8 +125,19 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
 });
 
 /* ---------------- Admin ---------------- */
-Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'active', 'admin', 'staff'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', Admin\DashboardController::class)->name('dashboard');
+
+    Route::get('/staff', [Admin\StaffController::class, 'index'])->name('staff.index');
+    Route::post('/staff', [Admin\StaffController::class, 'store'])->name('staff.store');
+    Route::put('/staff/permissions', [Admin\StaffController::class, 'permissions'])->name('staff.permissions');
+    Route::put('/staff/threshold', [Admin\StaffController::class, 'threshold'])->name('staff.threshold');
+    Route::put('/staff/{user}', [Admin\StaffController::class, 'update'])->name('staff.update');
+    Route::delete('/staff/{user}', [Admin\StaffController::class, 'destroy'])->name('staff.destroy');
+
+    Route::get('/wallet-approvals', [Admin\WalletApprovalController::class, 'index'])->name('wallet-approvals.index');
+    Route::post('/wallet-approvals/{adjustment}/approve', [Admin\WalletApprovalController::class, 'approve'])->name('wallet-approvals.approve');
+    Route::post('/wallet-approvals/{adjustment}/reject', [Admin\WalletApprovalController::class, 'reject'])->name('wallet-approvals.reject');
 
     Route::get('/users', [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [Admin\UserController::class, 'show'])->name('users.show');

@@ -108,9 +108,13 @@
             <button class="btn btn-primary">Save</button>
         </form>
 
+        @if (auth()->user()->canDo('wallet.adjust'))
         <form method="POST" action="{{ route('admin.users.wallet', $user) }}" class="card p-5 flex flex-col gap-3.5">
             @csrf
             <h2 class="m-0 text-lg font-bold">Adjust wallet</h2>
+            @if (($threshold = (float) setting('wallet.approval_threshold', 0)) > 0)
+                <p class="m-0 text-xs text-muted">{{ money($threshold) }} or more needs a second staff member's approval.</p>
+            @endif
             <div class="grid grid-cols-[8rem_1fr] gap-2">
                 <div><label for="direction" class="label text-xs">Action</label>
                     <select id="direction" name="direction" class="input h-10"><option value="credit">Add</option><option value="debit" @selected(old('direction') === 'debit')>Remove</option></select></div>
@@ -119,6 +123,7 @@
             <div><label for="reason" class="label text-xs">Reason (user sees it in Statement)</label><input id="reason" name="reason" value="{{ old('reason') }}" class="input h-10" placeholder="e.g. Bank transfer received manually" required><x-field-error name="reason" /></div>
             <button class="btn" onclick="return confirm('Change this user\'s wallet balance?')">Apply</button>
         </form>
+        @endif
 
         <section class="card p-5 flex flex-col gap-3">
             <h2 class="m-0 text-lg font-bold">Security</h2>
