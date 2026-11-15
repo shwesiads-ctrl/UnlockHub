@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@source '../views';
+@source '../js';
+
+/* Night mode = .dark on <html> (set by resources/js/theme.js) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------
+   UnlockHub design tokens — Flat UI, day / night
+   Use as Tailwind utilities: bg-surface, text-muted, border-line,
+   bg-brand, text-brand-ink, bg-ok-soft text-ok, etc.
+---------------------------------------------------------------- */
+:root {
+  --uh-bg: #F4F6FA;
+  --uh-surface: #FFFFFF;
+  --uh-surface-2: #EEF2F7;
+  --uh-line: #E2E8F0;
+  --uh-ink: #0F172A;
+  --uh-muted: #556070;
+  --uh-brand: #2459E8;
+  --uh-brand-ink: #2459E8;
+  --uh-brand-soft: #E8EEFF;
+  --uh-ok: #15803D;
+  --uh-ok-soft: #E3F6EA;
+  --uh-warn: #A15C07;
+  --uh-warn-soft: #FDF1DC;
+  --uh-danger: #B91C1C;
+  --uh-danger-soft: #FDE6E6;
+  --uh-point: #A15C07;
+  --uh-point-soft: #FDF1DC;
+  color-scheme: light;
+}
+
+.dark {
+  --uh-bg: #0D1220;
+  --uh-surface: #151C2D;
+  --uh-surface-2: #1C2539;
+  --uh-line: #273149;
+  --uh-ink: #E8EDF6;
+  --uh-muted: #9AA5BA;
+  --uh-brand: #3563F0;
+  --uh-brand-ink: #86A6FF;
+  --uh-brand-soft: #1D2A4F;
+  --uh-ok: #4ADE80;
+  --uh-ok-soft: #12321F;
+  --uh-warn: #FBBF24;
+  --uh-warn-soft: #3A2C0C;
+  --uh-danger: #F87171;
+  --uh-danger-soft: #3D1616;
+  --uh-point: #FBBF24;
+  --uh-point-soft: #3A2C0C;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: Inter, "Noto Sans Myanmar", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", Inter, "Noto Sans Myanmar", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-bg: var(--uh-bg);
+  --color-surface: var(--uh-surface);
+  --color-surface-2: var(--uh-surface-2);
+  --color-line: var(--uh-line);
+  --color-ink: var(--uh-ink);
+  --color-muted: var(--uh-muted);
+  --color-brand: var(--uh-brand);
+  --color-brand-ink: var(--uh-brand-ink);
+  --color-brand-soft: var(--uh-brand-soft);
+  --color-ok: var(--uh-ok);
+  --color-ok-soft: var(--uh-ok-soft);
+  --color-warn: var(--uh-warn);
+  --color-warn-soft: var(--uh-warn-soft);
+  --color-danger: var(--uh-danger);
+  --color-danger-soft: var(--uh-danger-soft);
+  --color-point: var(--uh-point);
+  --color-point-soft: var(--uh-point-soft);
+}
+
+@layer base {
+  html { background: var(--uh-bg); }
+  body { @apply bg-bg text-ink font-sans antialiased; }
+  h1, h2, h3, .font-display { font-family: var(--font-display); }
+  a { color: var(--uh-brand-ink); }
+  a:hover { color: var(--uh-ink); }
+  :focus-visible { outline: 2px solid var(--uh-brand); outline-offset: 2px; }
+}
+
+/* Flat components — no shadows, no gradients */
+@layer components {
+  .card { @apply bg-surface border border-line rounded-2xl; }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 h-11 px-4 rounded-[10px]
+           font-semibold text-sm border border-line bg-surface text-ink no-underline
+           cursor-pointer transition-colors;
+  }
+  .btn:hover { @apply bg-surface-2 text-ink; }
+  .btn-primary { @apply bg-brand border-brand text-white; }
+  .btn-primary:hover { @apply bg-brand text-white opacity-90; }
+  .btn-success { background: #15803D; border-color: #15803D; color: #fff; }
+  .btn-success:hover { color: #fff; opacity: .9; }
+  .btn-danger { @apply bg-danger-soft border-danger text-danger; }
+  .btn-icon { @apply w-11 px-0; }
+  .btn-lg { @apply h-[52px] px-6 text-base rounded-xl; }
+
+  .input {
+    @apply w-full h-12 px-3.5 rounded-[10px] border border-line bg-bg text-ink text-[15px]
+           placeholder:text-muted;
+  }
+  textarea.input { @apply h-auto py-3 leading-relaxed; }
+  .label { @apply block font-semibold text-sm mb-1.5; }
+
+  .badge { @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap; }
+  .badge-pending { @apply bg-warn-soft text-warn; }
+  .badge-in_process, .badge-info { @apply bg-brand-soft text-brand-ink; }
+  .badge-success, .badge-approved { @apply bg-ok-soft text-ok; }
+  .badge-rejected, .badge-cancelled, .badge-hot { @apply bg-danger-soft text-danger; }
+  .badge-manual { @apply bg-point-soft text-point; }
+  .badge-api { @apply bg-surface-2 text-ink border border-line; }
+
+  .nav-link { @apply px-3 py-2.5 rounded-lg no-underline text-muted font-medium text-sm; }
+  .nav-link:hover { @apply text-ink bg-surface-2; }
+  .nav-link.active { @apply bg-brand-soft text-brand-ink font-semibold; }
+
+  .side-link {
+    @apply flex items-center gap-3 min-h-[42px] px-3 rounded-[10px] no-underline text-muted font-medium text-sm;
+  }
+  .side-link:hover { @apply text-ink bg-surface-2; }
+  .side-link.active { @apply bg-brand-soft text-brand-ink font-semibold; }
+
+  .table-wrap { @apply overflow-x-auto; }
+  .table { @apply w-full border-collapse text-sm; }
+  .table th { @apply bg-surface-2 text-muted text-left text-xs font-semibold uppercase tracking-wide px-4 py-3; }
+  .table td { @apply px-4 py-3.5 border-t border-line align-top; }
+}
