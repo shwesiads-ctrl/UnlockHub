@@ -75,7 +75,11 @@ class SecurityController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         ]);
 
-        $user->forceFill(['password' => $request->input('password'), 'password_set' => true])->save();
+        $updated = app(\App\Services\SessionSecurityService::class)->changePassword($user, $request->input('password'));
+        \Illuminate\Support\Facades\Auth::setUser($updated);
+        $request->session()->regenerate(true);
+        $request->session()->regenerateToken();
+        \App\Services\SessionSecurityService::stamp($request, $updated);
 
         return back()->with('success', 'Password saved.');
     }

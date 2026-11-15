@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Throwable;
 
 /**
@@ -125,10 +126,32 @@ class SocialAuthController extends Controller
         return $this->complete($request, $provider, $profile);
     }
 
-    /** Telegram Login Widget redirects here with signed data in the query string. */
+    public function startTelegram(Request $request): View
+    {
+        abort_unless(SocialProviders::isEnabled('telegram'), 404);
+        $state = Str::random(64);
+        $request->session()->put('social.telegram', [
+            'state' => $state,
+            'user_id' => $request->user()?->id,
+            'expires' => now()->addMinutes(10)->timestamp,
+        ]);
+
+        return view('auth.telegram', ['state' => $state, 'linking' => $request->user() !== null]);
+    }
+
+    /** The signed payload must also belong to an explicitly initiated browser flow. */
     public function telegram(Request $request): RedirectResponse
     {
         abort_unless(SocialProviders::isEnabled('telegram'), 404);
+
+        $pending = $request->session()->pull('social.telegram');
+        $state = $request->query('state');
+        if (!is_array($pending) || !is_string($state)
+            || !is_string($pending['state'] ?? null) || !hash_equals($pending['state'], $state)
+            || ($pending['expires'] ?? 0) < now()->timestamp
+            || ($pending['user_id'] ?? null) !== $request->user()?->id) {
+            return $this->fail($request, 'Telegram session expired. Start again from the login or security page.');
+        }
 
         try {
             $profile = $this->providers->verifyTelegram($request->query());
@@ -136,7 +159,7 @@ class SocialAuthController extends Controller
             return $this->fail($request, $e->getMessage());
         }
 
-        $request->session()->put('social.intent', $request->user() ? 'link' : 'login');
+        $request->session()->put('social.intent', $pending['user_id'] !== null ? 'link' : 'login');
 
         return $this->complete($request, 'telegram', $profile);
     }

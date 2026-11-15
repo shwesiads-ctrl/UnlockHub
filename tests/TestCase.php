@@ -10,6 +10,15 @@ use Illuminate\Support\Str;
 
 abstract class TestCase extends BaseTestCase
 {
+    public function actingAs(\Illuminate\Contracts\Auth\Authenticatable $user, $guard = null)
+    {
+        parent::actingAs($user, $guard);
+        // Simulate the session stamp created by the real successful-login flow.
+        return $this->withSession([\App\Services\SessionSecurityService::KEY => [
+            'user_id' => $user->getAuthIdentifier(), 'version' => (int) $user->session_version,
+        ]]);
+    }
+
     protected function customer(float $balance = 100000): User
     {
         $user = User::factory()->create();

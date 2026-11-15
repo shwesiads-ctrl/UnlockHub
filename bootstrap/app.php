@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Clickjacking / MIME-sniffing / referrer / HSTS headers on every response
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
         // White-label reseller shops (after the session so we know who is logged in)
-        $middleware->web(append: [\App\Http\Middleware\ResolveResellerShop::class]);
+        $middleware->web(append: [\App\Http\Middleware\EnsureSessionIsCurrent::class, \App\Http\Middleware\ResolveResellerShop::class]);
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,

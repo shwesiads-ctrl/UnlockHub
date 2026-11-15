@@ -72,6 +72,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 
 /* ---------------- Social login (guest = sign in / register, signed in = connect) ---------------- */
 Route::get('/auth/telegram/callback', [SocialAuthController::class, 'telegram'])->middleware('throttle:20,1')->name('social.telegram');
+Route::post('/auth/telegram/start', [SocialAuthController::class, 'startTelegram'])->middleware('throttle:10,1')->name('social.telegram.start');
 Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
     ->whereIn('provider', ['google', 'facebook', 'discord', 'tiktok'])->middleware('throttle:20,1')->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])

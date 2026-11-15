@@ -4,12 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Services\TrustedDeviceService;
+use App\Services\SessionSecurityService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
 
@@ -36,7 +35,7 @@ class PasswordResetController extends Controller
         return view('auth.reset-password', ['token' => $token, 'email' => $request->query('email')]);
     }
 
-    public function update(Request $request, TrustedDeviceService $devices): RedirectResponse
+    public function update(Request $request, SessionSecurityService $sessions): RedirectResponse
     {
         $request->validate([
             'token' => ['required'],
@@ -46,15 +45,9 @@ class PasswordResetController extends Controller
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user, string $password) use ($devices) {
-                $user->forceFill([
-                    'password' => $password,
-                    'remember_token' => Str::random(60),
-                ])->save();
-
-                $devices->forgetAll($user); // sign out trusted browsers
-
-                event(new PasswordReset($user));
+            function (User $user, string $password) use ($sessions) {
+                $updated = $sessions->changePassword($user, $password);
+                event(new PasswordReset($updated));
             }
         );
 

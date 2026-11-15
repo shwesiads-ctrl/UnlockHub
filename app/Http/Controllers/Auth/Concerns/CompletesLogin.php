@@ -23,6 +23,7 @@ trait CompletesLogin
             'user_id' => $user->id,
             'remember' => $remember,
             'expires' => now()->addMinutes(self::PENDING_TTL_MINUTES)->timestamp,
+            'session_version' => (int) $user->session_version,
         ]);
     }
 
@@ -36,7 +37,13 @@ trait CompletesLogin
             return null;
         }
 
-        return User::find($pending['user_id']);
+        $user = User::find($pending['user_id']);
+        if (!$user || (int) $user->session_version !== ($pending['session_version'] ?? 0)) {
+            $request->session()->forget(self::PENDING_KEY);
+            return null;
+        }
+
+        return $user;
     }
 
     protected function finishLogin(Request $request, User $user, ?bool $remember = null): RedirectResponse
@@ -46,6 +53,7 @@ trait CompletesLogin
 
         Auth::login($user, $remember);
         $request->session()->regenerate();
+        \App\Services\SessionSecurityService::stamp($request, $user);
 
         $user->forceFill([
             'last_login_at' => now(),

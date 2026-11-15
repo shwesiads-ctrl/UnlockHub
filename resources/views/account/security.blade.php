@@ -102,7 +102,7 @@
                     </div>
                 @endforeach
                 @if (in_array('telegram', $providers, true) && ! isset($linked['telegram']))
-                    <div class="flex justify-center"><script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="{{ \App\Services\Social\SocialProviders::telegramBotUsername() }}" data-size="medium" data-radius="10" data-auth-url="{{ route('social.telegram') }}"></script></div>
+                    <form method="POST" action="{{ route('social.telegram.start') }}">@csrf<button class="btn">Connect Telegram</button></form>
                 @endif
             </section>
         @endif

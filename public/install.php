@@ -12,6 +12,7 @@ const MIN_PHP = '8.3.0';
 $ROOT = dirname(__DIR__);
 $LOCK = $ROOT.'/storage/installed';
 $ENV = $ROOT.'/.env';
+require_once $ROOT.'/app/Support/InstallerState.php';
 
 session_name('uh_installer');
 session_start();
@@ -48,29 +49,10 @@ function pdoFor(array $db, bool $withDb = true): PDO
     return new PDO($dsn, $db['user'], $db['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 8]);
 }
 
-/** Installed already? (lock file, or a working .env whose database has an admin) */
+/** Installation state must not depend on database availability. */
 function alreadyInstalled(string $LOCK, string $ENV): bool
 {
-    if (is_file($LOCK)) {
-        return true;
-    }
-    if (! envValue($ENV, 'APP_KEY') || envValue($ENV, 'DB_CONNECTION') !== 'mysql') {
-        return false;
-    }
-    try {
-        $pdo = pdoFor([
-            'host' => envValue($ENV, 'DB_HOST') ?: '127.0.0.1', 'port' => envValue($ENV, 'DB_PORT') ?: '3306',
-            'name' => envValue($ENV, 'DB_DATABASE') ?: '', 'user' => envValue($ENV, 'DB_USERNAME') ?: '', 'pass' => envValue($ENV, 'DB_PASSWORD') ?: '',
-        ]);
-        $has = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn() > 0;
-        if ($has) {
-            @file_put_contents($LOCK, 'installed '.date('c')."\n");
-        }
-
-        return $has;
-    } catch (Throwable) {
-        return false;
-    }
+    return \App\Support\InstallerState::isLocked($LOCK, $ENV);
 }
 
 function baseUrl(bool $stripPublic): string
@@ -116,7 +98,8 @@ $step = (int) ($_GET['step'] ?? 1);
 $errors = [];
 $notes = [];
 
-if (alreadyInstalled($LOCK, $ENV) && ($_SESSION['done'] ?? false) !== true) {
+// Only the read-only completion screen may be revisited after installation.
+if (alreadyInstalled($LOCK, $ENV) && !($step === 5 && ($_SESSION['done'] ?? false) === true)) {
     $step = 0;
 }
 
@@ -203,6 +186,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step > 0) {
         }
 
         try {
+            // Claim setup atomically BEFORE writing configuration or creating an owner.
+            // A failed partial install stays locked and needs local operator recovery.
+            \App\Support\InstallerState::claim($LOCK);
+
             // 1. .env
             $template = is_file($ROOT.'/.env.example') ? (string) file_get_contents($ROOT.'/.env.example') : '';
             $values = [
@@ -347,8 +334,8 @@ $token = h($_SESSION['csrf']);
 
   <?php if ($step === 0): ?>
     <div class="card">
-      <h2>Already installed</h2>
-      <p class="muted">For safety the installer is locked. To install again, delete <code>storage/installed</code> (and empty the database) — only if you really want to start over.</p>
+      <h2>Setup is locked</h2>
+      <p class="muted">This site is configured or setup has already started. The installer stays locked even if the database is unavailable. For an incomplete installation, contact the server administrator for local recovery. Removing the lock file alone does not unlock a configured site.</p>
       <div class="row"><a class="btn btn-primary" href="<?= h(baseUrl(is_file($ROOT.'/.htaccess'))) ?>/">Open the site</a><a class="btn" href="<?= h(baseUrl(is_file($ROOT.'/.htaccess'))) ?>/login">Log in</a></div>
     </div>
 

@@ -10,12 +10,7 @@
         @endforeach
     </div>
     @if (in_array('telegram', $socialEnabled, true))
-        <div class="flex justify-center min-h-[44px]">
-            <script async src="https://telegram.org/js/telegram-widget.js?22"
-                    data-telegram-login="{{ \App\Services\Social\SocialProviders::telegramBotUsername() }}"
-                    data-size="large" data-radius="10" data-request-access="write"
-                    data-auth-url="{{ route('social.telegram') }}"></script>
-        </div>
+        <form method="POST" action="{{ route('social.telegram.start') }}" class="flex justify-center">@csrf<button class="btn w-full">Continue with Telegram</button></form>
     @endif
 @endif
 @endunless

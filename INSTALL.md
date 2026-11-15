@@ -62,5 +62,6 @@ powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1
 | 500 error / blank | `storage`, `bootstrap/cache` ကို Permission 755 ပေး; `storage/logs/laravel.log` ကြည့် |
 | CSS မပေါ် | `public/build/` ပါလား စစ် (release zip သုံး) |
 | Logo / avatar မပေါ် | `php artisan storage:link` (cPanel Terminal) သို့ Host ကို symlink ခွင့်တောင်း |
-| ပြန် install ချင် | Database ရှင်း → `storage/installed` ဖျက် → `/install.php` |
+| ပြန် install ချင် | Database နဲ့ `.env` ကို backup ယူပြီး project directory အသစ်၊ database အသစ်မှာ install လုပ်ပါ။ `storage/installed` ဖျက်ရုံနဲ့ configured site ကို ပြန်ဖွင့်မပေးပါ |
+| Install မပြီးဘဲ lock ကျသွား | Server administrator က local CLI ဖြင့် error ကို ပြင်ပြီး migration ဆက်လုပ်ပါ သို့မဟုတ် backup ပြန်တင်ပါ။ DB error ဖြစ်လည်း web installer ကို ပြန်မဖွင့်ပါ |
 | Installer ကို ဖျက်ချင် | Install ပြီးရင် `public/install.php` ဖျက်လို့ရ (lock ထားပြီးသား) |
