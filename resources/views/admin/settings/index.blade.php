@@ -5,8 +5,7 @@
 <nav class="settings-nav" aria-label="Settings sections">
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
     <a href="#site-settings">Site &amp; branding</a>
-    <a href="#social-login">Social login</a>
-    <a href="#security">Security (CAPTCHA / Cloudflare)</a>
+    <a href="#security">Security &amp; access</a>
     <a href="#smtp">Email (SMTP)</a>
     <a href="#online-payments">PayPal &amp; Stripe</a>
     <a href="#telegram-alerts">Telegram alerts</a>
@@ -104,7 +103,14 @@
     </div>
 </form>
 
-<form id="social-login" class="settings-page-panel card p-6 flex flex-col gap-4" method="POST" action="{{ route('admin.settings.social') }}" autocomplete="off">
+<div id="security" class="settings-page-panel flex flex-col gap-5">
+    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Security settings">
+        <button type="button" class="btn btn-primary" data-security-tab="security-login" role="tab" aria-selected="true">Social login</button>
+        <button type="button" class="btn" data-security-tab="security-bot" role="tab" aria-selected="false">Bot protection</button>
+        <button type="button" class="btn" data-security-tab="security-analytics" role="tab" aria-selected="false">Analytics &amp; cookies</button>
+    </div>
+    <div id="security-login" class="security-subpage">
+<form method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
     @csrf @method('PUT')
     <div class="settings-heading">
         <span class="badge badge-info">OAuth</span>
@@ -143,8 +149,15 @@
         <button class="btn btn-primary">Save social login</button>
     </div>
 </form>
+    </div>
 
-@include('admin.settings._security')
+    <div id="security-bot" class="security-subpage" hidden>
+        @include('admin.settings._security')
+    </div>
+    <div id="security-analytics" class="security-subpage" hidden>
+        @include('admin.settings._analytics')
+    </div>
+</div>
 
 <section id="smtp" class="settings-page-panel card p-6 flex flex-col gap-5">
     <div class="settings-heading">
@@ -303,8 +316,8 @@
 @include('admin.settings._footer')
 <div class="settings-page-nav" aria-label="Settings page navigation">
     <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings page">‹ Previous</a>
-    <span class="settings-page-count" aria-live="polite">Page 1 of 9</span>
-    <a class="btn btn-primary" data-settings-next href="#social-login" aria-label="Next settings page">Next ›</a>
+    <span class="settings-page-count" aria-live="polite">Page 1 of 8</span>
+    <a class="btn btn-primary" data-settings-next href="#security" aria-label="Next settings page">Next ›</a>
 </div>
 </div>
 </div>
@@ -315,6 +328,36 @@
 <script>
 (function () {
     'use strict';
+    var securityPanel = document.getElementById('security');
+    if (securityPanel) {
+        var securityTabs = Array.from(securityPanel.querySelectorAll('[data-security-tab]'));
+        var securityPages = securityTabs.map(function (tab) { return document.getElementById(tab.dataset.securityTab); }).filter(Boolean);
+        function activateSecurity(id) {
+            var selected = securityPages.some(function (page) { return page.id === id; }) ? id : securityPages[0].id;
+            securityPages.forEach(function (page) { page.hidden = page.id !== selected; });
+            securityTabs.forEach(function (tab) {
+                var active = tab.dataset.securityTab === selected;
+                tab.setAttribute('aria-selected', active ? 'true' : 'false');
+                tab.classList.toggle('btn-primary', active);
+            });
+            securityPanel.dataset.currentSecurityPage = selected;
+        }
+        securityTabs.forEach(function (tab) {
+            tab.addEventListener('click', function () { activateSecurity(tab.dataset.securityTab); });
+        });
+        var storedSecurityPage = '';
+        try {
+            storedSecurityPage = window.sessionStorage.getItem('admin-settings-security-page') || '';
+            window.sessionStorage.removeItem('admin-settings-security-page');
+        } catch (e) {}
+        activateSecurity(storedSecurityPage || securityPages[0].id);
+        securityPanel.querySelectorAll('form').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                try { window.sessionStorage.setItem('admin-settings-security-page', securityPanel.dataset.currentSecurityPage); } catch (e) {}
+            });
+        });
+    }
+
     var nav = document.querySelector('.settings-nav');
     if (!nav) return;
     var links = Array.from(nav.querySelectorAll('a[href^="#"]'));

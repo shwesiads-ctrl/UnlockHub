@@ -199,7 +199,7 @@ class SettingsController extends Controller
 
         ActivityLog::record('settings.social_updated');
 
-        return redirect()->to(route('admin.settings.index').'#social-login')->with('success', 'Social login settings saved.');
+        return redirect()->to(route('admin.settings.index').'#security')->with('success', 'Social login settings saved.');
     }
 
     public function updateAccountDisplay(Request $request): RedirectResponse
