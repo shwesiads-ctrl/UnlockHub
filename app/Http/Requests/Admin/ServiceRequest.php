@@ -54,6 +54,7 @@ class ServiceRequest extends FormRequest
             'allow_bulk' => ['boolean'],
             'max_bulk' => ['required', 'integer', 'min:1', 'max:500'],
             'allow_cancel_pending' => ['boolean'],
+            'max_delivery_hours' => ['nullable', 'numeric', 'min:0.1', 'max:2000'],
             'pricing_mode' => ['required', Rule::in(['manual', 'auto'])],
             'duplicate_policy' => ['required', Rule::in(['warn', 'block', 'allow'])],
             'status' => ['required', Rule::in(['active', 'hidden', 'disabled'])],

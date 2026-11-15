@@ -202,6 +202,8 @@ Route::middleware(['auth', 'active', 'admin', 'staff'])->prefix('admin')->name('
 
     Route::get('/reports', [Admin\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [Admin\ReportController::class, 'export'])->name('reports.export');
+    Route::get('/reports/delivery', [Admin\DeliveryReportController::class, 'index'])->name('reports.delivery');
+    Route::post('/reports/delivery', [Admin\DeliveryReportController::class, 'refresh'])->name('reports.delivery.refresh')->middleware('throttle:4,1');
     Route::get('/activity', [Admin\ActivityLogController::class, 'index'])->name('activity.index');
 
     Route::get('/categories', [Admin\CategoryController::class, 'index'])->name('categories.index');

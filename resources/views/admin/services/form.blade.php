@@ -62,6 +62,11 @@
                     <input id="delivery_time" name="delivery_time" value="{{ old('delivery_time', $service->delivery_time) }}" class="input" placeholder="e.g. 1-7 Days">
                 </div>
                 <div>
+                    <label for="max_delivery_hours" class="label">Alert if open longer than (hours)</label>
+                    <input id="max_delivery_hours" name="max_delivery_hours" type="number" min="0" step="0.25" value="{{ old('max_delivery_hours', $service->max_delivery_minutes ? round($service->max_delivery_minutes / 60, 2) : '') }}" class="input" placeholder="empty = no alert">
+                    <x-field-error name="max_delivery_hours" />
+                </div>
+                <div>
                     <label for="status" class="label">Status</label>
                     <select id="status" name="status" class="input">
                         @foreach (['active' => 'Active', 'hidden' => 'Hidden', 'disabled' => 'Disabled'] as $k => $l)

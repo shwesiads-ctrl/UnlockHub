@@ -12,6 +12,7 @@
         <div><label for="to" class="label text-xs">To</label><input id="to" name="to" type="date" value="{{ $to->toDateString() }}" class="input h-10"></div>
         <button class="btn h-10">Show</button>
         <a href="{{ route('admin.reports.export', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}" class="btn h-10">CSV</a>
+        <a href="{{ route('admin.reports.delivery') }}" class="btn h-10">Delivery times</a>
     </div>
 </form>
 

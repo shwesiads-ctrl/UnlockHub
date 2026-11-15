@@ -129,6 +129,7 @@ class ServiceController extends Controller
             'cost_price' => $data['cost_price'],
             'default_price' => $auto && $service->exists ? $service->default_price : $data['default_price'],
             'pricing_mode' => $data['pricing_mode'] ?? 'manual',
+            'max_delivery_minutes' => isset($data['max_delivery_hours']) && $data['max_delivery_hours'] !== null ? (int) round($data['max_delivery_hours'] * 60) : null,
             'points' => $data['points'] ?? null,
             'is_hot' => $data['is_hot'],
             'allow_bulk' => $data['allow_bulk'],

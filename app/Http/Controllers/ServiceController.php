@@ -67,6 +67,7 @@ class ServiceController extends Controller
             'service' => $service,
             'price' => $price,
             'points' => $service->pointsFor($price),
+            'delivery' => \App\Models\ServiceDeliveryStat::where('service_id', $service->id)->where('supplier_key', 0)->where('window_days', 30)->first(),
             'isFavorite' => (bool) $request->user()?->favorites()->whereKey($service->id)->exists(),
         ]);
     }

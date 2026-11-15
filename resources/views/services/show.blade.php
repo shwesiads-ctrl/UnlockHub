@@ -33,6 +33,15 @@
                     @endif
                     <span>Price: <strong class="font-display text-ink text-base">{{ price($price) }}</strong>{{ $service->allow_bulk ? ' / item' : '' }}</span>
                 </div>
+                @if ($delivery && $delivery->reliable())
+                    @php $hm = fn ($m) => \App\Services\DeliveryStatsService::human((int) $m); @endphp
+                    <div class="rounded-xl bg-surface-2 px-4 py-3 text-sm flex flex-col gap-0.5">
+                        <span><x-icon name="clock" size="14" /> {{ __('Recently most orders finished in') }} <strong>{{ $hm($delivery->p25_minutes) }} – {{ $hm($delivery->p75_minutes) }}</strong> ({{ __('median') }} {{ $hm($delivery->median_minutes) }}).</span>
+                        <span class="text-xs text-muted">{{ __('Estimate from') }} {{ number_format($delivery->samples) }} {{ __('finished orders in the last 30 days, updated') }} {{ $delivery->computed_at->diffForHumans() }}. {{ __('Not a guarantee — times can change.') }}</span>
+                    </div>
+                @elseif ($delivery)
+                    <p class="m-0 text-xs text-muted">{{ __('Not enough recent orders to estimate delivery time yet.') }}</p>
+                @endif
                 @if (($service->popup['enabled'] ?? false))
                     <button type="button" class="btn w-fit text-brand-ink" data-open-popup="service-popup"><x-icon name="file" size="16" />{{ __('Service info & rules') }}</button>
                 @endif

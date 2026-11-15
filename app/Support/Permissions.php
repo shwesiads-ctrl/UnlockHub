@@ -112,6 +112,7 @@ class Permissions
         'admin.downloads.*' => 'content.manage',
         'admin.announcements.*' => 'content.manage',
         'admin.reports.export' => 'reports.export',
+        'admin.reports.delivery.refresh' => 'reports.view',
         'admin.reports.*' => 'reports.view',
         'admin.activity.*' => 'audit.view',
     ];

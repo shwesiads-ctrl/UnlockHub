@@ -201,6 +201,13 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Service အမှန်တကယ်ကြာချိန်
+
+- နာရီတိုင်း (`services:delivery-stats`) Success order တွေရဲ့ **တင်ချိန် → ပြီးချိန်** ကို Service အလိုက်၊ Supplier အလိုက်၊ နောက်ဆုံး ၇ ရက် / ၃၀ ရက် တွက်တယ်: order အရေအတွက်, ပျမ်းမျှ, အလယ်တန်ဖိုး (median), အများစုကြာချိန် (25–75%), 90% ပြီးချိန်, နောက်ဆုံးတွက်ချိန်
+- **Admin › Reports › Delivery times** — စာရင်း + ကြာနေတဲ့ open order စာရင်း
+- Service › *Alert if open longer than (hours)* ထက်ကျော်တဲ့ Pending/In process order ကို ၁၅ မိနစ်တိုင်း စစ်ပြီး Admin ကို Telegram (order တစ်ခုကို တစ်ခါပဲ)
+- Customer Service page မှာ order လုံလောက်မှ (default ≥ 10, setting `delivery.min_samples`) "**Estimate**… Not a guarantee" အနေနဲ့ပဲ ပြ၊ နည်းရင် ခန့်မှန်းချက် မပြ
+
 ## CSV / Excel Bulk Order
 
 - Service စာမျက်နှာ › **Bulk from CSV / Excel** → Template (.xlsx / .csv) ဒေါင်း (Excel template က column အားလုံး Text ဖြစ်လို့ IMEI ရှေ့က 0 မပျောက်)
