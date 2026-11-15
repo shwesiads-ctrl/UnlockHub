@@ -2,8 +2,8 @@
     @csrf @method('PUT')
     <div class="settings-heading">
         <span class="badge badge-info">Authentication</span>
-        <h2>Social sign-in providers</h2>
-        <p>Configure OAuth sign-in and account linking. Add each callback URL to the provider app. Secrets are encrypted and never shown again.</p>
+        <h2>Social login</h2>
+        <p>Create an app on each platform, paste its ID and secret, and add the <strong class="text-ink">Redirect URL</strong> shown below to that app. Secrets are stored encrypted and never shown again.</p>
     </div>
     <div class="settings-fields">
         @foreach ($socialProviders as $key => $p)
@@ -32,6 +32,6 @@
             </fieldset>
         @endforeach
     </div>
-    <p class="m-0 text-xs text-muted">Save first, then test a provider. The test returns here without signing in or creating an account.</p>
+    <p class="m-0 text-xs text-muted">Save first, then <strong>Test</strong>: you go through the real sign-in and come back here with the result — nobody is signed in or created.</p>
     <div class="settings-actions"><button class="btn btn-primary">Save sign-in providers</button></div>
 </form>
