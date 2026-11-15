@@ -8,6 +8,7 @@ use App\Models\PaymentRequest;
 use App\Models\User;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -18,8 +19,19 @@ class ReportController extends Controller
     {
         [$from, $to] = $this->range($request);
         $data = $this->build($from, $to);
+        $page = max(1, (int) $request->query('page', 1));
+        $perPage = 10;
+        $dailyRows = array_reverse($data['days']);
+        $page = min($page, max(1, (int) ceil(count($dailyRows) / $perPage)));
+        $dailyReport = new LengthAwarePaginator(
+            array_slice($dailyRows, ($page - 1) * $perPage, $perPage),
+            count($dailyRows),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->except('page'), 'fragment' => 'daily-report'],
+        );
 
-        return view('admin.reports.index', $data + ['from' => $from, 'to' => $to]);
+        return view('admin.reports.index', $data + ['from' => $from, 'to' => $to, 'dailyReport' => $dailyReport]);
     }
 
     public function export(Request $request): StreamedResponse

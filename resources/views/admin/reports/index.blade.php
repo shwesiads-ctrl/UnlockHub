@@ -84,12 +84,12 @@
     </section>
 </div>
 
-<section class="card overflow-hidden">
+<section id="daily-report" class="card overflow-hidden">
     <h2 class="m-0 px-5 py-4 text-lg font-bold">By day</h2>
     <div class="table-wrap"><table class="table min-w-[720px]">
         <thead><tr><th>Date</th><th>Placed</th><th>Done</th><th>Rejected</th><th class="text-right">Sales</th><th class="text-right">Profit</th><th class="text-right">Top-ups</th></tr></thead>
         <tbody>
-        @foreach (array_reverse($days) as $d)
+        @foreach ($dailyReport as $d)
             <tr>
                 <td class="whitespace-nowrap">{{ \Illuminate\Support\Carbon::parse($d['date'])->format('D d M') }}</td>
                 <td>{{ $d['placed'] }}</td><td>{{ $d['success'] }}</td><td>{{ $d['rejected'] }}</td>
@@ -100,5 +100,9 @@
         @endforeach
         </tbody>
     </table></div>
+    <div class="p-4 border-t border-line">
+        <div class="text-xs text-muted mb-3">Showing {{ $dailyReport->firstItem() ?? 0 }}–{{ $dailyReport->lastItem() ?? 0 }} of {{ $dailyReport->total() }} days</div>
+        {{ $dailyReport->onEachSide(1)->links('partials.numbered-pagination') }}
+    </div>
 </section>
 @endsection
