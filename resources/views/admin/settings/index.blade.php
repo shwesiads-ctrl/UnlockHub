@@ -2,19 +2,20 @@
 
 @section('content')
 <div class="settings-page">
-<nav class="settings-nav" aria-label="Settings sections">
+<nav class="settings-nav" aria-label="Settings sections" role="tablist" aria-orientation="vertical">
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
-    <a href="#site-settings">Site &amp; branding</a>
-    <a href="#social-login">Social login</a>
-    <a href="#security">Security (CAPTCHA / Cloudflare)</a>
-    <a href="#smtp">Email (SMTP)</a>
-    <a href="#online-payments">PayPal &amp; Stripe</a>
-    <a href="#telegram-alerts">Telegram alerts</a>
-    <a href="#monthly-statements">Monthly statements</a>
-    <a href="#mobile-app">Mobile app (PWA)</a>
+    <a id="tab-site-settings" href="#site-settings" role="tab" aria-controls="site-settings">Site &amp; branding</a>
+    <a id="tab-social-login" href="#social-login" role="tab" aria-controls="social-login">Social login</a>
+    <a id="tab-security" href="#security" role="tab" aria-controls="security">Security (CAPTCHA / Cloudflare)</a>
+    <a id="tab-smtp" href="#smtp" role="tab" aria-controls="smtp">Email (SMTP)</a>
+    <a id="tab-online-payments" href="#online-payments" role="tab" aria-controls="online-payments">PayPal &amp; Stripe</a>
+    <a id="tab-telegram-alerts" href="#telegram-alerts" role="tab" aria-controls="telegram-alerts">Telegram alerts</a>
+    <a id="tab-monthly-statements" href="#monthly-statements" role="tab" aria-controls="monthly-statements">Monthly statements</a>
+    <a id="tab-mobile-app" href="#mobile-app" role="tab" aria-controls="mobile-app">Mobile app (PWA)</a>
 </nav>
-<div class="settings-content">
-<form id="site-settings" method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
+<div class="settings-content" data-settings-content>
+<div id="site-settings" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-site-settings">
+<form method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
     @csrf @method('PUT')
     <div class="settings-heading">
         <span class="badge badge-info">General</span>
@@ -102,8 +103,10 @@
         <button class="btn btn-primary">Save site settings</button>
     </div>
 </form>
+</div>
 
-<form id="social-login" method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
+<div id="social-login" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-social-login">
+<form method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
     @csrf @method('PUT')
     <div class="settings-heading">
         <span class="badge badge-info">OAuth</span>
@@ -142,10 +145,11 @@
         <button class="btn btn-primary">Save social login</button>
     </div>
 </form>
+</div>
 
 @include('admin.settings._security')
 
-<section id="smtp" class="card p-6 flex flex-col gap-5">
+<section id="smtp" class="settings-panel card p-6 flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-smtp">
     <div class="settings-heading">
         <span class="badge badge-info">Email</span>
         <h2>Email (SMTP)</h2>
@@ -183,8 +187,9 @@
 
 @include('admin.settings._payments')
 
-<div class="flex flex-wrap gap-5 items-start">
-    <form id="telegram-alerts" method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
+<div id="telegram-alerts" class="settings-panel flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-telegram-alerts">
+    <div class="settings-telegram-grid">
+    <form method="POST" action="{{ route('admin.settings.telegram') }}" class="min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
         @csrf @method('PUT')
         <div class="settings-heading">
             <span class="badge badge-info">Alerts</span>
@@ -235,7 +240,7 @@
     </form>
     <form id="tg-test" method="POST" action="{{ route('admin.settings.telegram.test') }}">@csrf</form>
 
-    <aside class="flex-[1_1_320px] min-w-0 flex flex-col gap-5">
+    <aside class="settings-telegram-help min-w-0 flex flex-col gap-5">
         <section class="card p-5 flex flex-col gap-2.5 text-sm leading-relaxed">
             <h2 class="m-0 text-lg font-bold">How to set up</h2>
             <ol class="m-0 pl-5 flex flex-col gap-1.5 text-muted">
@@ -245,7 +250,12 @@
                 <li>Paste both here, Save, then <strong class="text-ink">Send test message</strong>.</li>
             </ol>
         </section>
-        <form id="mobile-app" method="POST" action="{{ route('admin.settings.pwa') }}" enctype="multipart/form-data" class="card p-5 flex flex-col gap-3 text-sm">
+    </aside>
+    </div>
+</div>
+
+<div id="mobile-app" class="settings-panel flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-mobile-app">
+        <form method="POST" action="{{ route('admin.settings.pwa') }}" enctype="multipart/form-data" class="card p-5 flex flex-col gap-3 text-sm">
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Mobile app (PWA)</h2>
             <p class="m-0 text-muted">Customers can add the site to their home screen (Android: browser menu › Install app; iPhone: Share › Add to Home Screen).</p>
@@ -273,7 +283,9 @@
             <span class="flex-1">{{ \App\Services\WebPush::publicKey() ? 'Push keys exist.' : 'Create the VAPID keys used to send push notifications.' }}</span>
             <button class="btn">{{ \App\Services\WebPush::publicKey() ? 'Replace push keys' : 'Create push keys' }}</button>
         </form>
-        <form id="monthly-statements" method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
+</div>
+<div id="monthly-statements" class="settings-panel flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-monthly-statements">
+        <form method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Monthly statements</h2>
             <label class="flex items-start gap-2.5">
@@ -289,7 +301,11 @@
                 @if ($mailDriver === 'log') <span class="text-warn">— emails are only written to <code>storage/logs/laravel.log</code>. Set SMTP in <code>.env</code> to really send.</span> @endif
             </p>
         </section>
-    </aside>
+</div>
+<div class="settings-page-nav" aria-label="Settings page navigation">
+    <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings section">‹ Previous</a>
+    <span class="settings-page-count" aria-live="polite">Section 1 of 8</span>
+    <a class="btn btn-primary" data-settings-next href="#social-login" aria-label="Next settings section">Next ›</a>
 </div>
 </div>
 </div>
@@ -301,21 +317,61 @@
     'use strict';
     var nav = document.querySelector('.settings-nav');
     if (!nav) return;
-    var links = Array.from(nav.querySelectorAll('a[href^="#"]'));
-    var sections = links.map(function (a) {
-        return document.getElementById(a.getAttribute('href').slice(1));
-    }).filter(Boolean);
+    var links = Array.from(nav.querySelectorAll('[role="tab"][href^="#"]'));
+    var panels = links.map(function (link) { return document.getElementById(link.getAttribute('href').slice(1)); }).filter(Boolean);
 
-    function setActive() {
-        var scrollY = window.scrollY + 80;
-        var current = sections[0];
-        sections.forEach(function (s) { if (s.offsetTop <= scrollY) current = s; });
-        links.forEach(function (a) {
-            a.classList.toggle('active', a.getAttribute('href') === '#' + (current ? current.id : ''));
+    function activate(id, updateHistory) {
+        var selected = panels.some(function (panel) { return panel.id === id; }) ? id : panels[0].id;
+        panels.forEach(function (panel) {
+            var active = panel.id === selected;
+            panel.hidden = !active;
+            panel.setAttribute('aria-hidden', active ? 'false' : 'true');
         });
+        links.forEach(function (link, index) {
+            var active = link.getAttribute('href') === '#' + selected;
+            link.classList.toggle('active', active);
+            link.setAttribute('aria-selected', active ? 'true' : 'false');
+            link.tabIndex = active ? 0 : -1;
+        });
+        var counter = document.querySelector('.settings-page-count');
+        var page = panels.findIndex(function (panel) { return panel.id === selected; });
+        if (counter) counter.textContent = 'Section ' + (page + 1) + ' of ' + panels.length;
+        var previous = document.querySelector('[data-settings-previous]');
+        var next = document.querySelector('[data-settings-next]');
+        if (previous) previous.href = '#' + panels[(page - 1 + panels.length) % panels.length].id;
+        if (next) next.href = '#' + panels[(page + 1) % panels.length].id;
+        if (updateHistory && window.location.hash !== '#' + selected) window.location.hash = selected;
     }
-    window.addEventListener('scroll', setActive, { passive: true });
-    setActive();
+
+    links.forEach(function (link, index) {
+        link.addEventListener('keydown', function (event) {
+            var target = null;
+            if (event.key === 'ArrowDown' || event.key === 'ArrowRight') target = links[(index + 1) % links.length];
+            if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') target = links[(index - 1 + links.length) % links.length];
+            if (event.key === 'Home') target = links[0];
+            if (event.key === 'End') target = links[links.length - 1];
+            if (target) { event.preventDefault(); target.focus(); target.click(); }
+        });
+    });
+    window.addEventListener('hashchange', function () { activate(window.location.hash.slice(1), false); });
+    document.querySelectorAll('[data-settings-previous], [data-settings-next]').forEach(function (link) {
+        link.addEventListener('click', function (event) { event.preventDefault(); activate(link.hash.slice(1), true); });
+    });
+    var remembered = '';
+    try { remembered = window.sessionStorage.getItem('admin-settings-section') || ''; } catch (e) {}
+    var initial = window.location.hash.slice(1) || remembered;
+    activate(initial, !window.location.hash && !!remembered);
+    try { window.sessionStorage.removeItem('admin-settings-section'); } catch (e) {}
+    links.forEach(function (link) {
+        link.addEventListener('click', function () {
+            try { window.sessionStorage.setItem('admin-settings-section', link.hash.slice(1)); } catch (e) {}
+        });
+    });
+    document.querySelectorAll('.settings-content form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            try { window.sessionStorage.setItem('admin-settings-section', window.location.hash.slice(1) || panels[0].id); } catch (e) {}
+        });
+    });
 })();
 </script>
 @endsection

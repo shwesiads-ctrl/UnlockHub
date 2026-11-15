@@ -3,7 +3,7 @@
     $cp = \App\Services\Captcha::provider();
     $via = request()->attributes->get('via_cloudflare') === true;
 @endphp
-<section id="security" class="card p-6 flex flex-col gap-5">
+<section id="security" class="settings-panel card p-6 flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-security">
     <div class="settings-heading">
         <span class="badge badge-info">Security</span>
         <h2>Bot check &amp; Cloudflare</h2>

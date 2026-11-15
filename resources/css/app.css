@@ -121,8 +121,14 @@
 }
 
 /* ── Settings content column ── */
-.settings-content { display: flex; flex-direction: column; gap: 20px; min-width: 0; max-width: 1080px; }
+.settings-content { display: flex; flex-direction: column; gap: 16px; min-width: 0; max-width: 1080px; }
 .settings-content [id] { scroll-margin-top: 28px; }
+.settings-panel[hidden] { display: none !important; }
+.settings-panel { min-width: 0; }
+.settings-telegram-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, .8fr); gap: 20px; align-items: start; }
+.settings-page-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 2px; }
+.settings-page-count { color: var(--uh-muted); font-size: 12px; font-weight: 600; }
+.settings-page-nav .btn { min-width: 108px; justify-content: center; }
 
 /* ── Card header row ── */
 .settings-heading {
@@ -186,6 +192,9 @@
   .settings-nav > span { width: 100%; padding: 2px 0 6px; }
   .settings-nav a { font-size: 12.5px; padding: 8px 11px; }
 }
+@media (max-width: 800px) {
+  .settings-telegram-grid { grid-template-columns: minmax(0, 1fr); }
+}
 @media (max-width: 640px) {
   .settings-fields { grid-template-columns: minmax(0, 1fr); }
   .settings-content > .card { padding: 18px; }
@@ -193,6 +202,8 @@
   .settings-actions { flex-direction: column; align-items: stretch; }
   .settings-actions .btn { width: 100%; }
   .settings-actions > span { margin-right: 0; }
+  .settings-page-nav { position: sticky; bottom: 0; z-index: 5; margin: 0 -8px; padding: 10px 8px; background: var(--uh-bg); border-top: 1px solid var(--uh-line); }
+  .settings-page-nav .btn { min-width: 0; padding-inline: 12px; }
 }
 
 .admin-overview { display: flex; flex-direction: column; gap: 24px; }

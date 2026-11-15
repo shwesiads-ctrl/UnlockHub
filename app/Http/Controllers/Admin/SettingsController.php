@@ -77,7 +77,7 @@ class SettingsController extends Controller
 
         ActivityLog::record('settings.general_updated');
 
-        return back()->with('success', 'Settings saved.');
+        return redirect()->to(route('admin.settings.index').'#site-settings')->with('success', 'Settings saved.');
     }
 
     public function updateSocial(Request $request): RedirectResponse
@@ -115,7 +115,7 @@ class SettingsController extends Controller
 
         ActivityLog::record('settings.social_updated');
 
-        return back()->with('success', 'Social login settings saved.');
+        return redirect()->to(route('admin.settings.index').'#social-login')->with('success', 'Social login settings saved.');
     }
 
     public function updateSecurity(Request $request): RedirectResponse
@@ -285,13 +285,13 @@ class SettingsController extends Controller
             } catch (\Throwable $e) {
                 report($e);
 
-                return back()->with('error', 'Could not read that image (PNG or JPG, at least 192×192). The PHP GD extension is needed.');
+                return redirect()->to(route('admin.settings.index').'#mobile-app')->with('error', 'Could not read that image (PNG or JPG, at least 192×192). The PHP GD extension is needed.');
             }
         }
 
         ActivityLog::record('settings.pwa', null, ['push' => $request->boolean('push_enabled'), 'icon' => $request->hasFile('icon')]);
 
-        return back()->with('success', 'App settings saved.');
+        return redirect()->to(route('admin.settings.index').'#mobile-app')->with('success', 'App settings saved.');
     }
 
     public function pushKeys(): RedirectResponse
@@ -300,7 +300,7 @@ class SettingsController extends Controller
         Setting::put('push.enabled', '1');
         ActivityLog::record('settings.push_keys');
 
-        return back()->with('success', 'Push keys created and push turned on. Customers can now enable notifications on their phones.');
+        return redirect()->to(route('admin.settings.index').'#mobile-app')->with('success', 'Push keys created and push turned on. Customers can now enable notifications on their phones.');
     }
 
     /** 192, 512, maskable 512 (logo on brand colour with safe padding) and the 180px Apple icon. */
@@ -336,7 +336,7 @@ class SettingsController extends Controller
     {
         Setting::put('statements.monthly', $request->boolean('monthly') ? '1' : '0');
 
-        return back()->with('success', 'Statement settings saved.');
+        return redirect()->to(route('admin.settings.index').'#monthly-statements')->with('success', 'Statement settings saved.');
     }
 
     public function updateTelegram(Request $request): RedirectResponse
@@ -367,7 +367,7 @@ class SettingsController extends Controller
 
         ActivityLog::record('settings.telegram_updated');
 
-        return back()->with('success', 'Telegram settings saved.');
+        return redirect()->to(route('admin.settings.index').'#telegram-alerts')->with('success', 'Telegram settings saved.');
     }
 
     /** Send a test message right now (not queued) and show Telegram's answer. */

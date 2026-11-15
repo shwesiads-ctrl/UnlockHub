@@ -5,7 +5,7 @@
         ? '<span class="badge badge-success">Tested ✓ '.e(\Illuminate\Support\Carbon::parse(setting("payments.{$g}.verified_at"))->diffForHumans()).'</span>'
         : '<span class="badge badge-pending">Not tested</span>';
 @endphp
-<section id="online-payments" class="card p-6 flex flex-col gap-5">
+<section id="online-payments" class="settings-panel card p-6 flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-online-payments">
     <div class="settings-heading">
         <span class="badge badge-info">Payments</span>
         <h2>PayPal &amp; Stripe (automatic top-up)</h2>
