@@ -201,6 +201,14 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Wallet စာရင်းညှိစစ်ခြင်း (Reconciliation)
+
+- **Admin › Reconciliation** — နေ့စဉ် 02:30 (`wallet:reconcile`) နဲ့ "Run check now"
+- စစ်တာတွေ: User balance ≠ transaction စုစုပေါင်း, running balance ပြတ်နေတာ, Rejected/Cancelled order refund မရတာ, Refund ၂ ခါ, Success order ကို refund ပေးမိတာ, Order ငွေ ၂ ခါနုတ်/မနုတ်မိတာ, Approved top-up မဝင်/၂ ခါဝင်/ပမာဏမတူတာ, reference မရှိတဲ့ transaction
+- Deposit / Order debit / Refund / Point redemption / Admin adjustment အမျိုးအစားအလိုက် စုစုပေါင်း (ရက်ရွေး)၊ CSV report ထုတ်
+- ပြဿနာတွေ့ရင် Finance/Owner ကို Notification + email + Telegram
+- **Balance ကို အလိုအလျောက် မပြင်ဘူး** — ဝန်ထမ်းတစ်ယောက်က အကြောင်းရင်းနဲ့ correction (Credit / Debit / Set balance = ledger) တင်ပြ၊ **တခြားတစ်ယောက်** Approve မှ အသုံးချ၊ ဘယ်သူတင်ပြ/ဘယ်သူ approve မှတ်ထား။ "Checked — no correction" လည်း အကြောင်းရင်းနဲ့ မှတ်လို့ရ
+
 ## Support Ticket
 
 - **Customer (Account › Support)**: Ticket ဖွင့် (Order / Payment / Account / Other)၊ Order detail ထဲက **Get help with this order** ကနေလည်း ဖွင့်လို့ရ၊ စာ + screenshot/file (၃ ခု၊ JPG/PNG/WebP/PDF/TXT၊ 5 MB)

@@ -21,6 +21,7 @@
                 ['Tickets', 'bell', 'admin.tickets.index', 'tickets', ['admin.tickets.*', 'admin.canned.*']],
                 ['Payments', 'receipt', 'admin.payments.index', 'payments', ['admin.payments.*', 'admin.payment-methods.*']],
                 ['Wallet approvals', 'wallet', 'admin.wallet-approvals.index', 'approvals', ['admin.wallet-approvals.*']],
+                ['Reconciliation', 'chart', 'admin.reconcile.index', 'reconcile', ['admin.reconcile.*']],
                 ['Services', 'phone', 'admin.services.index', null, ['admin.services.*', 'admin.categories.*']],
                 ['Suppliers & API', 'plug', 'admin.suppliers.index', null, ['admin.suppliers.*']],
                 ['Users', 'users', 'admin.users.index', null, ['admin.users.*']],

@@ -147,6 +147,15 @@ Route::middleware(['auth', 'active', 'admin', 'staff'])->prefix('admin')->name('
     Route::put('/tickets/{ticket}/assign', [Admin\TicketController::class, 'assign'])->name('tickets.assign');
     Route::get('/tickets/{ticket}/files/{attachment}', [Admin\TicketController::class, 'attachment'])->name('tickets.attachment');
 
+    Route::get('/reconcile', [Admin\ReconcileController::class, 'index'])->name('reconcile.index');
+    Route::get('/reconcile/export', [Admin\ReconcileController::class, 'export'])->name('reconcile.export');
+    Route::post('/reconcile/run', [Admin\ReconcileController::class, 'run'])->name('reconcile.run')->middleware('throttle:6,1');
+    Route::get('/reconcile/{issue}', [Admin\ReconcileController::class, 'show'])->name('reconcile.show');
+    Route::post('/reconcile/{issue}/propose', [Admin\ReconcileController::class, 'propose'])->name('reconcile.propose');
+    Route::post('/reconcile/{issue}/approve', [Admin\ReconcileController::class, 'approve'])->name('reconcile.approve');
+    Route::post('/reconcile/{issue}/reject', [Admin\ReconcileController::class, 'reject'])->name('reconcile.reject');
+    Route::post('/reconcile/{issue}/ignore', [Admin\ReconcileController::class, 'ignore'])->name('reconcile.ignore');
+
     Route::get('/staff', [Admin\StaffController::class, 'index'])->name('staff.index');
     Route::post('/staff', [Admin\StaffController::class, 'store'])->name('staff.store');
     Route::put('/staff/permissions', [Admin\StaffController::class, 'permissions'])->name('staff.permissions');

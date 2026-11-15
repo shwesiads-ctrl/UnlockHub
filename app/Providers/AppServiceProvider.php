@@ -35,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
             'order' => Order::class,
             'payment_request' => PaymentRequest::class,
             'wallet_adjustment' => \App\Models\WalletAdjustment::class,
+            'wallet_transaction' => \App\Models\WalletTransaction::class,
+            'reconciliation_issue' => \App\Models\ReconciliationIssue::class,
             'point_transaction' => \App\Models\PointTransaction::class,
             'service' => \App\Models\Service::class,
             'supplier' => \App\Models\Supplier::class,
@@ -49,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
                 'manual' => Order::manualQueue()->count(),
                 'payments' => PaymentRequest::where('status', PaymentRequest::PENDING)->count(),
                 'approvals' => \App\Models\WalletAdjustment::where('status', 'pending')->count(),
+                'reconcile' => \App\Models\ReconciliationIssue::whereIn('status', ['open', 'proposed'])->count(),
                 'tickets' => \App\Models\Ticket::where('awaiting_staff', true)->whereNotIn('status', ['resolved', 'closed'])->count(),
             ], ['manual' => 0, 'payments' => 0, 'approvals' => 0, 'tickets' => 0], false));
         });
