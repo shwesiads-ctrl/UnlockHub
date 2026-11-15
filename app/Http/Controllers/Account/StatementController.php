@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use App\Models\WalletTransaction;
 use App\Services\StatementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -53,6 +54,38 @@ class StatementController extends Controller
         return response($this->statements->pdf($data), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$this->statements->filename($data).'"',
+        ]);
+    }
+
+    public function receipt(Request $request, WalletTransaction $transaction, bool $download = false): Response
+    {
+        abort_unless($transaction->user_id === $request->user()->id, 404);
+
+        $rows = [
+            'Receipt number' => 'WH-'.str_pad((string) $transaction->id, 8, '0', STR_PAD_LEFT),
+            'Date' => $transaction->created_at->format('d M Y H:i'),
+            'Account' => $request->user()->username,
+            'Type' => self::TYPES[$transaction->type] ?? $transaction->type,
+            'Amount' => ($transaction->amount > 0 ? '+' : '-').money(abs($transaction->amount)),
+            'Balance before' => money((float) $transaction->balance_after - (float) $transaction->amount),
+            'Balance after' => money($transaction->balance_after),
+        ];
+
+        $description = mb_str_split((string) $transaction->description, 54);
+        $height = 610 + count($description) * 26;
+        $svg = view('account.receipt-image', [
+            'rows' => $rows,
+            'description' => $description,
+            'height' => $height,
+            'site' => setting('site.name', config('app.name')),
+        ])->render();
+
+        return response($svg, 200, [
+            'Content-Type' => 'image/svg+xml; charset=UTF-8',
+            'Content-Disposition' => ($download ? 'attachment' : 'inline').'; filename="receipt-'.$transaction->id.'.svg"',
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Security-Policy' => "default-src 'none'; style-src 'unsafe-inline'; sandbox",
         ]);
     }
 

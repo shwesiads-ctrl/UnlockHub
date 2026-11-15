@@ -86,6 +86,19 @@
   :focus-visible { outline: 2px solid var(--uh-brand); outline-offset: 2px; }
 }
 
+.receipt-dialog {
+  width: min(800px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--uh-line);
+  border-radius: 16px;
+  background: var(--uh-surface);
+  color: var(--uh-ink);
+}
+.receipt-dialog[open] { display: flex; flex-direction: column; }
+.receipt-dialog::backdrop { background: rgb(0 0 0 / 70%); }
+
 /* Flat components — no shadows, no gradients */
 @layer components {
   .card { @apply bg-surface border border-line rounded-2xl; }

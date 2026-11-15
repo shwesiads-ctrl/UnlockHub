@@ -104,6 +104,9 @@ class FundsController extends Controller
     {
         abort_unless($paymentRequest->user_id === $request->user()->id, 404);
 
+        abort_unless($paymentRequest->receipt_path && Storage::disk(config('unlockhub.receipts.disk'))->exists($paymentRequest->receipt_path), 404);
+
         return Storage::disk(config('unlockhub.receipts.disk'))->response($paymentRequest->receipt_path);
     }
+
 }

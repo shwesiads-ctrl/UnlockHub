@@ -2,6 +2,7 @@ import './theme';
 import './admin';
 import './popup';
 import './popup-editor';
+import './receipt-preview';
 
 // Quick-fill buttons: <button data-fill="#input" data-value="10000">
 document.addEventListener('click', (e) => {

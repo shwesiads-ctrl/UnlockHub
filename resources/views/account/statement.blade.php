@@ -72,6 +72,10 @@
                     @else
                         {{ $t->description }}
                     @endif
+                    <div class="flex flex-wrap gap-2 mt-2" aria-label="Statement receipt">
+                        <a href="{{ route('account.statement.receipt', $t) }}" data-receipt-preview data-download="{{ route('account.statement.receipt.download', $t) }}" data-title="Receipt #{{ $t->id }}" class="btn h-8 text-xs">View Receipt Image</a>
+                        <a href="{{ route('account.statement.receipt.download', $t) }}" class="btn h-8 text-xs">Save Receipt Image</a>
+                    </div>
                 </td>
                 <td @class(['text-right font-semibold whitespace-nowrap', 'text-ok' => $t->amount > 0, 'text-danger' => $t->amount < 0])>{{ $t->amount > 0 ? '+' : '−' }}{{ money(abs($t->amount)) }}</td>
                 <td class="text-right whitespace-nowrap">{{ money($t->balance_after) }}</td>
@@ -84,4 +88,19 @@
 </section>
 
 {{ $transactions->links() }}
+
+<dialog id="receipt-preview" class="receipt-dialog" aria-labelledby="receipt-preview-title">
+    <header class="flex flex-wrap items-center gap-3 p-4 border-b border-line">
+        <h2 id="receipt-preview-title" class="m-0 text-lg font-bold">Statement receipt</h2>
+        <div class="ml-auto flex gap-2">
+            <a data-receipt-save class="btn btn-primary">Save Image</a>
+            <button type="button" data-receipt-close class="btn" aria-label="Close receipt preview" autofocus>Close ✕</button>
+        </div>
+    </header>
+    <div class="p-4 overflow-y-auto min-h-0">
+        <p data-receipt-loading role="status" class="text-center text-muted">Loading receipt…</p>
+        <p data-receipt-error role="alert" hidden>Could not load this receipt. Close and try again.</p>
+        <img data-receipt-image alt="Statement receipt" class="block w-full h-auto rounded-xl" hidden>
+    </div>
+</dialog>
 @endsection

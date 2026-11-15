@@ -91,6 +91,8 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::get('/funds/{paymentRequest}/receipt', [FundsController::class, 'receipt'])->name('funds.receipt');
     Route::get('/funds/{paymentRequest}', [FundsController::class, 'show'])->name('funds.show');
     Route::get('/statement', StatementController::class)->name('statement');
+    Route::get('/statement/transactions/{transaction}/receipt', [StatementController::class, 'receipt'])->name('statement.receipt');
+    Route::get('/statement/transactions/{transaction}/receipt/download', [StatementController::class, 'receipt'])->defaults('download', true)->name('statement.receipt.download');
     Route::get('/statement/pdf', [StatementController::class, 'pdf'])->name('statement.pdf')->middleware('throttle:20,1');
     Route::post('/statement/email', [StatementController::class, 'email'])->name('statement.email')->middleware('throttle:5,10');
 
@@ -183,6 +185,7 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
 
     Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
+    Route::put('/settings/statements', [Admin\SettingsController::class, 'updateStatements'])->name('settings.statements');
     Route::put('/settings/social', [Admin\SettingsController::class, 'updateSocial'])->name('settings.social');
     Route::put('/settings/telegram',[Admin\SettingsController::class, 'updateTelegram'])->name('settings.telegram');
     Route::post('/settings/telegram/test', [Admin\SettingsController::class, 'testTelegram'])->name('settings.telegram.test')->middleware('throttle:6,1');
