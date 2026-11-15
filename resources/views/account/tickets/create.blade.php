@@ -38,6 +38,7 @@
         <input id="files" name="files[]" type="file" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="input py-2">
         <x-field-error name="files" /><x-field-error name="files.0" /><x-field-error name="files.1" /><x-field-error name="files.2" />
     </div>
+    <x-captcha form="ticket" />
     <button class="btn btn-primary self-start">{{ __('Send ticket') }}</button>
 </form>
 @endsection

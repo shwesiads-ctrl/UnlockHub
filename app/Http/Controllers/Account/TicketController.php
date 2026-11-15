@@ -38,6 +38,7 @@ class TicketController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        \App\Services\Captcha::check($request, 'ticket');
         $user = $request->user();
         $data = $request->validate([
             'category' => ['required', Rule::in(array_keys(Ticket::CATEGORIES))],

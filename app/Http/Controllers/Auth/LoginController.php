@@ -36,6 +36,7 @@ class LoginController extends Controller
             'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ]);
+        \App\Services\Captcha::check($request, 'login');
 
         $key = Str::lower($data['login']).'|'.$request->ip();
 

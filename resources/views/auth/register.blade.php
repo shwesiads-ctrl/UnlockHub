@@ -48,6 +48,7 @@
             <span>I agree to the terms. I understand wrong IMEI/model entries are non-refundable and In Process orders can't be cancelled.</span>
         </label>
         <x-field-error name="terms" />
+        <x-captcha form="register" />
         <button class="btn btn-primary btn-lg w-full">Create account</button>
     </form>
 

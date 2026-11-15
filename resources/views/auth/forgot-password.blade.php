@@ -9,6 +9,7 @@
             <input id="email" name="email" type="email" value="{{ old('email') }}" class="input" autocomplete="email" required autofocus>
             <x-field-error name="email" />
         </div>
+        <x-captcha form="password" />
         <button class="btn btn-primary btn-lg w-full">Send reset link</button>
     </form>
     <x-slot:footer><a href="{{ route('login') }}">← Back to login</a></x-slot:footer>

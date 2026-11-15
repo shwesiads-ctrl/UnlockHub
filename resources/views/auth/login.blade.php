@@ -21,6 +21,7 @@
             <input type="checkbox" name="remember" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('remember'))>
             Keep me signed in
         </label>
+        <x-captcha form="login" />
         <button class="btn btn-primary btn-lg w-full">Log in</button>
     </form>
 

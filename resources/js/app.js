@@ -125,3 +125,20 @@ document.addEventListener('input', (e) => {
   const t = form.querySelector('[data-online-total]');
   if (t) t.textContent = amount ? total.toFixed(2) : '—';
 });
+
+// reCAPTCHA v3: get a fresh token right before the form is sent
+document.addEventListener('submit', (e) => {
+  const form = e.target;
+  const box = form.querySelector('[data-captcha="recaptcha_v3"]');
+  if (!box || form.dataset.captchaReady === '1' || !window.grecaptcha) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  window.grecaptcha.ready(() => {
+    window.grecaptcha.execute(box.dataset.sitekey, { action: box.dataset.action }).then((token) => {
+      form.querySelector('input[name="g-recaptcha-response"]').value = token;
+      form.dataset.captchaReady = '1';
+      form.requestSubmit ? form.requestSubmit() : form.submit();
+      setTimeout(() => { form.dataset.captchaReady = ''; }, 3000);
+    });
+  });
+}, true);

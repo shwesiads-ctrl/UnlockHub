@@ -26,6 +26,8 @@ class RegisterController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        \App\Services\Captcha::check($request, 'register');
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'username' => ['required', 'string', 'min:3', 'max:30', 'alpha_dash', 'unique:users,username'],

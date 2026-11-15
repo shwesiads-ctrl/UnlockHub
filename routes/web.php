@@ -260,6 +260,8 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     Route::post('/settings/payments/{gateway}/test', [Admin\OnlinePaymentAdminController::class, 'test'])->whereIn('gateway', ['stripe', 'paypal'])->name('settings.payments.test')->middleware('throttle:10,1');
     Route::get('/payments-online', [Admin\OnlinePaymentAdminController::class, 'index'])->name('payments.online');
     Route::post('/payments-online/{payment}/sync', [Admin\OnlinePaymentAdminController::class, 'sync'])->name('payments.online.sync')->middleware('throttle:30,1');
+    Route::put('/settings/security', [Admin\SettingsController::class, 'updateSecurity'])->name('settings.security');
+    Route::post('/settings/security/test', [Admin\SettingsController::class, 'testCaptcha'])->name('settings.security.test')->middleware('throttle:10,1');
     Route::put('/settings/mail', [Admin\SettingsController::class, 'updateMail'])->name('settings.mail');
     Route::post('/settings/mail/test', [Admin\SettingsController::class, 'testMail'])->name('settings.mail.test')->middleware('throttle:6,1');
     Route::put('/settings/pwa', [Admin\SettingsController::class, 'updatePwa'])->name('settings.pwa');

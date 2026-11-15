@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Real visitor IP behind Cloudflare (runs before everything, incl. rate limits)
+        $middleware->prepend(\App\Http\Middleware\CloudflareProxy::class);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'staff' => \App\Http\Middleware\CheckStaffPermission::class,

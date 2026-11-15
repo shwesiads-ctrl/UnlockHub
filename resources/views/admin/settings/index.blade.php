@@ -6,6 +6,7 @@
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
     <a href="#site-settings">Site &amp; branding</a>
     <a href="#social-login">Social login</a>
+    <a href="#security">Security (CAPTCHA / Cloudflare)</a>
     <a href="#smtp">Email (SMTP)</a>
     <a href="#online-payments">PayPal &amp; Stripe</a>
     <a href="#telegram-alerts">Telegram alerts</a>
@@ -131,6 +132,8 @@
     <p class="m-0 text-xs text-muted">Save first, then <strong>Test</strong>: you go through the real sign-in and come back here with the result — nobody is signed in or created.</p>
     <button class="btn btn-primary self-start">Save social login</button>
 </form>
+
+@include('admin.settings._security')
 
 <section id="smtp" class="card p-6 flex flex-col gap-4">
     <div class="flex justify-between items-center gap-3 flex-wrap">

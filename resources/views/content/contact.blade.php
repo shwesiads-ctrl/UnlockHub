@@ -33,6 +33,7 @@
                 <x-field-error name="message" />
             </div>
             <div class="hidden" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
+            <x-captcha form="contact" />
             <button class="btn btn-primary btn-lg self-start">Send message</button>
         </form>
 

@@ -23,6 +23,7 @@ class PasswordResetController extends Controller
     public function email(Request $request): RedirectResponse
     {
         $request->validate(['email' => ['required', 'email']]);
+        \App\Services\Captcha::check($request, 'password');
 
         Password::sendResetLink($request->only('email'));
 

@@ -124,6 +124,8 @@ class ContentController extends Controller
 
     public function sendContact(Request $request): RedirectResponse
     {
+        \App\Services\Captcha::check($request, 'contact');
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255'],

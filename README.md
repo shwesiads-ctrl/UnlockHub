@@ -205,6 +205,15 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Security — Google reCAPTCHA / Cloudflare Turnstile / Cloudflare proxy
+
+- **Admin › Settings › Security** — Bot check: **Cloudflare Turnstile**, **Google reCAPTCHA v2** (checkbox) သို့ **v3** (မမြင်ရ, score) ရွေး → Site key + Secret → **Run test**
+  - Test မအောင်သေးရင် မဖွင့်ဘူး (key မှားလို့ Admin ကိုယ်တိုင် login ပိတ်မသွားအောင်)
+  - Login, Register, Forgot password, Contact, New ticket ကို ရွေးပြီး ကာကွယ်; Token ကို server ကနေ siteverify နဲ့ စစ် (v3 score + action စစ်)
+  - Localhost စမ်းရန် Turnstile test key: site `1x00000000000000000000AA`, secret `1x0000000000000000000000000000000AA`
+- **Cloudflare proxy** — "My domain goes through Cloudflare" ဖွင့်ရင် Cloudflare IP range ကလာမှ `CF-Connecting-IP` ကို visitor IP အဖြစ်ယူ (rate limit, log, trusted device မှန်) — တခြားက လိမ်ထည့်တဲ့ header ကို မယုံ
+  - "Block direct access" — Server IP ကို တိုက်ရိုက်ဖွင့်တာ ပိတ် (Cloudflare ကနေ ဝင်နေမှပဲ ဖွင့်လို့ရ — ကိုယ့်ကိုယ်ကို မပိတ်မိအောင်)
+
 ## PayPal / Stripe, SMTP, Social login စစ်ဆေးခြင်း
 
 - **Admin › Settings › PayPal & Stripe** — Stripe (Card) နဲ့ PayPal key ထည့် → **Test keys** (✓ Tested ပြ)။ ငွေကြေး (USD), 1 USD = ? Ks, Min/Max, Fee %

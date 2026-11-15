@@ -118,6 +118,74 @@ class SettingsController extends Controller
         return back()->with('success', 'Social login settings saved.');
     }
 
+    public function updateSecurity(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'provider' => ['required', 'in:'.implode(',', array_keys(\App\Services\Captcha::PROVIDERS))],
+            'site_key' => ['nullable', 'string', 'max:200'],
+            'secret' => ['nullable', 'string', 'max:200'],
+            'min_score' => ['required', 'numeric', 'between:0.1,0.9'],
+            'forms' => ['array'],
+            'forms.*' => ['in:'.implode(',', array_keys(\App\Services\Captcha::FORMS))],
+        ]);
+
+        $changed = $data['provider'] !== setting('captcha.provider', 'none')
+            || ($data['site_key'] ?? null) !== setting('captcha.site_key') || filled($data['secret'] ?? null);
+
+        Setting::put('captcha.provider', $data['provider']);
+        Setting::put('captcha.site_key', $data['site_key'] ?? null);
+        if (filled($data['secret'] ?? null)) {
+            Setting::put('captcha.secret', encrypt($data['secret']));
+        }
+        Setting::put('captcha.min_score', (string) $data['min_score']);
+        foreach (array_keys(\App\Services\Captcha::FORMS) as $f) {
+            Setting::put('captcha.form.'.$f, in_array($f, $data['forms'] ?? [], true) ? '1' : '0');
+        }
+        if ($changed) {
+            Setting::put('captcha.verified_at', null); // not enforced until tested again
+        }
+
+        $cfWas = setting('security.cloudflare');
+        Setting::put('security.cloudflare', $request->boolean('cloudflare') ? '1' : '0');
+        // "Cloudflare only" needs the proxy setting and must come through Cloudflare right now (no self-lockout)
+        $cfOnly = $request->boolean('cloudflare_only') && $request->boolean('cloudflare')
+            && $request->attributes->get('via_cloudflare') === true;
+        Setting::put('security.cloudflare_only', $cfOnly ? '1' : '0');
+
+        ActivityLog::record('settings.security', null, ['captcha' => $data['provider'], 'forms' => $data['forms'] ?? [], 'cloudflare' => $request->boolean('cloudflare'), 'cloudflare_only' => $cfOnly]);
+
+        $msg = 'Security settings saved.';
+        if ($data['provider'] !== 'none' && ! setting('captcha.verified_at')) {
+            $msg .= ' The bot check is NOT active yet — pass the Test below to switch it on.';
+        }
+        if ($request->boolean('cloudflare_only') && ! $cfOnly) {
+            $msg .= ' "Cloudflare only" was not turned on because this request did not come through Cloudflare (it would lock you out).';
+        }
+
+        return redirect()->to(route('admin.settings.index').'#security')->with('success', $msg);
+    }
+
+    public function testCaptcha(Request $request): RedirectResponse
+    {
+        $back = redirect()->to(route('admin.settings.index').'#security');
+        $provider = \App\Services\Captcha::provider();
+        if ($provider === 'none' || ! \App\Services\Captcha::siteKey() || ! \App\Services\Captcha::secret()) {
+            return $back->with('error', 'Choose a provider and save the site key and secret first.');
+        }
+
+        $r = \App\Services\Captcha::verify($request, $provider, (string) \App\Services\Captcha::secret(), 'test');
+        if (! $r['ok']) {
+            Setting::put('captcha.verified_at', null);
+
+            return $back->with('error', 'Test failed: '.$r['message'].' Check that the site key and secret belong together and this domain is allowed.');
+        }
+
+        Setting::put('captcha.verified_at', now()->toDateTimeString());
+        ActivityLog::record('settings.captcha_tested', null, ['provider' => $provider, 'hostname' => $r['raw']['hostname'] ?? null]);
+
+        return $back->with('success', \App\Services\Captcha::PROVIDERS[$provider].' works ✓'.(isset($r['raw']['score']) ? ' (score '.$r['raw']['score'].')' : '').' — the bot check is now active on the forms you ticked.');
+    }
+
     public function updateMail(Request $request): RedirectResponse
     {
         $data = $request->validate([
