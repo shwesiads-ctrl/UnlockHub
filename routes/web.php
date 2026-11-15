@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\ContentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,20 @@ Route::get('/services', [ServiceController::class, 'index'])->name('services.ind
 Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
 Route::post('/services/{service}/order', [OrderController::class, 'store'])
     ->middleware(['auth', 'active', 'throttle:30,1'])->name('orders.store');
+
+/* ---------------- Content pages ---------------- */
+Route::get('/kb', [ContentController::class, 'posts'])->defaults('type', 'kb')->name('kb.index');
+Route::get('/kb/{slug}', [ContentController::class, 'post'])->defaults('type', 'kb')->name('kb.show');
+Route::get('/blog', [ContentController::class, 'posts'])->defaults('type', 'blog')->name('blog.index');
+Route::get('/blog/{slug}', [ContentController::class, 'post'])->defaults('type', 'blog')->name('blog.show');
+Route::get('/testimonials', [ContentController::class, 'testimonials'])->name('testimonials');
+Route::post('/testimonials', [ContentController::class, 'storeTestimonial'])->middleware(['auth', 'active', 'throttle:5,1'])->name('testimonials.store');
+Route::get('/downloads', [ContentController::class, 'downloads'])->name('downloads');
+Route::get('/downloads/{download}', [ContentController::class, 'download'])->middleware('throttle:30,1')->name('downloads.get');
+Route::get('/track-order', [ContentController::class, 'track'])->middleware('throttle:30,1')->name('track');
+Route::get('/contact', [ContentController::class, 'contact'])->name('contact');
+Route::post('/contact', [ContentController::class, 'sendContact'])->middleware('throttle:5,10')->name('contact.send');
+Route::get('/rss', [ContentController::class, 'rss'])->name('rss');
 
 /* ---------------- Guest: register / login / password reset ---------------- */
 Route::middleware('guest')->group(function () {
@@ -86,6 +101,24 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
     Route::get('/suppliers/{supplier}/services', [Admin\SupplierController::class, 'services'])->name('suppliers.services');
     Route::post('/suppliers/{supplier}/import', [Admin\SupplierController::class, 'import'])->name('suppliers.import');
     Route::post('/suppliers/{supplier}/sync-costs', [Admin\SupplierController::class, 'syncCosts'])->name('suppliers.sync-costs');
+
+    Route::resource('posts', Admin\PostController::class)->except('show');
+    Route::controller(Admin\ContentExtrasController::class)->group(function () {
+        Route::get('/testimonials', 'testimonials')->name('testimonials.index');
+        Route::post('/testimonials', 'storeTestimonial')->name('testimonials.store');
+        Route::put('/testimonials/{testimonial}', 'updateTestimonial')->name('testimonials.update');
+        Route::delete('/testimonials/{testimonial}', 'destroyTestimonial')->name('testimonials.destroy');
+
+        Route::get('/downloads', 'downloads')->name('downloads.index');
+        Route::post('/downloads', 'storeDownload')->name('downloads.store');
+        Route::put('/downloads/{download}', 'updateDownload')->name('downloads.update');
+        Route::delete('/downloads/{download}', 'destroyDownload')->name('downloads.destroy');
+
+        Route::get('/announcements', 'announcements')->name('announcements.index');
+        Route::post('/announcements', 'storeAnnouncement')->name('announcements.store');
+        Route::put('/announcements/{announcement}', 'updateAnnouncement')->name('announcements.update');
+        Route::delete('/announcements/{announcement}', 'destroyAnnouncement')->name('announcements.destroy');
+    });
 
     Route::get('/points', [Admin\PointsController::class, 'index'])->name('points.index');
     Route::put('/points/rules', [Admin\PointsController::class, 'updateRules'])->name('points.rules');

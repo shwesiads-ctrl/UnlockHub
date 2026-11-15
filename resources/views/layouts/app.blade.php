@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('partials.head')
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ route('rss') }}">
 </head>
 <body class="min-h-screen flex flex-col">
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:p-3">Skip to content</a>
@@ -23,10 +24,10 @@
             <nav aria-label="Main" class="flex flex-wrap gap-1 sm:ml-3">
                 <a href="{{ route('home') }}" @class(['nav-link', 'active' => request()->routeIs('home')])>Home</a>
                 <a href="{{ route('services.index') }}" @class(['nav-link', 'active' => request()->routeIs('services.*')])>Services &amp; Pricing</a>
-                <a href="#" class="nav-link">Track Order</a>
-                <a href="#" class="nav-link">Knowledge Base</a>
-                <a href="#" class="nav-link">Blog</a>
-                <a href="#" class="nav-link">Contact</a>
+                <a href="{{ route('track') }}" @class(['nav-link', 'active' => request()->routeIs('track')])>Track Order</a>
+                <a href="{{ route('kb.index') }}" @class(['nav-link', 'active' => request()->routeIs('kb.*')])>Knowledge Base</a>
+                <a href="{{ route('blog.index') }}" @class(['nav-link', 'active' => request()->routeIs('blog.*')])>Blog</a>
+                <a href="{{ route('contact') }}" @class(['nav-link', 'active' => request()->routeIs('contact')])>Contact</a>
             </nav>
 
             <div class="ml-auto flex flex-wrap items-center gap-2">
@@ -61,8 +62,8 @@
                 <span class="font-display text-xl font-bold">{{ setting('site.name', config('app.name')) }}</span>
                 <p class="text-sm text-muted leading-relaxed m-0">Check IMEI and model carefully — wrong entries are non-refundable. Orders already In Process cannot be cancelled.</p>
             </div>
-            <div class="flex-[1_1_160px] flex flex-col gap-2.5 text-sm"><span class="font-bold">Support</span><a href="#">Knowledge Base</a><a href="#">Track Order</a><a href="#">Downloads</a><a href="#">Contact Us</a></div>
-            <div class="flex-[1_1_160px] flex flex-col gap-2.5 text-sm"><span class="font-bold">Company</span><a href="#">Blog</a><a href="#">Testimonials</a><a href="#">RSS</a><a href="#">Terms &amp; Refunds</a></div>
+            <div class="flex-[1_1_160px] flex flex-col gap-2.5 text-sm"><span class="font-bold">Support</span><a href="{{ route('kb.index') }}">Knowledge Base</a><a href="{{ route('track') }}">Track Order</a><a href="{{ route('downloads') }}">Downloads</a><a href="{{ route('contact') }}">Contact Us</a></div>
+            <div class="flex-[1_1_160px] flex flex-col gap-2.5 text-sm"><span class="font-bold">Company</span><a href="{{ route('blog.index') }}">Blog</a><a href="{{ route('testimonials') }}">Testimonials</a><a href="{{ route('rss') }}">RSS</a>@if ($terms = setting('pages.terms_slug'))<a href="{{ route('kb.show', $terms) }}">Terms &amp; Refunds</a>@endif</div>
             <div class="flex-[1_1_160px] flex flex-col gap-2.5 text-sm"><span class="font-bold">Channels</span>
                 @foreach (['telegram' => 'Telegram', 'viber' => 'Viber', 'facebook' => 'Facebook', 'youtube' => 'YouTube'] as $k => $label)
                     @if ($url = setting('social.'.$k)) <a href="{{ $url }}" rel="noopener" target="_blank">{{ $label }}</a> @endif

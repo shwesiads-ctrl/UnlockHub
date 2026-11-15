@@ -128,6 +128,21 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 - Reject / Cancel ဖြစ်တဲ့ order တွေက point မရပါ
 - Rule အားလုံးကို Admin › **Points** မှာ ပြင်လို့ရတယ်
 
+## Content စာမျက်နှာများ
+
+| URL | ဘာလဲ | Admin မှာ ပြင်ရန် |
+|---|---|---|
+| `/kb` | Knowledge Base (လမ်းညွှန်ဆောင်းပါး၊ ရှာလို့ရ) | Content › Knowledge Base |
+| `/blog` | Blog (cover ပုံပါ) | Content › Blog |
+| `/testimonials` | Review — login ဝင်ထားသူ ရေးလို့ရ၊ Admin approve မှ ပေါ် | Content › Testimonials |
+| `/downloads` | Driver / tool ဖိုင် (link သို့ upload)၊ download အရေအတွက် မှတ် | Content › Downloads |
+| `/track-order` | Order နံပါတ်နဲ့ status စစ် (IMEI ကို ဖုံးပြ၊ result ကို ပိုင်ရှင်ပဲ မြင်) | — |
+| `/contact` | Contact form → `contact.email` setting (သို့) `ADMIN_EMAIL` ဆီ email ပို့ | — |
+| `/rss` | Blog post အသစ် + service အသစ် RSS feed | — |
+| (အပေါ်ဆုံး bar) | Announcement — အရောင်၊ စ/ဆုံး ရက် သတ်မှတ်လို့ရ | Content › Announcements |
+
+ဆောင်းပါးတွေကို **Markdown** နဲ့ ရေးပါ (`## ခေါင်းစဉ်`, `**bold**`, `- list`, `[link](https://…)`)။ Publish date ကို အနာဂတ်ထားရင် အဲဒီနေ့ရောက်မှ ပေါ်မယ်။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -159,7 +174,7 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 - [x] **အဆင့် ၅** — Order system (API / Manual, bulk, auto refund)၊ Manual queue
 - [x] **အဆင့် ၆** — Supplier API (DHRU Fusion)၊ Service import၊ Order result auto-check
 - [x] **အဆင့် ၇** — Point system (Redeem၊ Referral bonus၊ Group auto-upgrade၊ Admin adjust)
-- [ ] အဆင့် ၈ — Content စာမျက်နှာ (KB, Blog, Testimonials, Downloads, Track Order)
+- [x] **အဆင့် ၈** — Content စာမျက်နှာ (KB, Blog, Testimonials, Downloads, Track Order, Contact, RSS) + Admin Content
 - [ ] အဆင့် ၉ — Notification (Email + Telegram bot)
 - [ ] အဆင့် ၁၀ — Admin panel အပြည့်အစုံ
 - [ ] အဆင့် ၁၁ — Test လုပ်ပြီး Deploy
