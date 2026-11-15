@@ -112,6 +112,13 @@ class SettingsController extends Controller
         return back()->with('success', 'Social login settings saved.');
     }
 
+    public function updateStatements(Request $request): RedirectResponse
+    {
+        Setting::put('statements.monthly', $request->boolean('monthly') ? '1' : '0');
+
+        return back()->with('success', 'Statement settings saved.');
+    }
+
     public function updateTelegram(Request $request): RedirectResponse
     {
         $data = $request->validate([

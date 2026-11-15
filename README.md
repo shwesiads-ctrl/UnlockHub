@@ -201,6 +201,17 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Statement (PDF + Email)
+
+- **Account › Statement** — ရက်အပိုင်းအခြား (ဒီလ / ပြီးခဲ့တဲ့လ / ၃၀ ရက် / ဒီနှစ် / စိတ်ကြိုက်) နဲ့ Type ရွေးပြီး Opening / Money in / Money out / Closing balance ကို ကြည့်လို့ရတယ်
+  - **Download PDF** — Logo, customer အချက်အလက်, စာရင်း, Type အလိုက် summary, စာမျက်နှာ နံပါတ် ပါတယ်
+  - **Email PDF** — ကိုယ့် email ကို PDF attachment နဲ့ ပို့တယ်
+- **Admin › Users › (user)** — ရက်ရွေးပြီး အဲဒီ user ရဲ့ statement ကို PDF download / email ပို့
+- **လစဉ်** — လတိုင်း ၁ ရက်နေ့ မနက် ၈ နာရီမှာ ပြီးခဲ့တဲ့လ statement ကို customer တွေဆီ အလိုအလျောက် email ပို့တယ် (Admin › Settings › Monthly statements မှာ ဖွင့်/ပိတ်)။ `schedule:work` / cron run နေမှ အလုပ်လုပ်တယ်
+  - ကိုယ်တိုင် ပို့ချင်ရင်: `php artisan statements:monthly --month=2026-10`
+
+> PDF ကို `dompdf/dompdf` နဲ့ ထုတ်တယ် (`composer install` မှာ ပါလာမယ်)။ PDF ထဲမှာ English/ဂဏန်းတွေ မှန်မှန်ပေါ်ပေမဲ့ dompdf က မြန်မာစာ (Unicode ပေါင်းစပ်စာလုံး) ကို မှန်မှန် မဆွဲနိုင်လို့ description တွေကို English နဲ့ပဲ သိမ်းထားပါတယ်။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |

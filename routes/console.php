@@ -10,3 +10,4 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('orders:check-api')->everyMinute()->withoutOverlapping(10);
 Schedule::command('suppliers:sync')->hourly()->withoutOverlapping();
+Schedule::command('statements:monthly')->monthlyOn(1, '08:00')->withoutOverlapping();

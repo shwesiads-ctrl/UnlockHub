@@ -163,6 +163,15 @@
                 <li>Paste both here, Save, then <strong class="text-ink">Send test message</strong>.</li>
             </ol>
         </section>
+        <form method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
+            @csrf @method('PUT')
+            <h2 class="m-0 text-lg font-bold">Monthly statements</h2>
+            <label class="flex items-start gap-2.5">
+                <input type="checkbox" name="monthly" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('statements.monthly', '1') === '1')>
+                <span>On the 1st of each month, email last month's PDF statement to every customer who had wallet activity (and has email alerts on).</span>
+            </label>
+            <button class="btn self-start">Save</button>
+        </form>
         <section class="card p-5 flex flex-col gap-2 text-sm leading-relaxed">
             <h2 class="m-0 text-lg font-bold">Customer emails</h2>
             <p class="m-0 text-muted">Users get emails for finished orders, bulk-order summaries and top-up decisions (they can turn emails off; site notifications always show).</p>

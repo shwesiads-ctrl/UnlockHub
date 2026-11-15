@@ -90,6 +90,8 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::post('/funds', [FundsController::class, 'store'])->name('funds.store')->middleware('throttle:10,1');
     Route::get('/funds/{paymentRequest}/receipt', [FundsController::class, 'receipt'])->name('funds.receipt');
     Route::get('/statement', StatementController::class)->name('statement');
+    Route::get('/statement/pdf', [StatementController::class, 'pdf'])->name('statement.pdf')->middleware('throttle:20,1');
+    Route::post('/statement/email', [StatementController::class, 'email'])->name('statement.email')->middleware('throttle:5,10');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
@@ -127,6 +129,8 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
     Route::get('/users/{user}', [Admin\UserController::class, 'show'])->name('users.show');
     Route::put('/users/{user}', [Admin\UserController::class, 'update'])->name('users.update');
     Route::post('/users/{user}/wallet', [Admin\UserController::class, 'wallet'])->name('users.wallet');
+    Route::get('/users/{user}/statement', [Admin\UserController::class, 'statementPdf'])->name('users.statement');
+    Route::post('/users/{user}/statement', [Admin\UserController::class, 'statementEmail'])->name('users.statement.email')->middleware('throttle:10,1');
     Route::post('/users/{user}/reset-2fa', [Admin\UserController::class, 'resetTwoFactor'])->name('users.reset-2fa');
     Route::post('/users/{user}/password-reset', [Admin\UserController::class, 'sendPasswordReset'])->name('users.password-reset')->middleware('throttle:6,1');
 

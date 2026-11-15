@@ -2,11 +2,18 @@
     "name": "shwesiads-ctrl/unlockhub",
     "type": "project",
     "description": "UnlockHub — GSM unlock, tool credit and activation reseller platform (Myanmar).",
-    "keywords": ["laravel", "gsm", "unlock", "imei", "dhru"],
+    "keywords": [
+        "laravel",
+        "gsm",
+        "unlock",
+        "imei",
+        "dhru"
+    ],
     "license": "Apache-2.0",
     "require": {
         "php": "^8.3",
         "bacon/bacon-qr-code": "^3.0",
+        "dompdf/dompdf": "^3.1",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "pragmarx/google2fa": "^8.0|^9.0"

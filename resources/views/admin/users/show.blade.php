@@ -34,7 +34,16 @@
         </section>
 
         <section class="card overflow-hidden">
-            <h2 class="m-0 px-5 py-4 text-lg font-bold">Wallet history</h2>
+            <div class="flex flex-wrap justify-between items-center gap-2 px-5 py-4">
+                <h2 class="m-0 text-lg font-bold">Wallet history</h2>
+                <form method="GET" action="{{ route('admin.users.statement', $user) }}" class="flex flex-wrap gap-2 items-center" id="st-form">
+                    <label for="st_from" class="sr-only">From</label><input id="st_from" name="from" type="date" value="{{ now()->startOfMonth()->toDateString() }}" class="input h-9 w-auto text-sm">
+                    <label for="st_to" class="sr-only">To</label><input id="st_to" name="to" type="date" value="{{ now()->toDateString() }}" class="input h-9 w-auto text-sm">
+                    <button class="btn h-9 text-xs">PDF</button>
+                    <button class="btn h-9 text-xs" formmethod="POST" formaction="{{ route('admin.users.statement.email', $user) }}" @disabled(! $user->email)>Email</button>
+                    @csrf
+                </form>
+            </div>
             <div class="table-wrap"><table class="table min-w-[560px]">
                 <thead><tr><th>Date</th><th>Description</th><th class="text-right">Amount</th><th class="text-right">Balance</th></tr></thead>
                 <tbody>

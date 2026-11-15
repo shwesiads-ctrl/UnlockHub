@@ -126,6 +126,38 @@ class UserController extends Controller
         return back()->with('success', ($data['direction'] === 'credit' ? 'Added ' : 'Removed ').money($data['amount']).'. New balance '.money($user->fresh()->balance).'.');
     }
 
+    public function statementPdf(Request $request, User $user, \App\Services\StatementService $statements): \Illuminate\Http\Response
+    {
+        [$from, $to] = \App\Services\StatementService::range($request->query('from'), $request->query('to'));
+        $data = $statements->build($user, $from, $to);
+
+        return response($statements->pdf($data), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$statements->filename($data).'"',
+        ]);
+    }
+
+    public function statementEmail(Request $request, User $user, \App\Services\StatementService $statements): RedirectResponse
+    {
+        [$from, $to] = \App\Services\StatementService::range($request->input('from'), $request->input('to'));
+
+        try {
+            $sent = $statements->email($user, $from, $to);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Could not send the email: '.$e->getMessage());
+        }
+
+        if (! $sent) {
+            return back()->with('error', "{$user->username} has no email address.");
+        }
+
+        ActivityLog::record('user.statement_emailed', $user, ['from' => $from->toDateString(), 'to' => $to->toDateString()]);
+
+        return back()->with('success', "Statement ({$from->format('d M')} – {$to->format('d M Y')}) emailed to {$user->email}.");
+    }
+
     public function resetTwoFactor(User $user): RedirectResponse
     {
         $user->forceFill(['two_factor_secret' => null, 'two_factor_confirmed_at' => null])->save();
