@@ -6,9 +6,8 @@
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
     <a id="tab-site-settings" href="#site-settings" role="tab" aria-controls="site-settings">Site &amp; branding</a>
     <a id="tab-home-page" href="#home-page" role="tab" aria-controls="home-page">Home page</a>
-    <a id="tab-seo" href="#seo" role="tab" aria-controls="seo">SEO &amp; Analytics</a>
-    <a id="tab-social-login" href="#social-login" role="tab" aria-controls="social-login">Social login</a>
-    <a id="tab-security" href="#security" role="tab" aria-controls="security">Security (CAPTCHA / Cloudflare)</a>
+    <a id="tab-seo" href="#seo" role="tab" aria-controls="seo">SEO</a>
+    <a id="tab-security" href="#security" role="tab" aria-controls="security">Security &amp; access</a>
     <a id="tab-smtp" href="#smtp" role="tab" aria-controls="smtp">Email (SMTP)</a>
     <a id="tab-online-payments" href="#online-payments" role="tab" aria-controls="online-payments">PayPal &amp; Stripe</a>
     <a id="tab-telegram-alerts" href="#telegram-alerts" role="tab" aria-controls="telegram-alerts">Telegram alerts</a>
@@ -217,9 +216,9 @@
 <form method="POST" action="{{ route('admin.settings.seo') }}" class="card p-6 flex flex-col gap-5">
     @csrf @method('PUT')
     <div class="settings-heading">
-        <span class="badge badge-info">Search &amp; measurement</span>
-        <h2>SEO &amp; Google Analytics</h2>
-        <p>Set the public site metadata and optionally connect a Google Analytics 4 property. Analytics is kept off until enabled here.</p>
+        <span class="badge badge-info">Search visibility</span>
+        <h2>SEO metadata</h2>
+        <p>Set the default metadata used by search engines and social previews.</p>
     </div>
     <section class="settings-section">
         <h3>Search and social preview</h3>
@@ -246,65 +245,15 @@
             </div>
         </div>
     </section>
-    <section class="settings-section">
-        <h3>Google Analytics 4</h3>
-        <div class="settings-fields">
-            <div>
-                <label for="seo_ga_id" class="label">Measurement ID</label>
-                <input id="seo_ga_id" name="google_analytics_id" value="{{ old('google_analytics_id', setting('seo.google_analytics_id')) }}" class="input h-11 font-mono" placeholder="G-XXXXXXXXXX" autocomplete="off">
-                <x-field-error name="google_analytics_id" />
-            </div>
-        </div>
-        <label class="flex items-center gap-2 mt-4 text-sm font-semibold"><input type="checkbox" name="analytics_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('analytics_enabled', setting('seo.analytics_enabled', '0')) === '1')>Enable Google Analytics on public pages</label>
-        <p class="m-0 mt-2 text-xs text-muted">Admin pages are excluded. Enter the Measurement ID from Google Analytics → Admin → Data streams. Include your privacy/cookie notice if required in your region.</p>
-    </section>
     <div class="settings-actions"><span>SEO metadata appears in page source and social previews.</span><button class="btn btn-primary">Save SEO settings</button></div>
 </form>
 </div>
 
-<div id="social-login" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-social-login">
-<form method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
-    @csrf @method('PUT')
-    <div class="settings-heading">
-        <span class="badge badge-info">OAuth</span>
-        <h2>Social login</h2>
-        <p>Create an app on each platform, paste its ID and secret, and add the <strong class="text-ink">Redirect URL</strong> shown below to that app. Secrets are stored encrypted and never shown again.</p>
-    </div>
-    <div class="settings-fields">
-        @foreach ($socialProviders as $key => $p)
-            @php $on = setting("social_login.{$key}.enabled") === '1'; $hasSecret = filled(setting("social_login.{$key}.client_secret")); @endphp
-            <fieldset class="m-0 min-w-0 rounded-xl border border-line p-4 flex flex-col gap-3">
-                <legend class="px-1 font-bold">{{ $p['label'] }}</legend>
-                <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="{{ $key }}_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked($on)>Enabled</label>
-                @if ($key === 'telegram')
-                    <div><label for="tg_user" class="label text-xs">Bot username</label><input id="tg_user" name="telegram_bot_username" value="{{ setting('social_login.telegram.bot_username') }}" class="input h-10" placeholder="@YourShopBot"><x-field-error name="telegram_bot_username" /></div>
-                    <div><label for="tg_token" class="label text-xs">Bot token <span class="font-normal text-muted">(empty = use the alerts bot)</span></label><input id="tg_token" name="telegram_bot_token" type="password" class="input h-10 font-mono" autocomplete="new-password" placeholder="{{ filled(setting('social_login.telegram.bot_token')) ? 'Saved — leave empty to keep' : '123456:ABC…' }}"><x-field-error name="telegram_bot_token" /></div>
-                    <p class="m-0 text-xs text-muted">In @BotFather send <code>/setdomain</code> and set <code>{{ parse_url(url('/'), PHP_URL_HOST) }}</code>. Telegram only works on a real domain with HTTPS.</p>
-                @else
-                    <div><label for="{{ $key }}_id" class="label text-xs">{{ $key === 'tiktok' ? 'Client key' : ($key === 'facebook' ? 'App ID' : 'Client ID') }}</label><input id="{{ $key }}_id" name="{{ $key }}_client_id" value="{{ setting("social_login.{$key}.client_id") }}" class="input h-10 font-mono text-sm"></div>
-                    <div><label for="{{ $key }}_secret" class="label text-xs">{{ $key === 'facebook' ? 'App secret' : 'Client secret' }}</label><input id="{{ $key }}_secret" name="{{ $key }}_client_secret" type="password" class="input h-10 font-mono text-sm" autocomplete="new-password" placeholder="{{ $hasSecret ? 'Saved — leave empty to keep' : '' }}"></div>
-                    <div class="text-xs text-muted">Redirect URL: <code class="text-ink break-all select-all">{{ route('social.callback', $key) }}</code> <button type="button" class="btn h-7 px-2 text-[11px]" data-copy="{{ route('social.callback', $key) }}">Copy</button></div>
-                @endif
-                <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-line">
-                    @if ($v = setting("social_login.{$key}.verified_at"))
-                        <span class="badge badge-success">Tested ✓ {{ \Illuminate\Support\Carbon::parse($v)->diffForHumans() }}</span>
-                    @else
-                        <span class="badge badge-pending">Not tested</span>
-                    @endif
-                    <a href="{{ route('admin.settings.social.test', $key) }}" class="btn h-8 text-xs">Test {{ $key === 'telegram' ? 'bot' : 'login' }}</a>
-                    <a href="{{ $p['console'] }}" target="_blank" rel="noopener" class="text-xs ml-auto">Developer console →</a>
-                </div>
-            </fieldset>
-        @endforeach
-    </div>
-    <p class="m-0 text-xs text-muted">Save first, then <strong>Test</strong>: you go through the real sign-in and come back here with the result — nobody is signed in or created.</p>
-    <div class="settings-actions">
-        <button class="btn btn-primary">Save social login</button>
-    </div>
-</form>
+<div id="security" class="settings-panel flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-security">
+    @include('admin.settings._security')
+    @include('admin.settings._social-login')
+    @include('admin.settings._analytics')
 </div>
-
-@include('admin.settings._security')
 
 <section id="smtp" class="settings-panel card p-6 flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-smtp">
     <div class="settings-heading">
@@ -461,7 +410,7 @@
 </div>
 <div class="settings-page-nav" aria-label="Settings page navigation">
     <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings section">‹ Previous</a>
-    <span class="settings-page-count" aria-live="polite">Section 1 of 10</span>
+    <span class="settings-page-count" aria-live="polite">Section 1 of 9</span>
     <a class="btn btn-primary" data-settings-next href="#home-page" aria-label="Next settings section">Next ›</a>
 </div>
 </div>

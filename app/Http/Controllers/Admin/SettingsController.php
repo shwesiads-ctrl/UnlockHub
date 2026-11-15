@@ -138,17 +138,30 @@ class SettingsController extends Controller
             'description' => ['nullable', 'string', 'max:300'],
             'keywords' => ['nullable', 'string', 'max:500'],
             'image_url' => ['nullable', 'url:http,https', 'max:2048'],
-            'google_analytics_id' => ['nullable', 'string', 'regex:/^G-[A-Z0-9]{4,20}$/i'],
         ]);
 
-        foreach (['title', 'description', 'keywords', 'image_url', 'google_analytics_id'] as $key) {
+        foreach (['title', 'description', 'keywords', 'image_url'] as $key) {
             Setting::put('seo.'.$key, trim((string) ($data[$key] ?? '')));
         }
-        Setting::put('seo.analytics_enabled', $request->boolean('analytics_enabled') ? '1' : '0');
 
         ActivityLog::record('settings.seo_updated');
 
-        return redirect()->to(route('admin.settings.index').'#seo')->with('success', 'SEO and analytics settings saved.');
+        return redirect()->to(route('admin.settings.index').'#seo')->with('success', 'SEO settings saved.');
+    }
+
+    public function updateAnalytics(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'analytics_enabled' => ['boolean'],
+            'google_analytics_id' => [$request->boolean('analytics_enabled') ? 'required' : 'nullable', 'string', 'max:30', 'regex:/^G-[A-Z0-9]{4,20}$/i'],
+        ]);
+
+        Setting::put('seo.google_analytics_id', trim((string) ($data['google_analytics_id'] ?? '')));
+        Setting::put('seo.analytics_enabled', $request->boolean('analytics_enabled') ? '1' : '0');
+
+        ActivityLog::record('settings.analytics_updated', null, ['enabled' => $request->boolean('analytics_enabled')]);
+
+        return redirect()->to(route('admin.settings.index').'#security')->with('success', 'Analytics and cookie settings saved.');
     }
 
     public function updateSocial(Request $request): RedirectResponse
@@ -186,7 +199,7 @@ class SettingsController extends Controller
 
         ActivityLog::record('settings.social_updated');
 
-        return redirect()->to(route('admin.settings.index').'#social-login')->with('success', 'Social login settings saved.');
+        return redirect()->to(route('admin.settings.index').'#security')->with('success', 'Social login settings saved.');
     }
 
     public function updateAccountDisplay(Request $request): RedirectResponse
