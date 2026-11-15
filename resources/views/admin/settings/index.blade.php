@@ -103,6 +103,15 @@
         <button class="btn btn-primary">Save site settings</button>
     </div>
 </form>
+<form method="POST" action="{{ route('admin.settings.account-display') }}" class="card p-5 flex flex-col gap-4">
+    @csrf @method('PUT')
+    <div><h2 class="m-0 text-lg font-bold">Account header badges</h2><p class="m-0 mt-1 text-sm text-muted">Choose which balance badges appear in the account header for signed-in users.</p></div>
+    <div class="flex flex-wrap gap-x-8 gap-y-3">
+        <label class="flex items-center gap-2.5 text-sm font-semibold"><input type="checkbox" name="show_balance" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('account.show_balance', '1') === '1')>Show wallet balance (Ks)</label>
+        <label class="flex items-center gap-2.5 text-sm font-semibold"><input type="checkbox" name="show_points" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('account.show_points', '1') === '1')>Show points</label>
+    </div>
+    <button class="btn btn-primary self-start">Save header display</button>
+</form>
 </div>
 
 <div id="social-login" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-social-login">

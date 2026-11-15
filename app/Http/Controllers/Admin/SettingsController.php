@@ -118,6 +118,19 @@ class SettingsController extends Controller
         return redirect()->to(route('admin.settings.index').'#social-login')->with('success', 'Social login settings saved.');
     }
 
+    public function updateAccountDisplay(Request $request): RedirectResponse
+    {
+        Setting::put('account.show_balance', $request->boolean('show_balance') ? '1' : '0');
+        Setting::put('account.show_points', $request->boolean('show_points') ? '1' : '0');
+
+        ActivityLog::record('settings.account_display_updated', null, [
+            'balance' => $request->boolean('show_balance'),
+            'points' => $request->boolean('show_points'),
+        ]);
+
+        return redirect()->to(route('admin.settings.index').'#site-settings')->with('success', 'Account header display settings saved.');
+    }
+
     public function updateSecurity(Request $request): RedirectResponse
     {
         $data = $request->validate([
