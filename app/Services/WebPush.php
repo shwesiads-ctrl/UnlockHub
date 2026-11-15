@@ -46,12 +46,37 @@ class WebPush
     /** Create a new P-256 key pair (old subscriptions stop working). */
     public static function generateKeys(): string
     {
-        $key = openssl_pkey_new(['curve_name' => 'prime256v1', 'private_key_type' => OPENSSL_KEYTYPE_EC]);
+        // Windows PHP installs often have no openssl.cnf at OpenSSL's compiled-in path.
+        // Provide a small valid config and use the EC-specific option supported by PHP 8.
+        $configPath = tempnam(sys_get_temp_dir(), 'unlockhub-openssl-');
+        if ($configPath === false || file_put_contents($configPath, "[req]\ndefault_bits = 256\ndistinguished_name = req_distinguished_name\n[req_distinguished_name]\n") === false) {
+            if ($configPath !== false) {
+                @unlink($configPath);
+            }
+            throw new RuntimeException('Could not prepare the temporary OpenSSL configuration.');
+        }
+
+        try {
+            $key = openssl_pkey_new([
+                'config' => $configPath,
+                'ec' => ['curve_name' => 'prime256v1'],
+            ]);
+        } finally {
+            @unlink($configPath);
+        }
+
         if (! $key) {
             throw new RuntimeException('OpenSSL could not create an EC key.');
         }
-        openssl_pkey_export($key, $pem);
-        $d = openssl_pkey_get_details($key)['ec'];
+
+        if (! openssl_pkey_export($key, $pem)) {
+            throw new RuntimeException('OpenSSL could not export the EC private key.');
+        }
+        $details = openssl_pkey_get_details($key);
+        if (! isset($details['ec']['x'], $details['ec']['y'])) {
+            throw new RuntimeException('OpenSSL did not return the EC public key coordinates.');
+        }
+        $d = $details['ec'];
         $public = self::b64("\x04".str_pad($d['x'], 32, "\0", STR_PAD_LEFT).str_pad($d['y'], 32, "\0", STR_PAD_LEFT));
 
         Setting::put('push.vapid_private', encrypt($pem));
