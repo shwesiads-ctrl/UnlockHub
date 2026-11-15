@@ -1,6 +1,6 @@
 # UnlockHub
 
-GSM unlock service, tool credit နဲ့ activation တွေကို reseller တွေဆီ ရောင်းဖို့ platform ပါ။ Laravel 11 နဲ့ ရေးထားပါတယ်။
+GSM unlock service, tool credit နဲ့ activation တွေကို reseller တွေဆီ ရောင်းဖို့ platform ပါ။ Laravel 13 နဲ့ ရေးထားပါတယ်။
 
 - Wallet + Myanmar payment (KBZPay / WavePay / AYA Pay / CB Pay) — ပြေစာ upload တင်ပြီး Admin က approve လုပ်ရ
 - Order ကို **API** (DHRU Fusion supplier) နဲ့ ဒါမှမဟုတ် **Manual** နဲ့ ဆောင်ရွက်တယ်၊ API fail ရင် Manual queue ထဲ အလိုအလျောက် ရောက်တယ်
@@ -11,7 +11,7 @@ GSM unlock service, tool credit နဲ့ activation တွေကို reseller
 
 ## လိုအပ်ချက်
 
-- PHP 8.2+ (extension: `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `gd`)
+- PHP 8.3+ (extension: `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `gd`)
 - Composer 2
 - MySQL 8 / MariaDB 10.6+ (စမ်းရုံဆို SQLite နဲ့လည်း ရတယ်)
 - Node 20+ (Tailwind / Vite အတွက်)
