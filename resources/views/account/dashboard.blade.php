@@ -1,6 +1,7 @@
 @extends('layouts.account', ['title' => __('Hello, :name', ['name' => auth()->user()->name])])
 
 @section('content')
+@php $paymentCurrency = setting('catalog.price_currency', 'ks'); @endphp
 @if (! $user->hasTwoFactor())
     <div class="rounded-xl px-4 py-3 text-sm bg-brand-soft text-brand-ink flex flex-wrap gap-3 items-center">
         <span class="flex-1">{{ __('Protect your wallet — turn on Google Authenticator.') }}</span>
@@ -17,19 +18,20 @@
 @endif
 
 <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+    @if ($paymentCurrency !== 'points')
     <div class="bg-brand text-white rounded-2xl p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold opacity-90">{{ __('Wallet balance') }}</span>
         <span class="font-display text-[30px] font-bold">{{ money($user->balance) }}</span>
         <a href="{{ route('account.funds.index') }}" class="text-white hover:text-white text-[13px] font-semibold">{{ __('Add funds →') }}</a>
     </div>
-    @if (\App\Services\PointService::systemOn())
+    @endif
+    @if ($paymentCurrency === 'points' && \App\Services\PointService::systemOn())
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">{{ __('Points') }}</span>
         <span class="font-display text-[30px] font-bold text-point">{{ number_format($user->points) }} {{ __('pts') }}</span>
         <div class="flex flex-wrap gap-x-2 text-[13px] text-muted">
             @if ($canRedeemPoints)<span>= {{ money($pointsValue) }} {{ __('credit') }} · <a href="{{ route('account.points') }}">{{ __('Redeem') }}</a></span>@endif
-            @if ($canConvertWallet)<a href="{{ route('account.points') }}#convert-wallet">{{ __('Convert Ks to points') }}</a>@endif
-            @if (! $canRedeemPoints && ! $canConvertWallet)<span>{{ __('Conversions are unavailable right now.') }}</span>@endif
+            @if (! $canRedeemPoints)<a href="{{ route('account.points') }}">{{ __('Points history') }}</a>@endif
         </div>
     </div>
     @endif

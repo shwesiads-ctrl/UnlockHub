@@ -60,10 +60,10 @@
                 <x-user-badges :user="auth()->user()" size="sm" />
             </div>
             <div class="ml-auto flex items-center gap-2 flex-wrap">
-                @if (setting('account.show_balance', '1') === '1')
+                @if (setting('catalog.price_currency', 'ks') !== 'points' && setting('account.show_balance', '1') === '1')
                     <span class="btn bg-ok-soft text-ok border-transparent font-bold"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</span>
                 @endif
-                @if (setting('account.show_points', '1') === '1' && \App\Services\PointService::systemOn())
+                @if (setting('catalog.price_currency', 'ks') === 'points' && setting('account.show_points', '1') === '1' && \App\Services\PointService::systemOn())
                     <a href="{{ route('account.points') }}" class="btn hidden sm:inline-flex bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} {{ __('pts') }}</a>
                 @endif
                 <x-notification-bell />
