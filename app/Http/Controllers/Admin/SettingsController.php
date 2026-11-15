@@ -9,6 +9,7 @@ use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Throwable;
 
@@ -464,9 +465,10 @@ class SettingsController extends Controller
     {
         $logos = json_decode(setting('footer.payment_logos', '[]'), true) ?: [];
         if (isset($logos[$index])) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($logos[$index]);
+            Storage::disk('public')->delete($logos[$index]);
             array_splice($logos, $index, 1);
             Setting::put('footer.payment_logos', json_encode(array_values($logos)));
+            ActivityLog::record('settings.footer_logo_removed');
         }
         return back()->with('success', 'Logo removed.');
     }
