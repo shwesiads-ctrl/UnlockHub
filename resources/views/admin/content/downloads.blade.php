@@ -43,4 +43,5 @@
         <button class="btn btn-primary">Add</button>
     </form>
 </div>
+{{ $downloads->links() }}
 @endsection

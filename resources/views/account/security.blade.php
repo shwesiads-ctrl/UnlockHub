@@ -126,6 +126,7 @@
             @empty
                 <p class="m-0 text-sm text-muted">No trusted devices. Tick "Trust this device?" when you log in to add one.</p>
             @endforelse
+{{ $devices->links() }}
             @if ($devices->isNotEmpty())
                 <form method="POST" action="{{ route('account.security.devices.forget-all') }}">
                     @csrf @method('DELETE')

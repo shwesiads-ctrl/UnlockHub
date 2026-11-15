@@ -35,12 +35,12 @@ class PointsController extends Controller
         $user = $request->user()->load('group');
         $rules = PointService::rules();
 
-        $history = $user->pointTransactions()->latest('id')->paginate(20);
+        $history = $user->pointTransactions()->latest('id')->paginate(20)->withQueryString();
 
         $referrals = $user->referrals()
             ->select('id', 'username', 'created_at')
             ->withCount(['orders as success_orders' => fn ($q) => $q->where('status', Order::SUCCESS)])
-            ->latest()->limit(50)->get();
+            ->latest()->paginate(20, ['*'], 'referrals_page')->withQueryString();
 
         $lifetime = $this->points->lifetime($user);
 

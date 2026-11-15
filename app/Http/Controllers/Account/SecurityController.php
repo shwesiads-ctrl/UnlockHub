@@ -37,7 +37,7 @@ class SecurityController extends Controller
         return view('account.security', [
             'user' => $user,
             'qr' => $qr,
-            'devices' => $user->trustedDevices()->where('expires_at', '>', now())->latest('last_used_at')->get(),
+            'devices' => $user->trustedDevices()->where('expires_at', '>', now())->latest('last_used_at')->paginate(10, ['*'], 'devices_page')->withQueryString(),
             'currentDeviceId' => $this->devices->find($user, $request)?->id,
         ]);
     }

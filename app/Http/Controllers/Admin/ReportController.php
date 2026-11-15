@@ -138,17 +138,17 @@ class ReportController extends Controller
 
         $topServices = Order::where('status', Order::SUCCESS)->whereBetween('completed_at', [$from, $to])
             ->selectRaw('service_id, service_name, COUNT(*) AS n, SUM(price) AS sales, SUM(price - cost) AS profit')
-            ->groupBy('service_id', 'service_name')->orderByDesc('sales')->limit(10)->get();
+            ->groupBy('service_id', 'service_name')->orderByDesc('sales')->orderBy('service_id')->paginate(10, ['*'], 'services_page')->withQueryString();
 
         $byMethod = PaymentRequest::where('payment_requests.status', PaymentRequest::APPROVED)->whereBetween('payment_requests.reviewed_at', [$from, $to])
             ->join('payment_methods', 'payment_methods.id', '=', 'payment_requests.payment_method_id')
             ->selectRaw('payment_methods.name AS method, COUNT(*) AS n, SUM(credited_amount) AS total')
-            ->groupBy('payment_methods.name')->orderByDesc('total')->get();
+            ->groupBy('payment_methods.name')->orderByDesc('total')->paginate(10, ['*'], 'methods_page')->withQueryString();
 
         $topUsers = Order::where('orders.status', Order::SUCCESS)->whereBetween('orders.completed_at', [$from, $to])
             ->join('users', 'users.id', '=', 'orders.user_id')
             ->selectRaw('users.id, users.username, COUNT(*) AS n, SUM(orders.price) AS sales')
-            ->groupBy('users.id', 'users.username')->orderByDesc('sales')->limit(10)->get();
+            ->groupBy('users.id', 'users.username')->orderByDesc('sales')->orderBy('users.id')->paginate(10, ['*'], 'customers_page')->withQueryString();
 
         return compact('days', 'totals', 'topServices', 'byMethod', 'topUsers');
     }

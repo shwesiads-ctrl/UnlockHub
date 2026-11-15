@@ -48,7 +48,7 @@ class ContentController extends Controller
     public function testimonials(Request $request): View
     {
         return view('content.testimonials', [
-            'testimonials' => Testimonial::where('is_approved', true)->latest()->paginate(18),
+            'testimonials' => Testimonial::where('is_approved', true)->latest()->paginate(18)->withQueryString(),
             'mine' => $request->user() ? Testimonial::where('user_id', $request->user()->id)->latest()->first() : null,
         ]);
     }
@@ -79,7 +79,7 @@ class ContentController extends Controller
 
     public function downloads(): View
     {
-        return view('content.downloads', ['downloads' => Download::where('is_active', true)->latest()->get()]);
+        return view('content.downloads', ['downloads' => Download::where('is_active', true)->latest()->paginate(20)->withQueryString()]);
     }
 
     public function download(Download $download): RedirectResponse|StreamedResponse

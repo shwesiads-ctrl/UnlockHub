@@ -61,6 +61,8 @@
         @empty
             <div class="card p-10 text-center text-muted">No services{{ $search ? ' match "'.$search.'"' : '' }}.</div>
         @endforelse
+        <p class="text-xs text-muted">Select and import services on this page before moving to the next page.</p>
+        {{ $servicePage->links() }}
     </div>
 
     <aside class="flex-[1_1_320px] min-w-0 card p-5 flex flex-col gap-4 lg:sticky lg:top-4">

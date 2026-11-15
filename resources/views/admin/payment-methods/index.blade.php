@@ -73,4 +73,5 @@
         <button class="btn self-start">Add method</button>
     </form>
 </div>
+{{ $methods->links() }}
 @endsection

@@ -64,4 +64,5 @@
         </form>
     </aside>
 </div>
+{{ $categoryPage->links() }}
 @endsection

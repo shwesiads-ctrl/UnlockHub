@@ -108,4 +108,5 @@
         </section>
     </aside>
 </div>
+{{ $recent->links() }}
 @endsection

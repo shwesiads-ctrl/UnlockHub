@@ -23,7 +23,7 @@ class FundsController extends Controller
         return view('account.funds', [
             'methods' => $methods,
             'selected' => $selected,
-            'history' => $request->user()->paymentRequests()->with('method:id,name')->latest()->paginate(10),
+            'history' => $request->user()->paymentRequests()->with('method:id,name')->latest()->paginate(10)->withQueryString(),
             'pendingCount' => $request->user()->paymentRequests()->where('status', PaymentRequest::PENDING)->count(),
         ]);
     }

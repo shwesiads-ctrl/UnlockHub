@@ -14,7 +14,7 @@
     </div>
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">Friends referred</span>
-        <span class="font-display text-[32px] font-bold">{{ $referrals->count() }}</span>
+        <span class="font-display text-[32px] font-bold">{{ $referrals->total() }}</span>
         <span class="text-[13px] text-muted">{{ $referrals->where('success_orders', '>', 0)->count() }} have ordered</span>
     </div>
     @if ($nextGroup)
@@ -124,6 +124,7 @@
                         </li>
                     @endforeach
                 </ul>
+                {{ $referrals->links() }}
             @endif
         </section>
 

@@ -66,7 +66,7 @@ class ContentExtrasController extends Controller
 
     public function downloads(): View
     {
-        return view('admin.content.downloads', ['downloads' => Download::latest()->get()]);
+        return view('admin.content.downloads', ['downloads' => Download::latest()->paginate(20)->withQueryString()]);
     }
 
     public function storeDownload(Request $request): RedirectResponse
@@ -133,7 +133,7 @@ class ContentExtrasController extends Controller
 
     public function announcements(): View
     {
-        return view('admin.content.announcements', ['announcements' => Announcement::latest()->get()]);
+        return view('admin.content.announcements', ['announcements' => Announcement::latest()->paginate(20)->withQueryString()]);
     }
 
     public function storeAnnouncement(Request $request): RedirectResponse

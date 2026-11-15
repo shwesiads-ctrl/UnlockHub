@@ -53,6 +53,7 @@
             @endforelse
             </tbody>
         </table></div>
+<div class="p-3">{{ $topServices->links() }}</div>
     </section>
 
     <section class="card overflow-hidden">
@@ -67,6 +68,7 @@
             @endforelse
             </tbody>
         </table></div>
+<div class="p-3">{{ $topUsers->links() }}</div>
     </section>
 
     <section class="card overflow-hidden">
@@ -81,6 +83,7 @@
             @endforelse
             </tbody>
         </table></div>
+<div class="p-3">{{ $byMethod->links() }}</div>
     </section>
 </div>
 

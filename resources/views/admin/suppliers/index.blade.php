@@ -50,4 +50,5 @@
         @endforeach
     </div>
 @endif
+{{ $suppliers->links() }}
 @endsection

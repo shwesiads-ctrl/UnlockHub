@@ -22,7 +22,7 @@ class ApiAccessController extends Controller
             'newKey' => session('api_key_plain'), // shown once right after generating
             'apiUrl' => url('/'),
             'endpoint' => route('api.dhru'),
-            'recent' => $user->orders()->where('user_note', 'like', 'API%')->latest('id')->limit(10)->get(),
+            'recent' => $user->orders()->where('user_note', 'like', 'API%')->latest('id')->paginate(10)->withQueryString(),
         ]);
     }
 

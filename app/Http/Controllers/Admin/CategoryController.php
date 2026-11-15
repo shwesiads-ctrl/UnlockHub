@@ -16,9 +16,10 @@ class CategoryController extends Controller
 {
     public function index(): View
     {
-        $categories = ServiceCategory::withCount('services')->orderBy('type')->orderBy('sort')->orderBy('name')->get()->groupBy('type');
+        $categoryPage = ServiceCategory::withCount('services')->orderBy('type')->orderBy('sort')->orderBy('name')->orderBy('id')->paginate(20)->withQueryString();
+        $categories = $categoryPage->getCollection()->groupBy('type');
 
-        return view('admin.categories.index', compact('categories'));
+        return view('admin.categories.index', compact('categories', 'categoryPage'));
     }
 
     public function store(Request $request): RedirectResponse

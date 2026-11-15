@@ -18,7 +18,7 @@ class GroupController extends Controller
     public function index(): View
     {
         return view('admin.groups.index', [
-            'groups' => UserGroup::withCount(['users', 'prices'])->orderBy('sort')->get(),
+            'groups' => UserGroup::withCount(['users', 'prices'])->orderBy('sort')->orderBy('id')->paginate(20)->withQueryString(),
         ]);
     }
 

@@ -8,6 +8,7 @@ use App\Models\PaymentRequest;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Paginator::defaultView('partials.numbered-pagination');
         Model::preventLazyLoading(! $this->app->isProduction());
 
         // Short names in polymorphic columns (wallet/point/activity references)

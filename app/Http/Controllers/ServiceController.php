@@ -36,14 +36,21 @@ class ServiceController extends Controller
             ->get()
             ->filter(fn ($c) => $c->services->isNotEmpty());
 
+        $servicePage = \App\Support\ListPage::from($categories->flatMap->services, 25);
+        $visibleIds = $servicePage->getCollection()->pluck('id');
+        $categories = $categories->map(function ($category) use ($visibleIds) {
+            $category->setRelation('services', $category->services->whereIn('id', $visibleIds));
+            return $category;
+        })->filter(fn ($category) => $category->services->isNotEmpty());
+
         // A search with no hits in this tab: tell the user which tabs have matches
         $otherTabHits = [];
-        if ($search !== '' && $categories->isEmpty()) {
+        if ($search !== '' && $servicePage->total() === 0) {
             $otherTabHits = Service::visible()->where('name', 'like', '%'.$search.'%')
                 ->selectRaw('type, count(*) as n')->groupBy('type')->pluck('n', 'type')->all();
         }
 
-        return view('services.index', compact('type', 'hotOnly', 'search', 'categoryId', 'allCategories', 'categories', 'otherTabHits'));
+        return view('services.index', compact('type', 'hotOnly', 'search', 'categoryId', 'allCategories', 'categories', 'otherTabHits', 'servicePage'));
     }
 
     public function show(Request $request, Service $service): View

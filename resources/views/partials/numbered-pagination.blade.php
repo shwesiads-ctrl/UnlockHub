@@ -1,5 +1,15 @@
 @if ($paginator->hasPages())
-<nav aria-label="Report pages" class="flex flex-wrap items-center gap-1.5">
+@php
+    $window = \Illuminate\Pagination\UrlWindow::make($paginator->onEachSide(1));
+    $elements = array_filter([
+        $window['first'],
+        is_array($window['slider']) ? '...' : null,
+        $window['slider'],
+        is_array($window['last']) ? '...' : null,
+        $window['last'],
+    ]);
+@endphp
+<nav aria-label="Pagination" class="flex flex-wrap items-center gap-1.5">
     @if ($paginator->onFirstPage())
         <span class="btn h-9 px-3 opacity-50" aria-disabled="true" aria-label="Previous page">‹</span>
     @else

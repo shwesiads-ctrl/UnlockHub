@@ -67,10 +67,10 @@ class UserController extends Controller
             'user' => $user,
             'stats' => $stats,
             'groups' => UserGroup::orderBy('sort')->get(),
-            'orders' => $user->orders()->latest('id')->limit(10)->get(),
-            'payments' => $user->paymentRequests()->with('method:id,name')->latest('id')->limit(8)->get(),
-            'wallet' => $user->walletTransactions()->latest('id')->limit(15)->get(),
-            'devices' => $user->trustedDevices()->where('expires_at', '>', now())->latest('last_used_at')->get(),
+            'orders' => $user->orders()->latest('id')->paginate(10, ['*'], 'orders_page')->withQueryString(),
+            'payments' => $user->paymentRequests()->with('method:id,name')->latest('id')->paginate(8, ['*'], 'payments_page')->withQueryString(),
+            'wallet' => $user->walletTransactions()->latest('id')->paginate(15, ['*'], 'wallet_page')->withQueryString(),
+            'devices' => $user->trustedDevices()->where('expires_at', '>', now())->latest('last_used_at')->paginate(10, ['*'], 'devices_page')->withQueryString(),
         ]);
     }
 

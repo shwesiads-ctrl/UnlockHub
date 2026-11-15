@@ -20,7 +20,7 @@ class PopupController extends Controller
     {
         return view('admin.popups.edit', [
             'popup' => Popup::home(),
-            'services' => Service::whereNotNull('popup')->with('category:id,name')->orderBy('name')->get(['id', 'name', 'slug', 'status', 'popup', 'service_category_id']),
+            'services' => Service::whereNotNull('popup')->with('category:id,name')->orderBy('name')->paginate(20, ['id', 'name', 'slug', 'status', 'popup', 'service_category_id'])->withQueryString(),
         ]);
     }
 

@@ -99,5 +99,6 @@
             </table>
         </div>
     @endif
+    {{ $servicePage->links() }}
 </div>
 @endsection

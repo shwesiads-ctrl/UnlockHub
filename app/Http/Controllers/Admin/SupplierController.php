@@ -26,7 +26,7 @@ class SupplierController extends Controller
         $suppliers = Supplier::withCount([
             'services',
             'orders as open_orders_count' => fn ($q) => $q->whereIn('status', ['pending', 'in_process']),
-        ])->orderBy('name')->get();
+        ])->orderBy('name')->paginate(20)->withQueryString();
 
         return view('admin.suppliers.index', compact('suppliers'));
     }
@@ -96,10 +96,12 @@ class SupplierController extends Controller
         }
 
         $imported = Service::where('supplier_id', $supplier->id)->get(['id', 'slug', 'name', 'supplier_service_id', 'cost_price', 'default_price', 'status'])->keyBy('supplier_service_id');
+        $servicePage = \App\Support\ListPage::from(collect($list), 25);
 
         return view('admin.suppliers.services', [
             'supplier' => $supplier,
-            'groups' => collect($list)->groupBy('group'),
+            'groups' => $servicePage->getCollection()->groupBy('group'),
+            'servicePage' => $servicePage,
             'total' => count($list),
             'imported' => $imported,
             'categories' => ServiceCategory::orderBy('type')->orderBy('name')->get()->groupBy('type'),

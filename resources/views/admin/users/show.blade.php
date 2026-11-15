@@ -31,6 +31,7 @@
                 @endforelse
                 </tbody>
             </table></div>
+            <div class="p-3">{{ $orders->links() }}</div>
         </section>
 
         <section class="card overflow-hidden">
@@ -59,6 +60,7 @@
                 @endforelse
                 </tbody>
             </table></div>
+            <div class="p-3">{{ $wallet->links() }}</div>
         </section>
 
         <section class="card overflow-hidden">
@@ -78,6 +80,7 @@
                 @endforelse
                 </tbody>
             </table></div>
+            <div class="p-3">{{ $payments->links() }}</div>
         </section>
     </div>
 
@@ -130,6 +133,7 @@
                         <li class="px-3 py-2 rounded-lg bg-surface-2"><span class="font-mono">{{ $d->ip_address }}</span> · {{ \Illuminate\Support\Str::limit($d->user_agent, 40) }} · {{ $d->last_used_at?->diffForHumans() }}</li>
                     @endforeach
                 </ul>
+                {{ $devices->links() }}
             @endif
         </section>
     </aside>

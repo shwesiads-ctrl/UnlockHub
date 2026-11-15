@@ -28,4 +28,5 @@
         <button class="btn btn-primary">Add</button>
     </form>
 </div>
+{{ $announcements->links() }}
 @endsection

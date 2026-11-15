@@ -17,7 +17,7 @@ class PaymentMethodController extends Controller
     public function index(): View
     {
         return view('admin.payment-methods.index', [
-            'methods' => PaymentMethod::orderBy('sort')->withCount(['requests as pending_count' => fn ($q) => $q->where('status', 'pending')])->get(),
+            'methods' => PaymentMethod::orderBy('sort')->withCount(['requests as pending_count' => fn ($q) => $q->where('status', 'pending')])->orderBy('id')->paginate(20)->withQueryString(),
         ]);
     }
 
