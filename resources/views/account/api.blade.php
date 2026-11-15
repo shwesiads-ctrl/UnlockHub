@@ -1,7 +1,7 @@
 @extends('layouts.account', ['title' => 'API Access'])
 
 @section('content')
-<p class="m-0 text-muted text-[15px] max-w-3xl">{{ __('Connect your own DHRU Fusion site (or any script) to :site. Orders placed through the API use your wallet balance and your group prices, exactly like orders on this site.', ['site' => setting('site.name', config('app.name'))]) }}</p>
+<p class="m-0 text-muted text-[15px] max-w-3xl">{{ __('Connect your own DHRU Fusion site (or any script) to :site. Orders use your account group prices and are charged in the active service currency.', ['site' => setting('site.name', config('app.name'))]) }}</p>
 
 @if ($newKey)
     <section class="rounded-2xl p-5 bg-ok-soft flex flex-col gap-2" role="alert">
@@ -58,7 +58,7 @@
             <div class="table-wrap"><table class="table min-w-[560px]">
                 <thead><tr><th>{{ __('action') }}</th><th>{{ __('parameters') }}</th><th>{{ __('returns') }}</th></tr></thead>
                 <tbody>
-                    <tr><td class="font-mono">{{ __('accountinfo') }}</td><td>—</td><td>{{ __('credit (MMK), mail, currency') }}</td></tr>
+                    <tr><td class="font-mono">{{ __('accountinfo') }}</td><td>—</td><td>{{ __('credit, mail, active currency') }}</td></tr>
                     <tr><td class="font-mono">{{ __('imeiservicelist') }}</td><td>—</td><td>{{ __('Groups → services with SERVICEID, CREDIT (your price), TIME, required fields') }}</td></tr>
                     <tr><td class="font-mono">{{ __('getimeiservicedetails') }}</td><td class="font-mono">ID</td><td>{{ __('One service') }}</td></tr>
                     <tr><td class="font-mono">{{ __('placeimeiorder') }}</td><td class="font-mono">{{ __('ID, IMEI / SN / …, CUSTOMFIELD (base64 JSON), REFERENCE') }}</td><td>{{ __('REFERENCEID (our order ID)') }}</td></tr>
@@ -75,6 +75,82 @@
   --data-urlencode "parameters=&lt;PARAMETERS&gt;&lt;ID&gt;12&lt;/ID&gt;&lt;IMEI&gt;354612345678901&lt;/IMEI&gt;&lt;/PARAMETERS&gt;"</code></pre>
                 <span class="text-xs text-muted">{{ __('Rejected orders are refunded automatically. Rate limit: 120 requests per minute.') }}</span>
             </div>
+        </section>
+
+        <section id="resellers" class="card p-6 flex flex-col gap-4 scroll-mt-24">
+            <div>
+                <span class="badge badge-info">{{ __('Resellers') }}</span>
+                <h2 class="m-0 mt-2 text-xl font-bold">{{ __('Reseller developer API') }}</h2>
+                <p class="m-0 mt-1 text-sm text-muted">{{ __('Connect a reseller account or DHRU-compatible shop to UnlockHub.') }}</p>
+            </div>
+
+            <div class="grid gap-3 md:grid-cols-2">
+                <div class="rounded-xl bg-surface-2 p-4">
+                    <h3 class="m-0 text-sm font-bold">{{ __('1. Create credentials') }}</h3>
+                    <p class="m-0 mt-1 text-sm text-muted">{{ __('Create an API key on this page, then enable API access. Use your UnlockHub username (or email) and your own key. Never put the key in browser-side code or share it with customers.') }}</p>
+                </div>
+                <div class="rounded-xl bg-surface-2 p-4">
+                    <h3 class="m-0 text-sm font-bold">{{ __('2. Connect your shop') }}</h3>
+                    <p class="m-0 mt-1 text-sm text-muted">{{ __('Send POST requests to the API URL above at /api/index.php. The API processes orders for the authenticated account, using its group prices and active order currency.') }}</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="table min-w-[620px]">
+                    <thead><tr><th>{{ __('Setting') }}</th><th>{{ __('Value / behavior') }}</th></tr></thead>
+                    <tbody>
+                        <tr><td class="font-semibold">{{ __('Endpoint') }}</td><td><code>{{ $endpoint }}</code></td></tr>
+                        <tr><td class="font-semibold">{{ __('Method and format') }}</td><td>POST · <code>requestformat=JSON</code></td></tr>
+                        <tr><td class="font-semibold">{{ __('Authentication') }}</td><td><code>username</code> + <code>apiaccesskey</code></td></tr>
+                        <tr><td class="font-semibold">{{ __('Charge and refund') }}</td><td>{{ __('Orders charge the active service currency (Ks or points). Rejected and cancelled orders are returned automatically in that currency.') }}</td></tr>
+                        <tr><td class="font-semibold">{{ __('Retries') }}</td><td>{{ __('Send a unique REFERENCE with placeimeiorder. Retrying the same service and reference returns the original order instead of charging twice.') }}</td></tr>
+                        <tr><td class="font-semibold">{{ __('Rate limit') }}</td><td>{{ __('120 requests per minute; failed authentication is separately limited.') }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="grid gap-4 lg:grid-cols-2">
+                <div class="min-w-0">
+                    <h3 class="m-0 mb-2 text-sm font-bold">{{ __('Place an order') }}</h3>
+                    <pre class="m-0 p-4 rounded-xl bg-surface-2 overflow-x-auto text-[12px] leading-relaxed"><code>curl -X POST {{ $endpoint }} \
+  -d username={{ $user->username }} \
+  -d apiaccesskey=YOUR-KEY \
+  -d action=placeimeiorder \
+  -d requestformat=JSON \
+  --data-urlencode "parameters=&lt;PARAMETERS&gt;&lt;ID&gt;12&lt;/ID&gt;&lt;IMEI&gt;354612345678901&lt;/IMEI&gt;&lt;REFERENCE&gt;shop-ord-1001&lt;/REFERENCE&gt;&lt;/PARAMETERS&gt;"</code></pre>
+                </div>
+                <div class="min-w-0">
+                    <h3 class="m-0 mb-2 text-sm font-bold">{{ __('Check order status') }}</h3>
+                    <pre class="m-0 p-4 rounded-xl bg-surface-2 overflow-x-auto text-[12px] leading-relaxed"><code>curl -X POST {{ $endpoint }} \
+  -d username={{ $user->username }} \
+  -d apiaccesskey=YOUR-KEY \
+  -d action=getimeiorder \
+  -d requestformat=JSON \
+  --data-urlencode "parameters=&lt;PARAMETERS&gt;&lt;ID&gt;1452&lt;/ID&gt;&lt;/PARAMETERS&gt;"</code></pre>
+                </div>
+            </div>
+
+            <div class="grid gap-3 md:grid-cols-2 text-sm">
+                <div class="rounded-xl border border-line p-4">
+                    <h3 class="m-0 text-sm font-bold">{{ __('Order status values') }}</h3>
+                    <p class="m-0 mt-1 text-muted"><code>0</code> {{ __('Pending') }} · <code>1</code> {{ __('In process') }} · <code>3</code> {{ __('Rejected or cancelled') }} · <code>4</code> {{ __('Success') }}. Successful results are returned in <code>CODE</code>; rejection details are in <code>COMMENTS</code>.</p>
+                </div>
+                <div class="rounded-xl border border-line p-4">
+                    <h3 class="m-0 text-sm font-bold">{{ __('Custom service fields') }}</h3>
+                    <p class="m-0 mt-1 text-muted">{{ __('Send standard fields (such as IMEI or SN) as XML elements. For other required fields, send CUSTOMFIELD as base64-encoded JSON keyed by the field name or label.') }}</p>
+                </div>
+            </div>
+
+            <div class="rounded-xl bg-surface-2 p-4 text-sm">
+                <h3 class="m-0 text-sm font-bold">{{ __('Response format') }}</h3>
+                <p class="m-0 mt-1 text-muted">{{ __('Responses are JSON with apiversion 6.1. Successes use SUCCESS; errors use ERROR with a MESSAGE. Service-list CREDIT and account credit use the active currency.') }}</p>
+                <pre class="m-0 mt-3 p-3 rounded-lg bg-bg overflow-x-auto text-[12px]"><code>{
+  "SUCCESS": [{ "MESSAGE": "Order received", "REFERENCEID": 1452 }],
+  "apiversion": "6.1"
+}</code></pre>
+            </div>
+
+            <p class="m-0 text-xs text-muted">{{ __('API keys can be restricted to allowed server IPs in Security. This API supports account info, service list/details, order placement and order status; it does not provide reseller customer-management endpoints.') }}</p>
         </section>
     </div>
 
