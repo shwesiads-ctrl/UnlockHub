@@ -98,30 +98,101 @@
   summary::-webkit-details-marker { display: none; }
 }
 
-.settings-page { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; align-items: start; }
-.settings-nav { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 6px; padding: 16px 0; }
-.settings-nav > span { padding: 0 12px 10px; }
-.settings-nav a { padding: 12px; border-radius: 10px; text-decoration: none; color: var(--uh-muted); font-size: 14px; font-weight: 600; }
-.settings-nav a:hover, .settings-nav a:focus-visible { background: var(--uh-brand-soft); color: var(--uh-brand-ink); }
-.settings-content { display: flex; flex-direction: column; gap: 24px; min-width: 0; max-width: 1120px; }
-.settings-content [id] { scroll-margin-top: 24px; }
-.settings-heading { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-bottom: 20px; border-bottom: 1px solid var(--uh-line); }
-.settings-section { display: flex; flex-direction: column; gap: 18px; padding: 4px 0 24px; border-bottom: 1px solid var(--uh-line); }
-.settings-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.settings-page { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 28px; align-items: start; }
+
+/* ── Sticky sidebar nav ── */
+.settings-nav {
+  position: sticky; top: 24px;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 12px; background: var(--uh-surface);
+  border: 1px solid var(--uh-line); border-radius: 16px;
+}
+.settings-nav > span { padding: 4px 8px 10px; font-size: 11px; }
+.settings-nav a {
+  padding: 10px 12px; border-radius: 10px;
+  text-decoration: none; color: var(--uh-muted);
+  font-size: 13.5px; font-weight: 600; line-height: 1.3;
+  transition: background .12s, color .12s;
+}
+.settings-nav a:hover,
+.settings-nav a:focus-visible,
+.settings-nav a.active {
+  background: var(--uh-brand-soft); color: var(--uh-brand-ink);
+}
+
+/* ── Settings content column ── */
+.settings-content { display: flex; flex-direction: column; gap: 20px; min-width: 0; max-width: 1080px; }
+.settings-content [id] { scroll-margin-top: 28px; }
+
+/* ── Card header row ── */
+.settings-heading {
+  display: flex; flex-direction: row; align-items: center;
+  gap: 12px; flex-wrap: wrap;
+  padding-bottom: 18px; border-bottom: 1px solid var(--uh-line);
+}
+.settings-heading > h2 { margin: 0; font-size: 1.1rem; font-weight: 700; flex: 1 1 auto; }
+.settings-heading > p { width: 100%; margin: 0; font-size: 0.8rem; color: var(--uh-muted); }
+.settings-heading > .badge { flex-shrink: 0; }
+
+/* ── Section within a card ── */
+.settings-section {
+  display: flex; flex-direction: column; gap: 16px;
+  padding: 20px 0 20px; border-bottom: 1px solid var(--uh-line);
+}
+.settings-section:last-of-type { border-bottom: none; padding-bottom: 0; }
+.settings-section > h3 { margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--uh-muted); text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Field grid ── */
+.settings-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .settings-fields > * { min-width: 0; }
-.settings-upload { padding: 18px; border: 1px dashed var(--uh-line); border-radius: 12px; background: var(--uh-bg); }
+
+/* ── Upload area ── */
+.settings-upload {
+  padding: 16px; border: 1.5px dashed var(--uh-line);
+  border-radius: 12px; background: var(--uh-bg);
+}
 .settings-upload input[type=file] { width: 100%; font-size: 12px; color: var(--uh-muted); }
-.settings-upload input[type=file]::file-selector-button { padding: 8px 12px; margin-right: 10px; border: 1px solid var(--uh-line); border-radius: 8px; background: var(--uh-surface); color: var(--uh-ink); cursor: pointer; }
-.settings-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.settings-upload input[type=file]::file-selector-button {
+  padding: 7px 11px; margin-right: 10px;
+  border: 1px solid var(--uh-line); border-radius: 8px;
+  background: var(--uh-surface); color: var(--uh-ink); cursor: pointer;
+}
+
+/* ── Save-action row ── */
+.settings-actions {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: flex-end; gap: 12px;
+  padding-top: 20px; border-top: 1px solid var(--uh-line);
+  margin-top: 4px;
+}
+.settings-actions > span { margin-right: auto; font-size: 0.8rem; color: var(--uh-muted); }
+
+/* ── Sub-panel (rounded box inside a card) ── */
+.settings-subpanel {
+  border: 1px solid var(--uh-line); border-radius: 12px;
+  padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
+  background: var(--uh-bg);
+}
+.settings-subpanel > .settings-subpanel-title {
+  font-size: 0.875rem; font-weight: 700; color: var(--uh-ink);
+  margin: 0;
+}
 @media (max-width: 1100px) {
   .settings-page { grid-template-columns: minmax(0, 1fr); }
-  .settings-nav { position: static; flex-direction: row; flex-wrap: wrap; padding: 0; }
-  .settings-nav > span { width: 100%; padding: 0 0 4px; }
+  .settings-nav {
+    position: static; flex-direction: row; flex-wrap: wrap;
+    padding: 10px 12px; gap: 4px;
+  }
+  .settings-nav > span { width: 100%; padding: 2px 0 6px; }
+  .settings-nav a { font-size: 12.5px; padding: 8px 11px; }
 }
 @media (max-width: 640px) {
   .settings-fields { grid-template-columns: minmax(0, 1fr); }
-  .settings-content > form { padding: 18px; }
+  .settings-content > .card { padding: 18px; }
+  .settings-subpanel { padding: 14px 16px; }
+  .settings-actions { flex-direction: column; align-items: stretch; }
   .settings-actions .btn { width: 100%; }
+  .settings-actions > span { margin-right: 0; }
 }
 
 .admin-overview { display: flex; flex-direction: column; gap: 24px; }

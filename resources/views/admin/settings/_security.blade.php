@@ -3,19 +3,18 @@
     $cp = \App\Services\Captcha::provider();
     $via = request()->attributes->get('via_cloudflare') === true;
 @endphp
-<section id="security" class="card p-6 flex flex-col gap-4">
-    <div class="flex justify-between items-start gap-3 flex-wrap">
-        <div>
-            <h2 class="m-0 text-lg font-bold">Security — bot check &amp; Cloudflare</h2>
-            <p class="m-0 text-sm text-muted">Stop bots on login, register and other forms with Google reCAPTCHA or Cloudflare Turnstile.</p>
-        </div>
+<section id="security" class="card p-6 flex flex-col gap-5">
+    <div class="settings-heading">
+        <span class="badge badge-info">Security</span>
+        <h2>Bot check &amp; Cloudflare</h2>
         @if (\App\Services\Captcha::active())
-            <span class="badge badge-success">Active ✓ {{ \App\Services\Captcha::PROVIDERS[$cp] }}</span>
+            <span class="badge badge-success ml-auto">Active ✓ {{ \App\Services\Captcha::PROVIDERS[$cp] }}</span>
         @elseif ($cp !== 'none')
-            <span class="badge badge-pending">Saved — not active until tested</span>
+            <span class="badge badge-pending ml-auto">Saved — not active until tested</span>
         @else
-            <span class="badge bg-surface-2 text-muted">Off</span>
+            <span class="badge bg-surface-2 text-muted ml-auto">Off</span>
         @endif
+        <p>Stop bots on login, register and other forms with Google reCAPTCHA or Cloudflare Turnstile.</p>
     </div>
 
     <form method="POST" action="{{ route('admin.settings.security') }}" class="flex flex-col gap-4" autocomplete="off">
@@ -39,8 +38,8 @@
             Keys of one kind don't work with the other.
         </div>
 
-        <div class="rounded-xl border border-line p-4 flex flex-col gap-2">
-            <span class="font-semibold">Cloudflare proxy (orange cloud)</span>
+        <div class="settings-subpanel">
+            <p class="settings-subpanel-title">Cloudflare proxy (orange cloud)</p>
             <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="cloudflare" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.cloudflare') === '1')>
                 <span>My domain goes through Cloudflare — use the visitor's real IP (<code>CF-Connecting-IP</code>) for rate limits, logs and trusted devices.</span></label>
             <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="cloudflare_only" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.cloudflare_only') === '1')>
@@ -52,8 +51,8 @@
             $geo = \App\Support\GeoLocale::detect(request());
             $staffNo2fa = \App\Models\User::where('role', 'admin')->whereNull('two_factor_confirmed_at')->count();
         @endphp
-        <div class="rounded-xl border border-line p-4 flex flex-col gap-3">
-            <span class="font-semibold">Login limits &amp; waiting time</span>
+        <div class="settings-subpanel">
+            <p class="settings-subpanel-title">Login limits &amp; waiting time</p>
             <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(180px,100%),1fr))]">
                 <div>
                     <label for="login_max" class="label text-xs">Wrong tries before waiting</label>
@@ -76,14 +75,14 @@
             <span class="text-xs text-muted">Also used for the 6-digit code step (6 tries). Users see a live countdown on the login page. Locks are written to the Activity log (<code>login.locked</code>).</span>
         </div>
 
-        <div class="rounded-xl border border-line p-4 flex flex-col gap-2">
-            <span class="font-semibold">Staff accounts</span>
+        <div class="settings-subpanel">
+            <p class="settings-subpanel-title">Staff accounts</p>
             <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="staff_2fa" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.staff_2fa') === '1')>
                 <span>Staff must use Google Authenticator to open the admin panel (strongly recommended — staff can approve top-ups and change wallets). <span class="text-muted">(Only turns on if your own account already has it.)</span></span></label>
             <span class="text-xs {{ $staffNo2fa ? 'text-warn' : 'text-ok' }}">{{ $staffNo2fa ? $staffNo2fa.' staff account(s) without Google Authenticator.' : 'Every staff account uses Google Authenticator ✓' }}</span>
         </div>
-        <div class="rounded-xl border border-line p-4 flex flex-col gap-2">
-            <span class="font-semibold">Visitor location → language &amp; payment</span>
+        <div class="settings-subpanel">
+            <p class="settings-subpanel-title">Visitor location → language &amp; payment</p>
             <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="geo_locale" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('geo.auto_locale', '1') === '1')>
                 <span>Open the site in the visitor's language by location (Myanmar → မြန်မာ, Thailand → ไทย, China/HK/TW → 中文, Laos → ລາວ, Vietnam → Tiếng Việt, others → English). A language the visitor picks always wins.</span></label>
             <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="geo_payment" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('geo.auto_payment', '1') === '1')>
@@ -91,7 +90,7 @@
             <span class="text-xs text-muted">Location comes from Cloudflare (<code>CF-IPCountry</code> — most accurate, turn on "IP Geolocation" in Cloudflare › Network), the server's GeoIP if your host provides it, or the browser language. No outside service is called.</span>
             <span class="text-xs {{ $geo ? 'text-ok' : 'text-muted' }}">Your location as the site sees it: {{ $geo ?: 'unknown' }}{{ $geo && config('unlockhub.countries.'.$geo) ? ' ('.config('unlockhub.countries.'.$geo).')' : '' }}</span>
         </div>
-        <button class="btn btn-primary self-start">Save security settings</button>
+        <div class="settings-actions"><button class="btn btn-primary">Save security settings</button></div>
     </form>
 
     @if ($cp !== 'none' && \App\Services\Captcha::siteKey())

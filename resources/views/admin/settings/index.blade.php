@@ -16,7 +16,11 @@
 <div class="settings-content">
 <form id="site-settings" method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
     @csrf @method('PUT')
-    <div class="settings-heading"><span class="badge badge-info">General</span><h2 class="m-0 text-xl font-bold">Site &amp; branding</h2><p class="m-0 text-sm text-muted">Manage your store identity, contact information and customer support links.</p></div>
+    <div class="settings-heading">
+        <span class="badge badge-info">General</span>
+        <h2>Site &amp; branding</h2>
+        <p>Manage your store identity, contact information and customer support links.</p>
+    </div>
     @php
         $f = fn ($key) => old(str_replace('.', '_', $key), $general[$key] ?? '');
         $fields = [
@@ -35,7 +39,7 @@
         ];
     @endphp
     <section class="settings-section">
-    <h3 class="m-0 text-base font-bold">Store information</h3>
+    <h3>Store information</h3>
     <div class="settings-fields">
         @foreach ($fields as [$key, $label, $type, $ph])
             @php $name = str_replace('.', '_', $key); @endphp
@@ -58,7 +62,7 @@
     </div>
     </section>
     <section class="settings-section">
-    <h3 class="m-0 text-base font-bold">Logo</h3>
+    <h3>Logo</h3>
     <div class="settings-fields items-start">
         <div class="settings-upload flex flex-col gap-2">
             <label for="logo" class="label mb-0">Site logo <span class="font-normal text-muted">(PNG/WebP, transparent, ~ 300×80)</span></label>
@@ -80,7 +84,7 @@
     </div>
     </section>
     <section class="settings-section">
-    <h3 class="m-0 text-base font-bold">Social &amp; support channels</h3>
+    <h3>Social &amp; support channels</h3>
     <p class="m-0 text-sm text-muted">These links appear on your public website.</p>
     <div class="settings-fields">
         @foreach ($social as [$key, $label, $ph])
@@ -93,14 +97,18 @@
         @endforeach
     </div>
     </section>
-    <div class="settings-actions"><span class="text-xs text-muted">Save to apply your site and branding changes.</span><button class="btn btn-primary">Save site settings</button></div>
+    <div class="settings-actions">
+        <span>Save to apply your site and branding changes.</span>
+        <button class="btn btn-primary">Save site settings</button>
+    </div>
 </form>
 
 <form id="social-login" method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
     @csrf @method('PUT')
-    <div class="flex flex-col gap-1">
-        <h2 class="m-0 text-lg font-bold">Social login</h2>
-        <p class="m-0 text-sm text-muted">Create an app on each platform, paste its ID and secret, and add the <strong class="text-ink">Redirect URL</strong> shown below to that app. Secrets are stored encrypted and never shown again.</p>
+    <div class="settings-heading">
+        <span class="badge badge-info">OAuth</span>
+        <h2>Social login</h2>
+        <p>Create an app on each platform, paste its ID and secret, and add the <strong class="text-ink">Redirect URL</strong> shown below to that app. Secrets are stored encrypted and never shown again.</p>
     </div>
     <div class="settings-fields">
         @foreach ($socialProviders as $key => $p)
@@ -130,24 +138,25 @@
         @endforeach
     </div>
     <p class="m-0 text-xs text-muted">Save first, then <strong>Test</strong>: you go through the real sign-in and come back here with the result — nobody is signed in or created.</p>
-    <button class="btn btn-primary self-start">Save social login</button>
+    <div class="settings-actions">
+        <button class="btn btn-primary">Save social login</button>
+    </div>
 </form>
 
 @include('admin.settings._security')
 
-<section id="smtp" class="card p-6 flex flex-col gap-4">
-    <div class="flex justify-between items-center gap-3 flex-wrap">
-        <div>
-            <h2 class="m-0 text-lg font-bold">Email (SMTP)</h2>
-            <p class="m-0 text-sm text-muted">Order results, receipts, statements and password resets are sent with this. cPanel: Email Accounts › Connect Devices shows the values.</p>
-        </div>
+<section id="smtp" class="card p-6 flex flex-col gap-5">
+    <div class="settings-heading">
+        <span class="badge badge-info">Email</span>
+        <h2>Email (SMTP)</h2>
         @if (setting('mail.verified_at'))
-            <span class="badge badge-success">Tested ✓ {{ \Illuminate\Support\Carbon::parse(setting('mail.verified_at'))->diffForHumans() }}</span>
+            <span class="badge badge-success ml-auto">Tested ✓ {{ \Illuminate\Support\Carbon::parse(setting('mail.verified_at'))->diffForHumans() }}</span>
         @elseif (setting('mail.host'))
-            <span class="badge badge-pending">Not tested</span>
+            <span class="badge badge-pending ml-auto">Not tested</span>
         @else
-            <span class="badge badge-pending">Using .env ({{ config('mail.default') }})</span>
+            <span class="badge badge-pending ml-auto">Using .env ({{ config('mail.default') }})</span>
         @endif
+        <p>Order results, receipts, statements and password resets are sent with this. cPanel: Email Accounts › Connect Devices shows the values.</p>
     </div>
     <form method="POST" action="{{ route('admin.settings.mail') }}" class="flex flex-col gap-3" autocomplete="off">
         @csrf @method('PUT')
@@ -163,7 +172,7 @@
         </div>
         @if (setting('mail.password')) <label class="flex items-center gap-2 text-xs text-muted"><input type="checkbox" name="remove_password" value="1">Remove saved password</label> @endif
         <p class="m-0 text-xs text-muted">Gmail: use an <strong>App password</strong> (Google account › Security › 2-Step Verification › App passwords), host smtp.gmail.com, port 587 TLS.</p>
-        <button class="btn btn-primary self-start">Save email settings</button>
+        <div class="settings-actions"><button class="btn btn-primary">Save email settings</button></div>
     </form>
     <form method="POST" action="{{ route('admin.settings.mail.test') }}" class="flex flex-wrap gap-2 items-end pt-3 border-t border-line">
         @csrf
@@ -177,12 +186,13 @@
 <div class="flex flex-wrap gap-5 items-start">
     <form id="telegram-alerts" method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
         @csrf @method('PUT')
-        <div class="flex justify-between items-center gap-3">
-            <h2 class="m-0 text-lg font-bold">Telegram admin alerts</h2>
+        <div class="settings-heading">
+            <span class="badge badge-info">Alerts</span>
+            <h2>Telegram admin alerts</h2>
             @if ($telegramConfigured && $chatId)
-                <span class="badge badge-success">Connected</span>
+                <span class="badge badge-success ml-auto">Connected</span>
             @else
-                <span class="badge badge-pending">Not set up</span>
+                <span class="badge badge-pending ml-auto">Not set up</span>
             @endif
         </div>
 
@@ -218,9 +228,9 @@
             <input id="low_balance" name="low_balance" type="number" min="0" step="0.01" value="{{ old('low_balance', $lowBalance) }}" class="input h-11">
         </div>
 
-        <div class="flex gap-2 flex-wrap">
-            <button class="btn btn-primary">Save</button>
+        <div class="settings-actions">
             <button form="tg-test" class="btn" @disabled(! ($telegramConfigured && $chatId))>Send test message</button>
+            <button class="btn btn-primary">Save alerts</button>
         </div>
     </form>
     <form id="tg-test" method="POST" action="{{ route('admin.settings.telegram.test') }}">@csrf</form>
@@ -283,4 +293,29 @@
 </div>
 </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+(function () {
+    'use strict';
+    var nav = document.querySelector('.settings-nav');
+    if (!nav) return;
+    var links = Array.from(nav.querySelectorAll('a[href^="#"]'));
+    var sections = links.map(function (a) {
+        return document.getElementById(a.getAttribute('href').slice(1));
+    }).filter(Boolean);
+
+    function setActive() {
+        var scrollY = window.scrollY + 80;
+        var current = sections[0];
+        sections.forEach(function (s) { if (s.offsetTop <= scrollY) current = s; });
+        links.forEach(function (a) {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + (current ? current.id : ''));
+        });
+    }
+    window.addEventListener('scroll', setActive, { passive: true });
+    setActive();
+})();
+</script>
 @endsection

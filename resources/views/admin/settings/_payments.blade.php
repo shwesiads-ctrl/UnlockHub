@@ -5,10 +5,11 @@
         ? '<span class="badge badge-success">Tested ✓ '.e(\Illuminate\Support\Carbon::parse(setting("payments.{$g}.verified_at"))->diffForHumans()).'</span>'
         : '<span class="badge badge-pending">Not tested</span>';
 @endphp
-<section id="online-payments" class="card p-6 flex flex-col gap-4">
-    <div>
-        <h2 class="m-0 text-lg font-bold">PayPal &amp; Stripe (automatic top-up)</h2>
-        <p class="m-0 text-sm text-muted">Customers pay by card or PayPal and the wallet is credited automatically — only after the gateway confirms the money arrived (checked with its API, never from the browser).</p>
+<section id="online-payments" class="card p-6 flex flex-col gap-5">
+    <div class="settings-heading">
+        <span class="badge badge-info">Payments</span>
+        <h2>PayPal &amp; Stripe (automatic top-up)</h2>
+        <p>Customers pay by card or PayPal and the wallet is credited automatically — only after the gateway confirms the money arrived (checked with its API, never from the browser).</p>
     </div>
     <form method="POST" action="{{ route('admin.settings.payments') }}" class="flex flex-col gap-4" autocomplete="off">
         @csrf @method('PUT')
@@ -42,7 +43,7 @@
             </fieldset>
         </div>
         <p class="m-0 text-xs text-muted">Testing: Stripe test card <code>4242 4242 4242 4242</code>, any future date / CVC. PayPal: a Sandbox buyer account from the developer dashboard. Payments are also re-checked every 5 minutes (cron) in case a webhook is missed.</p>
-        <button class="btn btn-primary self-start">Save payment gateways</button>
+        <div class="settings-actions"><button class="btn btn-primary">Save payment gateways</button></div>
     </form>
     <form id="test-stripe" method="POST" action="{{ route('admin.settings.payments.test', 'stripe') }}">@csrf</form>
     <form id="test-paypal" method="POST" action="{{ route('admin.settings.payments.test', 'paypal') }}">@csrf</form>
