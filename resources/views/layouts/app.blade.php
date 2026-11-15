@@ -85,6 +85,26 @@
                 @endif
             </div>
         </div>
+
+        {{-- Copyright bar --}}
+        @php
+            $footerCopyright = setting('footer.copyright', '© '.date('Y').' '.setting('site.name', config('app.name')).' All rights reserved');
+            $footerLogos     = json_decode(setting('footer.payment_logos', '[]'), true) ?: [];
+        @endphp
+        <div class="border-t border-line">
+            <div class="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+                <span class="text-xs text-muted">{{ $footerCopyright }}</span>
+                @if (count($footerLogos))
+                <div class="flex flex-wrap items-center gap-3">
+                    @foreach ($footerLogos as $logo)
+                        <img src="{{ Storage::disk('public')->url($logo) }}"
+                             alt="payment"
+                             class="h-7 w-auto max-w-[80px] object-contain opacity-80">
+                    @endforeach
+                </div>
+                @endif
+            </div>
+        </div>
     </footer>
     <x-cookie-consent />
 </body>

@@ -2,21 +2,20 @@
 
 @section('content')
 <div class="settings-page">
-<nav class="settings-nav" aria-label="Settings sections" role="tablist" aria-orientation="vertical">
+<nav class="settings-nav" aria-label="Settings sections">
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
-    <a id="tab-site-settings" href="#site-settings" role="tab" aria-controls="site-settings">Site &amp; branding</a>
-    <a id="tab-home-page" href="#home-page" role="tab" aria-controls="home-page">Home page</a>
-    <a id="tab-seo" href="#seo" role="tab" aria-controls="seo">SEO</a>
-    <a id="tab-security" href="#security" role="tab" aria-controls="security">Security &amp; access</a>
-    <a id="tab-smtp" href="#smtp" role="tab" aria-controls="smtp">Email (SMTP)</a>
-    <a id="tab-online-payments" href="#online-payments" role="tab" aria-controls="online-payments">PayPal &amp; Stripe</a>
-    <a id="tab-telegram-alerts" href="#telegram-alerts" role="tab" aria-controls="telegram-alerts">Telegram alerts</a>
-    <a id="tab-monthly-statements" href="#monthly-statements" role="tab" aria-controls="monthly-statements">Monthly statements</a>
-    <a id="tab-mobile-app" href="#mobile-app" role="tab" aria-controls="mobile-app">Mobile app (PWA)</a>
+    <a href="#site-settings">Site &amp; branding</a>
+    <a href="#social-login">Social login</a>
+    <a href="#security">Security (CAPTCHA / Cloudflare)</a>
+    <a href="#smtp">Email (SMTP)</a>
+    <a href="#online-payments">PayPal &amp; Stripe</a>
+    <a href="#telegram-alerts">Telegram alerts</a>
+    <a href="#monthly-statements">Monthly statements</a>
+    <a href="#mobile-app">Mobile app (PWA)</a>
+    <a href="#footer-settings">Footer</a>
 </nav>
-<div class="settings-content" data-settings-content>
-<div id="site-settings" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-site-settings">
-<form method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
+<div class="settings-content">
+<form id="site-settings" method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
     @csrf @method('PUT')
     <div class="settings-heading">
         <span class="badge badge-info">General</span>
@@ -104,158 +103,50 @@
         <button class="btn btn-primary">Save site settings</button>
     </div>
 </form>
-<form method="POST" action="{{ route('admin.settings.account-display') }}" class="card p-5 flex flex-col gap-4">
-    @csrf @method('PUT')
-    <div><h2 class="m-0 text-lg font-bold">Account header badges</h2><p class="m-0 mt-1 text-sm text-muted">Choose which balance badges appear in the account header for signed-in users.</p></div>
-    <div class="flex flex-wrap gap-x-8 gap-y-3">
-        <label class="flex items-center gap-2.5 text-sm font-semibold"><input type="checkbox" name="show_balance" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('account.show_balance', '1') === '1')>Show wallet balance (Ks)</label>
-        <label class="flex items-center gap-2.5 text-sm font-semibold"><input type="checkbox" name="show_points" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('account.show_points', '1') === '1')>Show points</label>
-    </div>
-    <button class="btn btn-primary self-start">Save header display</button>
-</form>
-</div>
 
-<div id="home-page" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-home-page">
-<form method="POST" action="{{ route('admin.settings.home-page') }}" class="card p-6 flex flex-col gap-5">
+<form id="social-login" method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
     @csrf @method('PUT')
-    @php
-        $hf = fn ($key, $default = '') => old($key, setting('home.'.$key, $default));
-        $homeTextFields = [
-            ['hero_badge', 'Small hero badge', 'For repair shops & resellers in Myanmar', 1],
-            ['hero_title', 'Main headline', 'Unlock codes, tool credits & activations — in one wallet.', 2],
-            ['hero_description', 'Hero description', 'Top up with :methods, place IMEI and server orders, track every result, and earn points on each successful order.', 3],
-            ['browse_label', 'Browse button text', 'Browse services', 1],
-            ['trust_1', 'Trust point 1', 'Auto refund on rejected orders', 1],
-            ['trust_2', 'Trust point 2', 'Reseller group pricing', 1],
-            ['trust_3', 'Trust point 3', '2FA secured accounts', 1],
-        ];
-        $categoryFields = [
-            ['category_imei_title', 'IMEI / serial card title', 'IMEI / Serial Services'],
-            ['category_imei_description', 'IMEI / serial card description', 'Carrier unlocks, NCK/MCK codes, IMEI & GSX checks. Submit IMEI, SN or ECID.'],
-            ['category_server_title', 'Server / tool card title', 'Server · Box · Tool Credits'],
-            ['category_server_description', 'Server / tool card description', 'UnlockTool, Chimera, TFM, dongle renewals, game credits and gift cards.'],
-            ['category_remote_title', 'Remote / files card title', 'Remote · Rent · Files'],
-            ['category_remote_description', 'Remote / files card description', 'Live remote sessions, hourly tool rental and paid firmware files.'],
-        ];
-        $stepFields = [
-            ['step_1_title', 'Step 1 title', 'Register & verify'], ['step_1_description', 'Step 1 description', 'Email OTP and optional Google Authenticator.'],
-            ['step_2_title', 'Step 2 title', 'Add funds'], ['step_2_description', 'Step 2 description', 'Transfer by mobile pay, upload the receipt, admin approves.'],
-            ['step_3_title', 'Step 3 title', 'Place orders'], ['step_3_description', 'Step 3 description', 'Single or bulk IMEI. Credit is held until the result arrives.'],
-            ['step_4_title', 'Step 4 title', 'Get result & points'], ['step_4_description', 'Step 4 description', 'Code delivered to your orders page; points added on success.'],
-        ];
-    @endphp
     <div class="settings-heading">
-        <span class="badge badge-info">Homepage</span>
-        <h2>Home page content</h2>
-        <p>Edit the public homepage copy and choose which sections visitors see.</p>
+        <span class="badge badge-info">OAuth</span>
+        <h2>Social login</h2>
+        <p>Create an app on each platform, paste its ID and secret, and add the <strong class="text-ink">Redirect URL</strong> shown below to that app. Secrets are stored encrypted and never shown again.</p>
     </div>
-    <section class="settings-section">
-        <h3>Hero</h3>
-        <div class="settings-fields">
-            @foreach ($homeTextFields as [$key, $label, $default, $rows])
-                <div>
-                    <label for="{{ $key }}" class="label">{{ $label }}</label>
-                    @if ($rows > 1)
-                        <textarea id="{{ $key }}" name="{{ $key }}" rows="{{ $rows }}" class="input">{{ $hf($key, $default) }}</textarea>
+    <div class="settings-fields">
+        @foreach ($socialProviders as $key => $p)
+            @php $on = setting("social_login.{$key}.enabled") === '1'; $hasSecret = filled(setting("social_login.{$key}.client_secret")); @endphp
+            <fieldset class="m-0 min-w-0 rounded-xl border border-line p-4 flex flex-col gap-3">
+                <legend class="px-1 font-bold">{{ $p['label'] }}</legend>
+                <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="{{ $key }}_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked($on)>Enabled</label>
+                @if ($key === 'telegram')
+                    <div><label for="tg_user" class="label text-xs">Bot username</label><input id="tg_user" name="telegram_bot_username" value="{{ setting('social_login.telegram.bot_username') }}" class="input h-10" placeholder="@YourShopBot"><x-field-error name="telegram_bot_username" /></div>
+                    <div><label for="tg_token" class="label text-xs">Bot token <span class="font-normal text-muted">(empty = use the alerts bot)</span></label><input id="tg_token" name="telegram_bot_token" type="password" class="input h-10 font-mono" autocomplete="new-password" placeholder="{{ filled(setting('social_login.telegram.bot_token')) ? 'Saved — leave empty to keep' : '123456:ABC…' }}"><x-field-error name="telegram_bot_token" /></div>
+                    <p class="m-0 text-xs text-muted">In @BotFather send <code>/setdomain</code> and set <code>{{ parse_url(url('/'), PHP_URL_HOST) }}</code>. Telegram only works on a real domain with HTTPS.</p>
+                @else
+                    <div><label for="{{ $key }}_id" class="label text-xs">{{ $key === 'tiktok' ? 'Client key' : ($key === 'facebook' ? 'App ID' : 'Client ID') }}</label><input id="{{ $key }}_id" name="{{ $key }}_client_id" value="{{ setting("social_login.{$key}.client_id") }}" class="input h-10 font-mono text-sm"></div>
+                    <div><label for="{{ $key }}_secret" class="label text-xs">{{ $key === 'facebook' ? 'App secret' : 'Client secret' }}</label><input id="{{ $key }}_secret" name="{{ $key }}_client_secret" type="password" class="input h-10 font-mono text-sm" autocomplete="new-password" placeholder="{{ $hasSecret ? 'Saved — leave empty to keep' : '' }}"></div>
+                    <div class="text-xs text-muted">Redirect URL: <code class="text-ink break-all select-all">{{ route('social.callback', $key) }}</code> <button type="button" class="btn h-7 px-2 text-[11px]" data-copy="{{ route('social.callback', $key) }}">Copy</button></div>
+                @endif
+                <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-line">
+                    @if ($v = setting("social_login.{$key}.verified_at"))
+                        <span class="badge badge-success">Tested ✓ {{ \Illuminate\Support\Carbon::parse($v)->diffForHumans() }}</span>
                     @else
-                        <input id="{{ $key }}" name="{{ $key }}" value="{{ $hf($key, $default) }}" class="input h-11">
+                        <span class="badge badge-pending">Not tested</span>
                     @endif
-                    <x-field-error :name="$key" />
+                    <a href="{{ route('admin.settings.social.test', $key) }}" class="btn h-8 text-xs">Test {{ $key === 'telegram' ? 'bot' : 'login' }}</a>
+                    <a href="{{ $p['console'] }}" target="_blank" rel="noopener" class="text-xs ml-auto">Developer console →</a>
                 </div>
-            @endforeach
-        </div>
-        <div class="flex flex-col gap-3 mt-4">
-            <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="show_reseller_cta" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_reseller_cta', setting('home.reseller_cta_enabled', '1')) === '1')>Show Become Reseller button</label>
-            <div class="max-w-xl"><label for="reseller_cta_label" class="label">Become Reseller button text</label><input id="reseller_cta_label" name="reseller_cta_label" value="{{ $hf('reseller_cta_label', 'Become a reseller') }}" class="input h-11"><x-field-error name="reseller_cta_label" /><p class="m-0 mt-1 text-xs text-muted">Visible to visitors and regular users; hidden from reseller accounts and administrators.</p></div>
-        </div>
-    </section>
-    <section class="settings-section">
-        <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="m-0">Service categories</h3><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="show_categories" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_categories', setting('home.show_categories', '1')) === '1')>Show section</label></div>
-        <div class="settings-fields mt-4">
-            <div><label for="categories_title" class="label">Section heading</label><input id="categories_title" name="categories_title" value="{{ $hf('categories_title', 'Service categories') }}" class="input h-11"><x-field-error name="categories_title" /></div>
-            @foreach ($categoryFields as [$key, $label, $default])
-                <div>
-                    <label for="{{ $key }}" class="label">{{ $label }}</label>
-                    @if (str_ends_with($key, '_description')) <textarea id="{{ $key }}" name="{{ $key }}" rows="2" class="input">{{ $hf($key, $default) }}</textarea>
-                    @else <input id="{{ $key }}" name="{{ $key }}" value="{{ $hf($key, $default) }}" class="input h-11"> @endif
-                    <x-field-error :name="$key" />
-                </div>
-            @endforeach
-        </div>
-    </section>
-    <section class="settings-section">
-        <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="m-0">Hot services</h3><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="show_hot_services" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_hot_services', setting('home.show_hot_services', '1')) === '1')>Show section</label></div>
-        <div class="max-w-xl mt-4"><label for="hot_title" class="label">Section heading</label><input id="hot_title" name="hot_title" value="{{ $hf('hot_title', 'Hot services') }}" class="input h-11"><x-field-error name="hot_title" /></div>
-    </section>
-    <section class="settings-section">
-        <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="m-0">How it works</h3><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="show_how_it_works" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_how_it_works', setting('home.show_how_it_works', '1')) === '1')>Show section</label></div>
-        <div class="settings-fields mt-4">
-            <div><label for="how_title" class="label">Section heading</label><input id="how_title" name="how_title" value="{{ $hf('how_title', 'How it works') }}" class="input h-11"><x-field-error name="how_title" /></div>
-            @foreach ($stepFields as [$key, $label, $default])
-                <div>
-                    <label for="{{ $key }}" class="label">{{ $label }}</label>
-                    @if (str_ends_with($key, '_description')) <textarea id="{{ $key }}" name="{{ $key }}" rows="2" class="input">{{ $hf($key, $default) }}</textarea>
-                    @else <input id="{{ $key }}" name="{{ $key }}" value="{{ $hf($key, $default) }}" class="input h-11"> @endif
-                    <x-field-error :name="$key" />
-                </div>
-            @endforeach
-        </div>
-    </section>
-    <section class="settings-section">
-        <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="m-0">Payment banner</h3><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="show_payment_banner" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_payment_banner', setting('home.show_payment_banner', '1')) === '1')>Show section</label></div>
-        <div class="settings-fields mt-4">
-            <div><label for="payment_title" class="label">Custom heading <span class="font-normal text-muted">(leave blank for country-based heading)</span></label><input id="payment_title" name="payment_title" value="{{ $hf('payment_title') }}" class="input h-11"><x-field-error name="payment_title" /></div>
-            <div><label for="payment_description" class="label">Description</label><textarea id="payment_description" name="payment_description" rows="2" class="input">{{ $hf('payment_description', 'Transfer, upload your receipt and your wallet is credited after approval.') }}</textarea><x-field-error name="payment_description" /></div>
-        </div>
-    </section>
-    <div class="settings-actions"><span>Changes apply to the public homepage.</span><button class="btn btn-primary">Save home page</button></div>
-</form>
-</div>
-
-<div id="seo" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-seo">
-<form method="POST" action="{{ route('admin.settings.seo') }}" class="card p-6 flex flex-col gap-5">
-    @csrf @method('PUT')
-    <div class="settings-heading">
-        <span class="badge badge-info">Search visibility</span>
-        <h2>SEO metadata</h2>
-        <p>Set the default metadata used by search engines and social previews.</p>
+            </fieldset>
+        @endforeach
     </div>
-    <section class="settings-section">
-        <h3>Search and social preview</h3>
-        <div class="settings-fields">
-            <div>
-                <label for="seo_title" class="label">Default page title</label>
-                <input id="seo_title" name="title" value="{{ old('title', setting('seo.title')) }}" maxlength="70" class="input h-11" placeholder="{{ setting('site.name', config('app.name')) }}">
-                <x-field-error name="title" />
-            </div>
-            <div>
-                <label for="seo_description" class="label">Meta description</label>
-                <textarea id="seo_description" name="description" rows="3" maxlength="300" class="input" placeholder="A short description of your store">{{ old('description', setting('seo.description')) }}</textarea>
-                <x-field-error name="description" />
-            </div>
-            <div>
-                <label for="seo_keywords" class="label">Keywords <span class="font-normal text-muted">(optional)</span></label>
-                <input id="seo_keywords" name="keywords" value="{{ old('keywords', setting('seo.keywords')) }}" maxlength="500" class="input h-11" placeholder="IMEI unlock, mobile repair, tool credits">
-                <x-field-error name="keywords" />
-            </div>
-            <div>
-                <label for="seo_image_url" class="label">Social share image URL <span class="font-normal text-muted">(Open Graph)</span></label>
-                <input id="seo_image_url" name="image_url" type="url" value="{{ old('image_url', setting('seo.image_url')) }}" class="input h-11" placeholder="https://example.com/share-image.jpg">
-                <x-field-error name="image_url" />
-            </div>
-        </div>
-    </section>
-    <div class="settings-actions"><span>SEO metadata appears in page source and social previews.</span><button class="btn btn-primary">Save SEO settings</button></div>
+    <p class="m-0 text-xs text-muted">Save first, then <strong>Test</strong>: you go through the real sign-in and come back here with the result — nobody is signed in or created.</p>
+    <div class="settings-actions">
+        <button class="btn btn-primary">Save social login</button>
+    </div>
 </form>
-</div>
 
-<div id="security" class="settings-panel flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-security">
-    @include('admin.settings._security')
-    @include('admin.settings._social-login')
-    @include('admin.settings._analytics')
-</div>
+@include('admin.settings._security')
 
-<section id="smtp" class="settings-panel card p-6 flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-smtp">
+<section id="smtp" class="card p-6 flex flex-col gap-5">
     <div class="settings-heading">
         <span class="badge badge-info">Email</span>
         <h2>Email (SMTP)</h2>
@@ -293,9 +184,8 @@
 
 @include('admin.settings._payments')
 
-<div id="telegram-alerts" class="settings-panel flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-telegram-alerts">
-    <div class="settings-telegram-grid">
-    <form method="POST" action="{{ route('admin.settings.telegram') }}" class="min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
+<div class="flex flex-wrap gap-5 items-start">
+    <form id="telegram-alerts" method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
         @csrf @method('PUT')
         <div class="settings-heading">
             <span class="badge badge-info">Alerts</span>
@@ -346,7 +236,7 @@
     </form>
     <form id="tg-test" method="POST" action="{{ route('admin.settings.telegram.test') }}">@csrf</form>
 
-    <aside class="settings-telegram-help min-w-0 flex flex-col gap-5">
+    <aside class="flex-[1_1_320px] min-w-0 flex flex-col gap-5">
         <section class="card p-5 flex flex-col gap-2.5 text-sm leading-relaxed">
             <h2 class="m-0 text-lg font-bold">How to set up</h2>
             <ol class="m-0 pl-5 flex flex-col gap-1.5 text-muted">
@@ -356,12 +246,7 @@
                 <li>Paste both here, Save, then <strong class="text-ink">Send test message</strong>.</li>
             </ol>
         </section>
-    </aside>
-    </div>
-</div>
-
-<div id="mobile-app" class="settings-panel flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-mobile-app">
-        <form method="POST" action="{{ route('admin.settings.pwa') }}" enctype="multipart/form-data" class="card p-5 flex flex-col gap-3 text-sm">
+        <form id="mobile-app" method="POST" action="{{ route('admin.settings.pwa') }}" enctype="multipart/form-data" class="card p-5 flex flex-col gap-3 text-sm">
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Mobile app (PWA)</h2>
             <p class="m-0 text-muted">Customers can add the site to their home screen (Android: browser menu › Install app; iPhone: Share › Add to Home Screen).</p>
@@ -389,9 +274,7 @@
             <span class="flex-1">{{ \App\Services\WebPush::publicKey() ? 'Push keys exist.' : 'Create the VAPID keys used to send push notifications.' }}</span>
             <button class="btn">{{ \App\Services\WebPush::publicKey() ? 'Replace push keys' : 'Create push keys' }}</button>
         </form>
-</div>
-<div id="monthly-statements" class="settings-panel flex flex-col gap-5" role="tabpanel" tabindex="0" aria-labelledby="tab-monthly-statements">
-        <form method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
+        <form id="monthly-statements" method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Monthly statements</h2>
             <label class="flex items-start gap-2.5">
@@ -407,14 +290,12 @@
                 @if ($mailDriver === 'log') <span class="text-warn">— emails are only written to <code>storage/logs/laravel.log</code>. Set SMTP in <code>.env</code> to really send.</span> @endif
             </p>
         </section>
-</div>
-<div class="settings-page-nav" aria-label="Settings page navigation">
-    <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings section">‹ Previous</a>
-    <span class="settings-page-count" aria-live="polite">Section 1 of 9</span>
-    <a class="btn btn-primary" data-settings-next href="#home-page" aria-label="Next settings section">Next ›</a>
+    </aside>
 </div>
 </div>
 </div>
+@include('admin.settings._footer')
+
 @endsection
 
 @section('scripts')
@@ -423,61 +304,21 @@
     'use strict';
     var nav = document.querySelector('.settings-nav');
     if (!nav) return;
-    var links = Array.from(nav.querySelectorAll('[role="tab"][href^="#"]'));
-    var panels = links.map(function (link) { return document.getElementById(link.getAttribute('href').slice(1)); }).filter(Boolean);
+    var links = Array.from(nav.querySelectorAll('a[href^="#"]'));
+    var sections = links.map(function (a) {
+        return document.getElementById(a.getAttribute('href').slice(1));
+    }).filter(Boolean);
 
-    function activate(id, updateHistory) {
-        var selected = panels.some(function (panel) { return panel.id === id; }) ? id : panels[0].id;
-        panels.forEach(function (panel) {
-            var active = panel.id === selected;
-            panel.hidden = !active;
-            panel.setAttribute('aria-hidden', active ? 'false' : 'true');
+    function setActive() {
+        var scrollY = window.scrollY + 80;
+        var current = sections[0];
+        sections.forEach(function (s) { if (s.offsetTop <= scrollY) current = s; });
+        links.forEach(function (a) {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + (current ? current.id : ''));
         });
-        links.forEach(function (link, index) {
-            var active = link.getAttribute('href') === '#' + selected;
-            link.classList.toggle('active', active);
-            link.setAttribute('aria-selected', active ? 'true' : 'false');
-            link.tabIndex = active ? 0 : -1;
-        });
-        var counter = document.querySelector('.settings-page-count');
-        var page = panels.findIndex(function (panel) { return panel.id === selected; });
-        if (counter) counter.textContent = 'Section ' + (page + 1) + ' of ' + panels.length;
-        var previous = document.querySelector('[data-settings-previous]');
-        var next = document.querySelector('[data-settings-next]');
-        if (previous) previous.href = '#' + panels[(page - 1 + panels.length) % panels.length].id;
-        if (next) next.href = '#' + panels[(page + 1) % panels.length].id;
-        if (updateHistory && window.location.hash !== '#' + selected) window.location.hash = selected;
     }
-
-    links.forEach(function (link, index) {
-        link.addEventListener('keydown', function (event) {
-            var target = null;
-            if (event.key === 'ArrowDown' || event.key === 'ArrowRight') target = links[(index + 1) % links.length];
-            if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') target = links[(index - 1 + links.length) % links.length];
-            if (event.key === 'Home') target = links[0];
-            if (event.key === 'End') target = links[links.length - 1];
-            if (target) { event.preventDefault(); target.focus(); target.click(); }
-        });
-    });
-    window.addEventListener('hashchange', function () { activate(window.location.hash.slice(1), false); });
-    document.querySelectorAll('[data-settings-previous], [data-settings-next]').forEach(function (link) {
-        link.addEventListener('click', function (event) { event.preventDefault(); activate(link.hash.slice(1), true); });
-    });
-    var remembered = '';
-    try { remembered = window.sessionStorage.getItem('admin-settings-section') || ''; } catch (e) {}
-    var initial = window.location.hash.slice(1) || remembered;
-    activate(initial, !window.location.hash && !!remembered);
-    try { window.sessionStorage.removeItem('admin-settings-section'); } catch (e) {}
-    links.forEach(function (link) {
-        link.addEventListener('click', function () {
-            try { window.sessionStorage.setItem('admin-settings-section', link.hash.slice(1)); } catch (e) {}
-        });
-    });
-    document.querySelectorAll('.settings-content form').forEach(function (form) {
-        form.addEventListener('submit', function () {
-            try { window.sessionStorage.setItem('admin-settings-section', window.location.hash.slice(1) || panels[0].id); } catch (e) {}
-        });
-    });
+    window.addEventListener('scroll', setActive, { passive: true });
+    setActive();
 })();
 </script>
 @endsection

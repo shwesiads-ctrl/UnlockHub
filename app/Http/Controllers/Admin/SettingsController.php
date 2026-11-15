@@ -436,6 +436,41 @@ class SettingsController extends Controller
         return redirect()->to(route('admin.settings.index').'#monthly-statements')->with('success', 'Statement settings saved.');
     }
 
+    /** Footer: copyright text + payment-logo images (up to 8). */
+    public function updateFooter(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'footer_copyright' => ['nullable', 'string', 'max:200'],
+            'footer_logos'     => ['nullable', 'array', 'max:8'],
+            'footer_logos.*'   => ['image', 'mimes:png,jpg,jpeg,webp,svg', 'max:512'],
+        ]);
+
+        Setting::put('footer.copyright', $data['footer_copyright'] ?? null);
+
+        // Append newly uploaded logos
+        $existing = json_decode(setting('footer.payment_logos', '[]'), true) ?: [];
+        foreach ($request->file('footer_logos', []) as $file) {
+            $existing[] = $file->store('footer', 'public');
+        }
+        Setting::put('footer.payment_logos', json_encode(array_values($existing)));
+
+        ActivityLog::record('settings.footer_updated');
+
+        return back()->with('success', 'Footer settings saved.');
+    }
+
+    /** Remove one payment logo by index. */
+    public function removeFooterLogo(Request $request, int $index): RedirectResponse
+    {
+        $logos = json_decode(setting('footer.payment_logos', '[]'), true) ?: [];
+        if (isset($logos[$index])) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($logos[$index]);
+            array_splice($logos, $index, 1);
+            Setting::put('footer.payment_logos', json_encode(array_values($logos)));
+        }
+        return back()->with('success', 'Logo removed.');
+    }
+
     public function updateTelegram(Request $request): RedirectResponse
     {
         $data = $request->validate([

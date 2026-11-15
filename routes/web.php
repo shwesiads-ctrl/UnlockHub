@@ -323,6 +323,8 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     Route::put('/settings/pwa', [Admin\SettingsController::class, 'updatePwa'])->name('settings.pwa');
     Route::post('/settings/push-keys', [Admin\SettingsController::class, 'pushKeys'])->name('settings.push-keys');
     Route::put('/settings/statements', [Admin\SettingsController::class, 'updateStatements'])->name('settings.statements');
+    Route::put('/settings/footer', [Admin\SettingsController::class, 'updateFooter'])->name('settings.footer');
+    Route::delete('/settings/footer/logo/{index}', [Admin\SettingsController::class, 'removeFooterLogo'])->name('settings.footer.logo.remove');
     Route::put('/settings/social', [Admin\SettingsController::class, 'updateSocial'])->name('settings.social');
     Route::put('/settings/telegram',[Admin\SettingsController::class, 'updateTelegram'])->name('settings.telegram');
     Route::post('/settings/telegram/test', [Admin\SettingsController::class, 'testTelegram'])->name('settings.telegram.test')->middleware('throttle:6,1');
