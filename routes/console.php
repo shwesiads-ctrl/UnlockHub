@@ -1,10 +1,12 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+| Scheduler — run `php artisan schedule:work` (local) or a cron entry
+| `* * * * * php /path/to/artisan schedule:run` (server).
+| API orders are sent by the queue worker: `php artisan queue:work`.
+*/
 
-// Scheduled jobs (supplier API polling, balance sync) are registered in step 6.
+Schedule::command('orders:check-api')->everyMinute()->withoutOverlapping(10);
+Schedule::command('suppliers:sync')->hourly()->withoutOverlapping();

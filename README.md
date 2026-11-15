@@ -94,6 +94,27 @@ Seeder က ထည့်ပေးထားတဲ့ နမူနာ service တ�
 
 **API mode service:** Order ကို queue job (`SubmitOrderToSupplier`) နဲ့ supplier ဆီ ပို့တယ်။ ပို့မရရင် Manual queue ထဲ "API failed" အမှတ်နဲ့ ရောက်လာမယ် (Fallback ပိတ်ထားရင်တော့ auto reject + refund လုပ်မယ်)။ DHRU API driver ကို အဆင့် ၆ မှာ ထည့်ပါမယ်။
 
+## Supplier API (DHRU Fusion)
+
+1. **Admin › Suppliers & API › + Add supplier** — Supplier ဆိုဒ်လိပ်စာ (`https://supplier.com` လောက်ဆို ရပြီ)၊ API username၊ API access key၊ ငွေကြေး နဲ့ "1 USD = ? Ks" ထည့် → **Save & test connection**။ အောင်မြင်ရင် balance ပေါ်လာမယ်
+   - "Authentication Failed" ဆိုရင် supplier ဆိုဒ်မှာ ကိုယ့် server IP ကို whitelist ထည့်ရတာ များပါတယ်
+2. **Browse & import services** — Supplier ရဲ့ service တွေကို group လိုက် ပြမယ်။ ရွေးပြီး Profit % နဲ့ Import လုပ်ရင် cost/price ကို Ks နဲ့ တွက်ပြီး API mode service အဖြစ် ဆောက်ပေးမယ် (IMEI service ဆိုရင် IMEI field + Bulk ပါပြီးသား)
+3. Import ပြီးရင် service တစ်ခုချင်း ဖွင့်ပြီး order field နဲ့ group ဈေးကို စစ်ပါ၊ ပြီးရင် Active လုပ်ပါ
+4. **Sync costs** — Supplier ဈေးပြောင်းရင် cost ကို update လုပ်ပေးမယ်
+
+**Order စီးဆင်းပုံ:** User order တင် → queue job က supplier ဆီ ပို့ (`In Process` + supplier ref) → scheduler က ၅ မိနစ်တစ်ခါ result ကို လှမ်းမေး → Success ဆိုရင် code ကို user ဆီ ပို့ပြီး point ပေး၊ Reject ဆိုရင် ငွေပြန်အမ်း။ ပို့မရရင် Manual queue ထဲ "API failed" အဖြစ် ရောက်မယ်။
+
+**Local မှာ run ဖို့ (terminal ၃ ခု):**
+```powershell
+php artisan serve
+php artisan queue:work      # API order တွေကို supplier ဆီ ပို့တယ်
+php artisan schedule:work   # result စစ်တယ်၊ balance update လုပ်တယ်
+```
+> Worker မ run ချင်ရင် `.env` မှာ `QUEUE_CONNECTION=sync` ထားလို့ရတယ် (order တင်တဲ့အချိန်မှာပဲ supplier ဆီ တန်းပို့မယ်၊ နည်းနည်းနှေးမယ်)။
+> Server ပေါ်မှာဆိုရင် cron: `* * * * * php /path/artisan schedule:run` နဲ့ `queue:work` ကို supervisor နဲ့ run ပါ။
+
+Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်: `imei`→IMEI, `sn`/`serial`→SN, `modelid`, `providerid`, `networkid`, `pin`, `kbh`, `mep`, `prd`, `type`, `reference`, `qnt`။ တခြား key တွေ (ဥပမာ `username`) ကို `CUSTOMFIELD` (base64 JSON) နဲ့ ပို့တယ်။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -123,7 +144,7 @@ Seeder က ထည့်ပေးထားတဲ့ နမူနာ service တ�
 - [x] **အဆင့် ၃** — Service catalog နဲ့ Reseller pricing စာမျက်နှာ၊ Admin ဘက်က Group / Service စီမံခန့်ခွဲမှု
 - [x] **အဆင့် ၄** — Wallet နဲ့ Myanmar payment (ပြေစာ upload → Admin approve)၊ Statement၊ Payment method settings
 - [x] **အဆင့် ၅** — Order system (API / Manual, bulk, auto refund)၊ Manual queue
-- [ ] အဆင့် ၆ — Supplier API (DHRU Fusion)
+- [x] **အဆင့် ၆** — Supplier API (DHRU Fusion)၊ Service import၊ Order result auto-check
 - [ ] အဆင့် ၇ — Point system
 - [ ] အဆင့် ၈ — Content စာမျက်နှာ (KB, Blog, Testimonials, Downloads, Track Order)
 - [ ] အဆင့် ၉ — Notification (Email + Telegram bot)

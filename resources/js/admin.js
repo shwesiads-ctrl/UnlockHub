@@ -37,6 +37,21 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Supplier import: "select group" checkbox + live selected count
+function updateImportCount(form) {
+  const counter = form?.querySelector('[data-selected-count]');
+  if (counter) counter.textContent = form.querySelectorAll('input[name="ids[]"]:checked').length;
+}
+document.addEventListener('change', (e) => {
+  const form = e.target.closest('[data-import-form]');
+  if (!form) return;
+  const group = e.target.dataset.checkGroup;
+  if (group) {
+    form.querySelectorAll(`[data-group="${group}"]`).forEach((cb) => { cb.checked = e.target.checked; });
+  }
+  updateImportCount(form);
+});
+
 // Processing mode radio → show API settings
 document.addEventListener('change', (e) => {
   if (e.target.name !== 'processing_mode') return;

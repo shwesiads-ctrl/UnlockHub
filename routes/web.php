@@ -77,6 +77,12 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
     Route::resource('services', Admin\ServiceController::class)->except('show');
     Route::post('/services/{service}/toggle', [Admin\ServiceController::class, 'toggle'])->name('services.toggle');
 
+    Route::resource('suppliers', Admin\SupplierController::class)->except('show');
+    Route::post('/suppliers/{supplier}/test', [Admin\SupplierController::class, 'test'])->name('suppliers.test');
+    Route::get('/suppliers/{supplier}/services', [Admin\SupplierController::class, 'services'])->name('suppliers.services');
+    Route::post('/suppliers/{supplier}/import', [Admin\SupplierController::class, 'import'])->name('suppliers.import');
+    Route::post('/suppliers/{supplier}/sync-costs', [Admin\SupplierController::class, 'syncCosts'])->name('suppliers.sync-costs');
+
     Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/manual', [Admin\OrderController::class, 'manual'])->name('orders.manual');
     Route::post('/orders/bulk-in-process', [Admin\OrderController::class, 'bulkInProcess'])->name('orders.bulk-in-process');

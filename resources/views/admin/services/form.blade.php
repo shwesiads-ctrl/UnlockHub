@@ -111,7 +111,7 @@
             </div>
             <div data-api-only @class(['flex flex-col gap-4 p-4 rounded-xl bg-surface-2', 'hidden' => $mode !== 'api'])>
                 @if ($suppliers->isEmpty())
-                    <p class="m-0 text-sm text-warn">No suppliers yet. Add one in Suppliers &amp; API (coming in step 6) — until then use Manual.</p>
+                    <p class="m-0 text-sm text-warn">No suppliers yet. <a href="{{ route('admin.suppliers.create') }}">Add one in Suppliers &amp; API</a> — until then use Manual.</p>
                 @endif
                 <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
                     <div>
