@@ -42,6 +42,7 @@ class SettingsController extends Controller
         'social.youtube' => ['nullable', 'url:http,https', 'max:255'],
         'currency.usd_rate' => ['nullable', 'numeric', 'min:0'],
         'pages.terms_slug' => ['nullable', 'string', 'exists:posts,slug'],
+        'home.reseller_cta_label' => ['nullable', 'string', 'max:40'],
     ];
 
     public function updateGeneral(Request $request): RedirectResponse
@@ -53,12 +54,14 @@ class SettingsController extends Controller
         }
         $rules['logo'] = ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024']; // no SVG: it can carry scripts
         $rules['favicon'] = ['nullable', 'file', 'mimes:png,ico', 'max:256'];
+        $rules['home_reseller_cta_enabled'] = ['boolean'];
         $data = $request->validate($rules);
 
         foreach (array_keys(self::GENERAL) as $key) {
             $value = $data[str_replace('.', '_', $key)] ?? null;
             Setting::put($key, $value === null ? null : (string) $value);
         }
+        Setting::put('home.reseller_cta_enabled', $request->boolean('home_reseller_cta_enabled') ? '1' : '0');
 
         // Branding
         foreach (['logo' => 'site.logo', 'favicon' => 'site.favicon'] as $field => $key) {

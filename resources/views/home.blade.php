@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $homeCtaUser = auth()->user();
+    $showResellerCta = setting('home.reseller_cta_enabled', '1') === '1'
+        && \App\Services\ResellerService::enabled()
+        && (! $homeCtaUser || (! $homeCtaUser->isAdmin() && ! $homeCtaUser->parent_id && ! $homeCtaUser->canAccessResellerPanel()));
+@endphp
 <section class="max-w-7xl mx-auto px-4 sm:px-8 pt-16 pb-12 flex flex-wrap gap-12 items-center">
     <div class="flex-[1_1_520px] min-w-0 flex flex-col gap-5">
         <span class="self-start badge badge-info text-[13px]">{{ __('For repair shops & resellers in Myanmar') }}</span>
@@ -20,6 +26,9 @@
             </div>
             <button class="btn btn-primary btn-lg">{{ __('Browse services') }}</button>
         </form>
+        @if ($showResellerCta)
+            <a href="{{ $homeCtaUser ? route('account.reseller.apply') : route('register') }}" class="btn h-11 self-start">{{ setting('home.reseller_cta_label', 'Become a reseller') }}</a>
+        @endif
         <div class="flex flex-wrap gap-5 text-sm text-muted">
             <span class="flex items-center gap-1.5"><x-icon name="check" size="16" class="text-ok" />{{ __('Auto refund on rejected orders') }}</span>
             <span class="flex items-center gap-1.5"><x-icon name="check" size="16" class="text-ok" />{{ __('Reseller group pricing') }}</span>

@@ -98,6 +98,17 @@
         @endforeach
     </div>
     </section>
+    <section class="settings-section">
+    <h3>Homepage</h3>
+    <p class="m-0 text-sm text-muted">Choose whether the public homepage invites visitors to join the reseller program.</p>
+    <div class="settings-fields">
+        <div class="flex flex-col gap-3">
+            <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="home_reseller_cta_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('home.reseller_cta_enabled', '1') === '1')>Show Become Reseller button on the homepage</label>
+            <div><label for="home_reseller_cta_label" class="label">Button text</label><input id="home_reseller_cta_label" name="home_reseller_cta_label" value="{{ $f('home.reseller_cta_label') ?: 'Become a reseller' }}" maxlength="40" class="input h-11" placeholder="Become a reseller"><x-field-error name="home_reseller_cta_label" /></div>
+            <p class="m-0 text-xs text-muted">Visible to visitors and regular users; hidden from reseller accounts and administrators.</p>
+        </div>
+    </div>
+    </section>
     <div class="settings-actions">
         <span>Save to apply your site and branding changes.</span>
         <button class="btn btn-primary">Save site settings</button>

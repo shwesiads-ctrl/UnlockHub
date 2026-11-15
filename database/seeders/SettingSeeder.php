@@ -12,6 +12,8 @@ class SettingSeeder extends Seeder
         $defaults = [
             'site.name' => 'UnlockHub',
             'site.support_hours' => '9:00 AM – 10:00 PM',
+            'home.reseller_cta_enabled' => '1',
+            'home.reseller_cta_label' => 'Become a reseller',
 
             // Points: earn 1 point per 1,000 Ks spent (unless the service sets its own),
             // redeem 1 point = 10 Ks, minimum 100 points.
