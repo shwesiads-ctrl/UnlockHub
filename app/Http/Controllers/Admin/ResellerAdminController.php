@@ -47,18 +47,26 @@ class ResellerAdminController extends Controller
             'custom_domain' => ['nullable', 'string', 'max:120', 'regex:/^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)+$/i', Rule::unique('reseller_profiles', 'custom_domain')->ignore($profile->id)],
             'admin_note' => ['nullable', 'string', 'max:500'],
             'group_id' => ['nullable', 'integer', 'exists:user_groups,id'],
+            'is_verified' => ['required', 'boolean'],
         ]);
 
         $was = $profile->status;
+        $verificationChanged = (bool) $profile->is_verified !== (bool) $data['is_verified'];
         $profile->update([
             'status' => $data['status'],
             'subdomain' => $data['subdomain'] ?? null,
             'custom_domain' => isset($data['custom_domain']) ? strtolower($data['custom_domain']) : null,
             'admin_note' => $data['admin_note'] ?? null,
             'approved_at' => $data['status'] === 'approved' ? ($profile->approved_at ?? now()) : $profile->approved_at,
+            'is_verified' => (bool) $data['is_verified'],
+            'verified_at' => $data['is_verified'] ? ($profile->verified_at ?? now()) : null,
+            'verification_source' => $data['is_verified'] ? ($verificationChanged ? 'admin' : $profile->verification_source) : null,
         ]);
         if (! empty($data['group_id'])) {
             $profile->user->forceFill(['user_group_id' => $data['group_id']])->save(); // e.g. move to "Reseller" prices
+        }
+        if ($data['status'] === 'approved') {
+            app(\App\Services\ResellerVerificationService::class)->verifyIfEligible((int) $profile->user_id);
         }
         ActivityLog::record('reseller.updated', $profile->user, ['from' => $was, 'to' => $data['status'], 'subdomain' => $data['subdomain'] ?? null, 'domain' => $data['custom_domain'] ?? null]);
 
@@ -76,11 +84,13 @@ class ResellerAdminController extends Controller
             'months' => ['required', 'integer', 'min:0', 'max:120'],
             'withdraw_min' => ['required', 'numeric', 'min:0'],
             'withdraw_methods' => ['nullable', 'string', 'max:255'],
+            'auto_verify_amount' => ['required', 'numeric', 'min:1', 'max:999999999999'],
         ]);
 
-        foreach (['enabled', 'auto_approve', 'whitelabel'] as $k) {
+        foreach (['enabled', 'auto_approve', 'whitelabel', 'auto_verify_enabled'] as $k) {
             Setting::put('reseller.'.$k, $request->boolean('reseller_'.$k) ? '1' : '0');
         }
+        Setting::put('reseller.auto_verify_amount', (string) $data['auto_verify_amount']);
         Setting::put('reseller.default_markup', (string) $data['default_markup']);
         Setting::put('reseller.rounding', (string) $data['rounding']);
         Setting::put('reseller.base_domain', $data['base_domain'] ? strtolower($data['base_domain']) : null);
@@ -89,8 +99,9 @@ class ResellerAdminController extends Controller
             Setting::put('affiliate.'.$k, (string) ($data[$k] ?? ''));
         }
         ActivityLog::record('settings.resellers', null, $data);
+        $verified = app(\App\Services\ResellerVerificationService::class)->verifyEligibleResellers();
 
-        return back()->with('success', 'Reseller & commission settings saved.');
+        return back()->with('success', 'Reseller & commission settings saved.'.($verified ? " {$verified} reseller(s) reached the threshold and were verified." : ''));
     }
 
     // ------------------------------------------------------------ withdrawals

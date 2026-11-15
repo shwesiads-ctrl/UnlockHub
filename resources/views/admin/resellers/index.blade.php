@@ -19,7 +19,7 @@
                 <td>
                     <div class="flex items-center gap-2">
                         @if ($p->logoUrl()) <img src="{{ $p->logoUrl() }}" alt="" class="h-8 w-8 object-contain rounded bg-surface-2"> @endif
-                        <div><span class="font-semibold">{{ $p->shop_name }}</span><div class="text-xs text-muted"><a href="{{ route('admin.users.show', $p->user_id) }}">{{ $p->user?->username }}</a> · {{ money($p->user?->balance) }}</div></div>
+                        <div><span class="font-semibold">{{ $p->shop_name }}</span>@if ($p->is_verified) <span class="badge badge-success">Verified</span> @endif<div class="text-xs text-muted"><a href="{{ route('admin.users.show', $p->user_id) }}">{{ $p->user?->username }}</a> · {{ money($p->user?->balance) }}</div></div>
                     </div>
                     @if ($p->application_note) <div class="text-xs text-muted mt-1 max-w-xs">“{{ \Illuminate\Support\Str::limit($p->application_note, 120) }}”</div> @endif
                     <div class="text-xs text-muted mt-1">{{ $p->contact_phone }} {{ $p->contact_telegram }}</div>
@@ -34,6 +34,7 @@
                         @csrf @method('PUT')
                         <select name="status" class="input h-9 text-sm" aria-label="Status">@foreach (['pending', 'approved', 'suspended', 'rejected'] as $st)<option value="{{ $st }}" @selected($p->status === $st)>{{ ucfirst($st) }}</option>@endforeach</select>
                         <select name="group_id" class="input h-9 text-sm" aria-label="Customer group"><option value="">Keep price group</option>@foreach ($groups as $g)<option value="{{ $g->id }}">Group: {{ $g->name }}</option>@endforeach</select>
+                        <label class="flex items-center gap-2 text-xs col-span-2"><input type="hidden" name="is_verified" value="0"><input type="checkbox" name="is_verified" value="1" @checked($p->is_verified)>Verified reseller badge</label>
                         <input name="subdomain" value="{{ $p->subdomain }}" class="input h-9 text-sm" placeholder="subdomain" aria-label="Subdomain">
                         <input name="custom_domain" value="{{ $p->custom_domain }}" class="input h-9 text-sm" placeholder="custom domain" aria-label="Custom domain">
                         <input name="admin_note" value="{{ $p->admin_note }}" class="input h-9 text-sm col-span-2" placeholder="Note (shown to the applicant if rejected)" aria-label="Note">
@@ -57,6 +58,8 @@
             <legend class="px-1 font-bold">Resellers</legend>
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="reseller_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('reseller.enabled', '1') === '1')>Customers can apply to become resellers</label>
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="reseller_auto_approve" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('reseller.auto_approve') === '1')>Approve applications automatically</label>
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="reseller_auto_verify_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('reseller.auto_verify_enabled', '0') === '1')>Auto-verify approved resellers after they reach the sales amount below</label>
+            <div><label for="rva" class="label text-xs">Auto-verify threshold (successful customer sales in Ks)</label><input id="rva" name="auto_verify_amount" type="number" min="1" step="1" value="{{ setting('reseller.auto_verify_amount', 1000000) }}" class="input h-10"><p class="m-0 mt-1 text-xs text-muted">Point orders count using the Ks-per-point rate saved with each order. Existing eligible resellers are verified when you save.</p></div>
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="reseller_whitelabel" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('reseller.whitelabel', '1') === '1')>White-label shops (own subdomain, logo, colours)</label>
             <div class="grid grid-cols-2 gap-3">
                 <div><label for="dm" class="label text-xs">Default markup for new resellers (%)</label><input id="dm" name="default_markup" type="number" min="0" step="0.1" value="{{ setting('reseller.default_markup', 10) }}" class="input h-10"></div>

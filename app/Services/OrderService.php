@@ -244,6 +244,9 @@ class OrderService
 
             $this->points->rewardReferrer($o);
             app(ResellerService::class)->payProfit($o);
+            if ($o->reseller_id) {
+                app(ResellerVerificationService::class)->verifyIfEligible((int) $o->reseller_id);
+            }
             app(AffiliateService::class)->payCommission($o);
 
             ActivityLog::record('order.success', $o);

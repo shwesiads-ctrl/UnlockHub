@@ -7,9 +7,9 @@
     $group = $user->isAdmin() ? null : ($user->relationLoaded('group') ? $user->group : $user->group()->first());
     $color = preg_match('/^#[0-9a-fA-F]{6}$/', (string) $group?->badge_color) ? $group->badge_color : '#64748B';
     $icon = in_array($group?->badge_icon, ['user', 'star', 'crown', 'gem', 'shield', 'bolt'], true) ? $group->badge_icon : 'user';
-    $isReseller = ! $user->isAdmin() && ($user->relationLoaded('resellerProfile')
-        ? $user->resellerProfile?->status === 'approved'
-        : $user->resellerProfile()->where('status', 'approved')->exists());
+    $resellerProfile = $user->isAdmin() ? null : ($user->relationLoaded('resellerProfile') ? $user->resellerProfile : $user->resellerProfile()->first());
+    $isReseller = ! $user->isAdmin() && $resellerProfile?->status === 'approved';
+    $isVerifiedReseller = $isReseller && (bool) $resellerProfile?->is_verified;
     $cls = $size === 'sm' ? 'text-[11px] px-2 py-0.5 gap-1' : 'text-xs px-2.5 py-1 gap-1.5';
     $ic = $size === 'sm' ? 12 : 14;
 @endphp
@@ -24,8 +24,9 @@
         </span>
         @if ($isReseller && strcasecmp((string) $group?->name, 'Reseller') !== 0)
             <span class="inline-flex items-center rounded-full font-bold whitespace-nowrap bg-brand-soft text-brand-ink border border-brand/30 {{ $cls }}" title="{{ __('Approved reseller') }}"><x-icon name="shield" :size="$ic" />{{ __('Reseller') }}</span>
-        @elseif ($isReseller)
-            <span class="inline-flex items-center rounded-full font-bold whitespace-nowrap bg-ok-soft text-ok {{ $cls }}" title="{{ __('Approved reseller') }}"><x-icon name="check" :size="$ic" />{{ __('Verified') }}</span>
+        @endif
+        @if ($isVerifiedReseller)
+            <span class="inline-flex items-center rounded-full font-bold whitespace-nowrap bg-ok-soft text-ok {{ $cls }}" title="{{ __('Verified reseller') }}"><x-icon name="check" :size="$ic" />{{ __('Verified') }}</span>
         @endif
     @endif
     @if ($staff && $user->isAdmin())

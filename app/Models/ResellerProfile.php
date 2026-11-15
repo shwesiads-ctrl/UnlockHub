@@ -12,11 +12,12 @@ class ResellerProfile extends Model
         'user_id', 'status', 'shop_name', 'subdomain', 'custom_domain', 'logo_path', 'brand_color',
         'contact_phone', 'contact_telegram', 'contact_email', 'about', 'markup_type', 'markup_value',
         'allow_signup', 'application_note', 'admin_note', 'approved_at',
+        'is_verified', 'verified_at', 'verification_source',
     ];
 
     protected function casts(): array
     {
-        return ['markup_value' => 'decimal:2', 'allow_signup' => 'boolean', 'approved_at' => 'datetime'];
+        return ['markup_value' => 'decimal:2', 'allow_signup' => 'boolean', 'approved_at' => 'datetime', 'is_verified' => 'boolean', 'verified_at' => 'datetime'];
     }
 
     public function user(): BelongsTo

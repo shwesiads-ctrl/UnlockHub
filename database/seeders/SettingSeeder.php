@@ -19,6 +19,8 @@ class SettingSeeder extends Seeder
             'points.redeem_rate' => '10',
             'points.convert_rate' => '10',
             'catalog.price_currency' => 'ks',
+            'reseller.auto_verify_enabled' => '0',
+            'reseller.auto_verify_amount' => '1000000',
             'points.redeem_min' => '100',
             'points.referral_bonus' => '50',
             'points.signup_bonus' => '20',
