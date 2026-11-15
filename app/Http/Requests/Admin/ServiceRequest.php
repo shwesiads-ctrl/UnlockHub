@@ -72,6 +72,8 @@ class ServiceRequest extends FormRequest
             'fields.*.options' => ['nullable', 'string', 'max:2000'],
             'fields.*.regex' => ['nullable', 'string', 'max:255'],
             'fields.*.placeholder' => ['nullable', 'string', 'max:100'],
+            'fields.*.is_required' => ['boolean'],
+            'fields.*.is_bulk_field' => ['boolean'],
         ];
     }
 

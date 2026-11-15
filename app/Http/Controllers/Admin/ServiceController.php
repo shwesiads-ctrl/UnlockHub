@@ -141,12 +141,12 @@ class ServiceController extends Controller
                 'input_type' => $f['input_type'],
                 'validation' => $f['validation'],
                 'options' => $f['input_type'] === 'select'
-                    ? array_values(array_filter(array_map('trim', explode(',', (string) $f['options']))))
+                    ? array_values(array_filter(array_map('trim', explode(',', (string) ($f['options'] ?? '')))))
                     : null,
-                'regex' => $f['validation'] === 'regex' ? $f['regex'] : null,
-                'placeholder' => $f['placeholder'],
-                'is_required' => $f['is_required'],
-                'is_bulk_field' => $f['is_bulk_field'] && $data['allow_bulk'],
+                'regex' => $f['validation'] === 'regex' ? ($f['regex'] ?? null) : null,
+                'placeholder' => $f['placeholder'] ?? null,
+                'is_required' => (bool) ($f['is_required'] ?? false),
+                'is_bulk_field' => (bool) ($f['is_bulk_field'] ?? false) && $data['allow_bulk'],
                 'sort' => $i,
             ]);
         }
