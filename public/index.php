@@ -10,6 +10,14 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
     require $maintenance;
 }
 
+// Not installed yet (no .env / APP_KEY)? → web installer
+$envFile = __DIR__.'/../.env';
+if (! is_file(__DIR__.'/../storage/installed') && is_file(__DIR__.'/install.php')
+    && (! is_file($envFile) || ! preg_match('/^APP_KEY=\S+/m', (string) file_get_contents($envFile)))) {
+    header('Location: '.rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/').'/install.php');
+    exit;
+}
+
 // Register the Composer autoloader...
 require __DIR__.'/../vendor/autoload.php';
 

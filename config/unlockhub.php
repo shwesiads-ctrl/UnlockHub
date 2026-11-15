@@ -2,6 +2,9 @@
 
 return [
 
+    // Run queued jobs from the scheduler cron (shared hosting without a worker)
+    'queue_in_scheduler' => (bool) env('QUEUE_IN_SCHEDULER', false),
+
     // Telegram bot for admin alerts (new receipts, new manual orders, API failures)
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),

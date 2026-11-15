@@ -9,6 +9,10 @@ GSM unlock service, tool credit နဲ့ activation တွေကို reseller
 - User group လိုက် ဈေးကွဲ (Customer / Reseller / VIP)
 - Flat UI ဒီဇိုင်း၊ Day / Night mode
 
+## ⚡ Fast install (XAMPP / cPanel)
+
+ဆိုဒ်ကို ပထမဆုံး ဖွင့်တာနဲ့ Web installer (`/install.php`) ပေါ်လာတယ် — Server check → Database → Site & admin → Install။ အသေးစိတ်: **[INSTALL.md](INSTALL.md)**။ Upload zip: `scripts\build-release.ps1`။
+
 ## လိုအပ်ချက်
 
 - PHP 8.3+ (extension: `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `gd`)

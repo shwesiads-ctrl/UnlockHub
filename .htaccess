@@ -1,0 +1,20 @@
+# For hosts where the whole project sits inside the web folder (cPanel public_html,
+# XAMPP htdocs/UnlockHub): send every request into public/. Nothing outside public/
+# (.env, storage, vendor…) can be opened from the web.
+# Best practice is still to point the domain's document root at public/ (then this file is unused).
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^public/ - [L]
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
+
+# Belt and braces: never serve dotfiles or project files directly
+<FilesMatch "^(\.env.*|\.git.*|composer\.(json|lock)|package(-lock)?\.json|artisan|phpunit\.xml|vite\.config\.js)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes
