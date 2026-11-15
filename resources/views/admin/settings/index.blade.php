@@ -10,12 +10,12 @@
     <a href="#smtp">Email (SMTP)</a>
     <a href="#online-payments">PayPal &amp; Stripe</a>
     <a href="#telegram-alerts">Telegram alerts</a>
-    <a href="#monthly-statements">Monthly statements</a>
     <a href="#mobile-app">Mobile app (PWA)</a>
+    <a href="#monthly-statements">Monthly statements</a>
     <a href="#footer-settings">Footer</a>
 </nav>
 <div class="settings-content">
-<form id="site-settings" method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
+<form id="site-settings" class="settings-page-panel card p-6 flex flex-col gap-5" method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data">
     @csrf @method('PUT')
     <div class="settings-heading">
         <span class="badge badge-info">General</span>
@@ -104,7 +104,7 @@
     </div>
 </form>
 
-<form id="social-login" method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
+<form id="social-login" class="settings-page-panel card p-6 flex flex-col gap-4" method="POST" action="{{ route('admin.settings.social') }}" autocomplete="off">
     @csrf @method('PUT')
     <div class="settings-heading">
         <span class="badge badge-info">OAuth</span>
@@ -146,7 +146,7 @@
 
 @include('admin.settings._security')
 
-<section id="smtp" class="card p-6 flex flex-col gap-5">
+<section id="smtp" class="settings-page-panel card p-6 flex flex-col gap-5">
     <div class="settings-heading">
         <span class="badge badge-info">Email</span>
         <h2>Email (SMTP)</h2>
@@ -184,8 +184,8 @@
 
 @include('admin.settings._payments')
 
-<div class="flex flex-wrap gap-5 items-start">
-    <form id="telegram-alerts" method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
+<div id="telegram-alerts" class="settings-page-panel flex flex-wrap gap-5 items-start">
+    <form method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
         @csrf @method('PUT')
         <div class="settings-heading">
             <span class="badge badge-info">Alerts</span>
@@ -246,7 +246,12 @@
                 <li>Paste both here, Save, then <strong class="text-ink">Send test message</strong>.</li>
             </ol>
         </section>
-        <form id="mobile-app" method="POST" action="{{ route('admin.settings.pwa') }}" enctype="multipart/form-data" class="card p-5 flex flex-col gap-3 text-sm">
+    </aside>
+</div>
+
+<div id="mobile-app" class="settings-page-panel flex flex-wrap gap-5 items-start">
+    <div class="flex-[1_1_520px] min-w-0 flex flex-col gap-5">
+        <form method="POST" action="{{ route('admin.settings.pwa') }}" enctype="multipart/form-data" class="card p-5 flex flex-col gap-3 text-sm">
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Mobile app (PWA)</h2>
             <p class="m-0 text-muted">Customers can add the site to their home screen (Android: browser menu › Install app; iPhone: Share › Add to Home Screen).</p>
@@ -274,7 +279,11 @@
             <span class="flex-1">{{ \App\Services\WebPush::publicKey() ? 'Push keys exist.' : 'Create the VAPID keys used to send push notifications.' }}</span>
             <button class="btn">{{ \App\Services\WebPush::publicKey() ? 'Replace push keys' : 'Create push keys' }}</button>
         </form>
-        <form id="monthly-statements" method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
+    </div>
+</div>
+
+<div id="monthly-statements" class="settings-page-panel flex flex-wrap gap-5 items-start">
+    <form method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex-1 flex flex-col gap-3 text-sm">
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Monthly statements</h2>
             <label class="flex items-start gap-2.5">
@@ -282,19 +291,23 @@
                 <span>On the 1st of each month, email last month's PDF statement to every customer who had wallet activity (and has email alerts on).</span>
             </label>
             <button class="btn self-start">Save</button>
-        </form>
-        <section class="card p-5 flex flex-col gap-2 text-sm leading-relaxed">
+    </form>
+    <section class="card p-5 flex-1 flex flex-col gap-2 text-sm leading-relaxed">
             <h2 class="m-0 text-lg font-bold">Customer emails</h2>
             <p class="m-0 text-muted">Users get emails for finished orders, bulk-order summaries and top-up decisions (they can turn emails off; site notifications always show).</p>
             <p class="m-0">Mail driver: <code>{{ $mailDriver }}</code>
                 @if ($mailDriver === 'log') <span class="text-warn">— emails are only written to <code>storage/logs/laravel.log</code>. Set SMTP in <code>.env</code> to really send.</span> @endif
             </p>
-        </section>
-    </aside>
-</div>
-</div>
+    </section>
 </div>
 @include('admin.settings._footer')
+<div class="settings-page-nav" aria-label="Settings page navigation">
+    <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings page">‹ Previous</a>
+    <span class="settings-page-count" aria-live="polite">Page 1 of 9</span>
+    <a class="btn btn-primary" data-settings-next href="#social-login" aria-label="Next settings page">Next ›</a>
+</div>
+</div>
+</div>
 
 @endsection
 
@@ -305,20 +318,60 @@
     var nav = document.querySelector('.settings-nav');
     if (!nav) return;
     var links = Array.from(nav.querySelectorAll('a[href^="#"]'));
-    var sections = links.map(function (a) {
-        return document.getElementById(a.getAttribute('href').slice(1));
+    var pages = links.map(function (link) {
+        return document.getElementById(link.getAttribute('href').slice(1));
     }).filter(Boolean);
+    if (!pages.length) return;
 
-    function setActive() {
-        var scrollY = window.scrollY + 80;
-        var current = sections[0];
-        sections.forEach(function (s) { if (s.offsetTop <= scrollY) current = s; });
-        links.forEach(function (a) {
-            a.classList.toggle('active', a.getAttribute('href') === '#' + (current ? current.id : ''));
+    function activate(id, updateHistory) {
+        var selected = pages.some(function (page) { return page.id === id; }) ? id : pages[0].id;
+        pages.forEach(function (page) {
+            page.hidden = page.id !== selected;
+            page.style.display = page.hidden ? 'none' : '';
         });
+        links.forEach(function (link) {
+            var active = link.getAttribute('href') === '#' + selected;
+            link.classList.toggle('active', active);
+            if (active) link.setAttribute('aria-current', 'page');
+            else link.removeAttribute('aria-current');
+        });
+        var pageIndex = pages.findIndex(function (page) { return page.id === selected; });
+        var counter = document.querySelector('.settings-page-count');
+        var previous = document.querySelector('[data-settings-previous]');
+        var next = document.querySelector('[data-settings-next]');
+        if (counter) counter.textContent = 'Page ' + (pageIndex + 1) + ' of ' + pages.length;
+        if (previous) previous.href = '#' + pages[(pageIndex - 1 + pages.length) % pages.length].id;
+        if (next) next.href = '#' + pages[(pageIndex + 1) % pages.length].id;
+        if (updateHistory && window.location.hash !== '#' + selected) window.location.hash = selected;
     }
-    window.addEventListener('scroll', setActive, { passive: true });
-    setActive();
+
+    links.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            activate(link.hash.slice(1), true);
+        });
+    });
+    document.querySelectorAll('[data-settings-previous], [data-settings-next]').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            activate(link.hash.slice(1), true);
+        });
+    });
+    window.addEventListener('hashchange', function () { activate(window.location.hash.slice(1), false); });
+
+    var initial = window.location.hash.slice(1);
+    try {
+        initial = initial || window.sessionStorage.getItem('admin-settings-page') || '';
+        window.sessionStorage.removeItem('admin-settings-page');
+    } catch (e) {}
+    activate(initial, false);
+    pages.forEach(function (page) {
+        page.querySelectorAll('form').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                try { window.sessionStorage.setItem('admin-settings-page', page.id); } catch (e) {}
+            });
+        });
+    });
 })();
 </script>
 @endsection

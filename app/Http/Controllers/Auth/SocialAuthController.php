@@ -38,7 +38,7 @@ class SocialAuthController extends Controller
             return $this->testTelegram();
         }
         if (! SocialProviders::clientId($provider) || ! SocialProviders::clientSecret($provider)) {
-            return redirect()->to(route('admin.settings.index').'#security')->with('error', 'Save the ID and secret first, then test.');
+            return redirect()->to(route('admin.settings.index').'#social-login')->with('error', 'Save the ID and secret first, then test.');
         }
 
         $state = Str::random(40);
@@ -50,7 +50,7 @@ class SocialAuthController extends Controller
 
     private function testTelegram(): RedirectResponse
     {
-        $back = redirect()->to(route('admin.settings.index').'#security');
+        $back = redirect()->to(route('admin.settings.index').'#social-login');
         $token = SocialProviders::telegramBotToken();
         $username = SocialProviders::telegramBotUsername();
         if (! $token || ! $username) {
@@ -106,7 +106,7 @@ class SocialAuthController extends Controller
             if ($testing) {
                 $request->session()->forget('social.intent');
 
-                return redirect()->to(route('admin.settings.index').'#security')
+                return redirect()->to(route('admin.settings.index').'#social-login')
                     ->with('error', SocialProviders::PROVIDERS[$provider]['label'].' test failed: '.\Illuminate\Support\Str::limit($e->getMessage(), 200).' — check the ID, secret and Redirect URL.');
             }
 
@@ -119,7 +119,7 @@ class SocialAuthController extends Controller
             \App\Models\ActivityLog::record('settings.social_tested', null, ['provider' => $provider]);
             $who = trim(($profile['name'] ?? '').' '.(($profile['email'] ?? null) ? '<'.$profile['email'].'>' : ''));
 
-            return redirect()->to(route('admin.settings.index').'#security')
+            return redirect()->to(route('admin.settings.index').'#social-login')
                 ->with('success', SocialProviders::PROVIDERS[$provider]['label']." login works ✓ (returned: {$who}). Nobody was signed in. Tick Enabled and save to show the button to customers.");
         }
 

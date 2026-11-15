@@ -3,7 +3,7 @@
     $copyright    = setting('footer.copyright', '© '.date('Y').' '.setting('site.name', config('app.name')).' All rights reserved');
 @endphp
 
-<section id="footer-settings" class="card p-6 flex flex-col gap-5">
+<section id="footer-settings" class="settings-page-panel card p-6 flex flex-col gap-5">
     <div class="settings-heading">
         <span class="badge badge-info">Footer</span>
         <h2>Footer — copyright &amp; payment logos</h2>
