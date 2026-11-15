@@ -14,6 +14,14 @@ if (! function_exists('setting')) {
     }
 }
 
+if (! function_exists('price')) {
+    /** Format an MMK amount in the signed-in user's preferred currency. */
+    function price(string|int|float|null $amount): string
+    {
+        return money($amount, auth()->user()?->preferred_currency ?? 'MMK');
+    }
+}
+
 if (! function_exists('money')) {
     /** Format an MMK amount: 125000 → "125,000 Ks". */
     function money(string|int|float|null $amount, string $currency = 'MMK'): string

@@ -1,4 +1,5 @@
 import './theme';
+import './admin';
 
 // Copy-to-clipboard buttons: <button data-copy="text">
 document.addEventListener('click', (e) => {

@@ -1,0 +1,45 @@
+// Small helpers for admin forms (no framework needed).
+
+// Repeater rows: <button data-add-row="#container" data-template="#tpl">, rows have [data-row] and [data-remove-row]
+document.addEventListener('click', (e) => {
+  const add = e.target.closest('[data-add-row]');
+  if (add) {
+    const box = document.querySelector(add.dataset.addRow);
+    const tpl = document.querySelector(add.dataset.template);
+    if (!box || !tpl) return;
+    const i = Number(box.dataset.nextIndex || box.children.length);
+    box.dataset.nextIndex = String(i + 1);
+    box.insertAdjacentHTML('beforeend', tpl.innerHTML.replaceAll('__INDEX__', String(i)));
+    box.lastElementChild?.querySelector('input')?.focus();
+    return;
+  }
+
+  const remove = e.target.closest('[data-remove-row]');
+  if (remove) {
+    remove.closest('[data-row]')?.remove();
+    return;
+  }
+
+  // Fill selling prices from cost + profit %
+  if (e.target.closest('[data-autofill-prices]')) {
+    const form = e.target.closest('form');
+    const cost = Number(form.querySelector('[data-cost]')?.value || 0);
+    const pct = Number(form.querySelector('[data-profit]')?.value || 0);
+    if (!cost) return;
+    const round = (n) => Math.ceil(n / 100) * 100; // round up to 100 Ks
+    form.querySelector('[data-price]').value = round(cost * (1 + pct / 100));
+    // Lower groups get a smaller margin: Customer full %, next groups step down
+    const groups = [...form.querySelectorAll('[data-group-price]')];
+    groups.forEach((input, idx) => {
+      const p = Math.max(pct - idx * (pct / (groups.length + 1)), 0);
+      input.value = round(cost * (1 + p / 100));
+    });
+  }
+});
+
+// Processing mode radio → show API settings
+document.addEventListener('change', (e) => {
+  if (e.target.name !== 'processing_mode') return;
+  const section = e.target.closest('[data-mode-section]');
+  section?.querySelector('[data-api-only]')?.classList.toggle('hidden', e.target.value !== 'api');
+});

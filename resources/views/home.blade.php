@@ -6,7 +6,7 @@
         <span class="self-start badge badge-info text-[13px]">For repair shops &amp; resellers in Myanmar</span>
         <h1 class="m-0 text-4xl sm:text-[56px] leading-[1.05] font-bold tracking-tight">Unlock codes, tool credits &amp; activations — in one wallet.</h1>
         <p class="m-0 text-lg leading-relaxed text-muted max-w-xl">Top up with KBZPay, WavePay or AYA Pay, place IMEI and server orders, track every result, and earn points on each successful order.</p>
-        <form role="search" action="#" class="flex flex-wrap gap-2 max-w-xl">
+        <form role="search" action="{{ route('services.index') }}" class="flex flex-wrap gap-2 max-w-xl">
             <label for="hsearch" class="sr-only">Search services</label>
             <div class="flex-[1_1_320px] flex items-center gap-2.5 h-[52px] px-4 rounded-xl border border-line bg-surface text-muted">
                 <x-icon name="search" />
@@ -26,11 +26,11 @@
     <h2 class="m-0 text-[28px] font-bold">Service categories</h2>
     <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
         @foreach ([
-            ['IMEI / Serial Services', 'Carrier unlocks, NCK/MCK codes, IMEI & GSX checks. Submit IMEI, SN or ECID.', 'phone', 'bg-brand-soft text-brand-ink'],
-            ['Server · Box · Tool Credits', 'UnlockTool, Chimera, TFM, dongle renewals, game credits and gift cards.', 'server', 'bg-ok-soft text-ok'],
-            ['Remote · Rent · Files', 'Live remote sessions, hourly tool rental and paid firmware files.', 'monitor', 'bg-point-soft text-point'],
-        ] as [$name, $desc, $icon, $tone])
-            <a href="#" class="card p-6 flex flex-col gap-3 no-underline text-ink hover:text-ink">
+            ['IMEI / Serial Services', 'Carrier unlocks, NCK/MCK codes, IMEI & GSX checks. Submit IMEI, SN or ECID.', 'phone', 'bg-brand-soft text-brand-ink', 'imei'],
+            ['Server · Box · Tool Credits', 'UnlockTool, Chimera, TFM, dongle renewals, game credits and gift cards.', 'server', 'bg-ok-soft text-ok', 'server'],
+            ['Remote · Rent · Files', 'Live remote sessions, hourly tool rental and paid firmware files.', 'monitor', 'bg-point-soft text-point', 'remote'],
+        ] as [$name, $desc, $icon, $tone, $type])
+            <a href="{{ route('services.index', ['type' => $type]) }}" class="card p-6 flex flex-col gap-3 no-underline text-ink hover:text-ink">
                 <span class="w-12 h-12 rounded-xl flex items-center justify-center {{ $tone }}"><x-icon :name="$icon" size="24" /></span>
                 <span class="font-display text-xl font-bold">{{ $name }}</span>
                 <span class="text-sm leading-normal text-muted">{{ $desc }}</span>
@@ -49,8 +49,8 @@
                 <span class="text-base font-semibold leading-snug">{{ $service->name }}</span>
                 <span class="flex items-center gap-1.5 text-[13px] text-muted"><x-icon name="clock" size="14" />{{ $service->delivery_time }}</span>
                 <div class="flex justify-between items-center mt-1.5">
-                    <span class="font-display text-xl font-bold">{{ money($service->priceFor(auth()->user())) }}</span>
-                    <a href="#" class="btn btn-primary h-10">Order</a>
+                    <span class="font-display text-xl font-bold">{{ price($service->priceFor(auth()->user())) }}</span>
+                    <a href="{{ route('services.show', $service) }}" class="btn btn-primary h-10">Order</a>
                 </div>
             </div>
         @endforeach

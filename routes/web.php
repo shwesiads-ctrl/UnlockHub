@@ -6,10 +6,15 @@ use App\Http\Controllers\Auth\ChallengeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+
+Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
 
 /* ---------------- Guest: register / login / password reset ---------------- */
 Route::middleware('guest')->group(function () {
@@ -48,4 +53,12 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
 /* ---------------- Admin ---------------- */
 Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::view('/', 'admin.dashboard')->name('dashboard');
+
+    Route::get('/categories', [Admin\CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [Admin\CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{category}', [Admin\CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [Admin\CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    Route::resource('services', Admin\ServiceController::class)->except('show');
+    Route::post('/services/{service}/toggle', [Admin\ServiceController::class, 'toggle'])->name('services.toggle');
 });

@@ -22,7 +22,7 @@
 
             <nav aria-label="Main" class="flex flex-wrap gap-1 sm:ml-3">
                 <a href="{{ route('home') }}" @class(['nav-link', 'active' => request()->routeIs('home')])>Home</a>
-                <a href="#" class="nav-link">Services &amp; Pricing</a>
+                <a href="{{ route('services.index') }}" @class(['nav-link', 'active' => request()->routeIs('services.*')])>Services &amp; Pricing</a>
                 <a href="#" class="nav-link">Track Order</a>
                 <a href="#" class="nav-link">Knowledge Base</a>
                 <a href="#" class="nav-link">Blog</a>

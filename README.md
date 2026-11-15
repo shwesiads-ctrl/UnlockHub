@@ -53,6 +53,18 @@ Seeder က ထည့်ပေးတာတွေ:
 > **Local မှာ စမ်းရင်:** `.env` ထဲမှာ `MAIL_MAILER=log` ဖြစ်နေတဲ့အတွက် email code က `storage/logs/laravel.log` ထဲကို ရောက်ပါတယ်။ အဲဒီဖိုင်ရဲ့ အောက်ဆုံးမှာ ရှာကြည့်ပါ။
 > Production မှာ email တကယ်ပို့ဖို့ `MAIL_*` တန်ဖိုးတွေကို SMTP (Gmail, Mailgun, Brevo …) နဲ့ ပြောင်းပါ။
 
+## Service တစ်ခု ထည့်နည်း
+
+1. **Admin › Services › Manage groups** — Group (Samsung, Tool Activations …) ကို အရင် ထည့်ပါ
+2. **Admin › Services › + New service** —
+   - နာမည်၊ Group၊ Delivery time
+   - **Order fields** — user ဖြည့်ရမယ့် field (IMEI, Username …)။ Bulk order လက်ခံမယ်ဆိုရင် field တစ်ခုကို "Bulk (one per line)" လို့ အမှန်ခြစ်ပါ
+   - **Pricing** — Cost နဲ့ Default price ထည့်ပါ။ Group လိုက် ဈေးကွဲချင်ရင် ထည့်ပါ၊ မထည့်ရင် Default price ကို သုံးမယ်။ "Fill prices from cost" ခလုတ်က profit % နဲ့ ဈေးကို အလိုအလျောက် တွက်ပေးတယ်
+   - **Processing mode** — Manual (သို့) API
+3. Status ကို **Active** ပြောင်းလိုက်ရင် `/services` စာမျက်နှာမှာ ပေါ်လာမယ်။ ဈေး 0 ဖြစ်နေရင် Active လုပ်လို့ မရပါ
+
+Seeder က ထည့်ပေးထားတဲ့ နမူနာ service တွေက Hidden ဖြစ်နေလို့ ဈေးထည့်ပြီး Activate လုပ်ပါ။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -79,7 +91,7 @@ Seeder က ထည့်ပေးတာတွေ:
 
 - [x] **အဆင့် ၁** — Project setup, Database schema, Design system (Day/Night), Seeder
 - [x] **အဆင့် ၂** — Register / Login / Email OTP / Trust device / Google 2FA / Password reset / Account settings
-- [ ] အဆင့် ၃ — Service catalog နဲ့ Reseller pricing စာမျက်နှာ
+- [x] **အဆင့် ၃** — Service catalog နဲ့ Reseller pricing စာမျက်နှာ၊ Admin ဘက်က Group / Service စီမံခန့်ခွဲမှု
 - [ ] အဆင့် ၄ — Wallet နဲ့ Myanmar payment (ပြေစာ upload → Admin approve)
 - [ ] အဆင့် ၅ — Order system (API / Manual, bulk, auto refund)
 - [ ] အဆင့် ၆ — Supplier API (DHRU Fusion)

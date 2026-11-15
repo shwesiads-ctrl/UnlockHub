@@ -11,7 +11,7 @@ class HomeController extends Controller
     public function __invoke(): View
     {
         $hot = Service::visible()->where('is_hot', true)
-            ->with(['category', 'prices'])
+            ->with(['category', 'prices' => fn ($p) => $p->where('user_group_id', auth()->user()?->user_group_id ?? 0)])
             ->orderBy('sort')->limit(8)->get();
 
         return view('home', [
