@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\ActivityLog;
 use App\Models\PaymentRequest;
+use App\Notifications\PaymentReviewed;
+use App\Support\Notify;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -45,6 +47,7 @@ class PaymentApprovalService
             );
 
             ActivityLog::record('payment.approved', $locked, ['credited' => $creditAmount]);
+            Notify::user($locked->user, new PaymentReviewed($locked));
 
             return $locked;
         });
@@ -69,6 +72,8 @@ class PaymentApprovalService
             ])->save();
 
             ActivityLog::record('payment.rejected', $locked, ['reason' => $reason]);
+            $locked->loadMissing('user', 'method');
+            Notify::user($locked->user, new PaymentReviewed($locked));
 
             return $locked;
         });

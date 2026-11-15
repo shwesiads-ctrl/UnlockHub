@@ -92,6 +92,10 @@ class PointsController extends Controller
 
         ActivityLog::record('points.adjusted', $user, $data);
 
+        if ($data['direction'] === 'add') {
+            \App\Support\Notify::user($user, new \App\Notifications\PointsReceived((int) $data['points'], $data['reason']));
+        }
+
         return back()->with('success', ($data['direction'] === 'add' ? 'Added ' : 'Removed ').number_format($data['points'])." points for {$user->username}. New balance: ".number_format($user->fresh()->points).'.');
     }
 }

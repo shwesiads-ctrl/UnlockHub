@@ -101,6 +101,7 @@ class PointService
 
         if (! $already) {
             $this->add($referrer, $bonus, 'referral', $buyer, "Referral: {$buyer->username} completed their first order");
+            \App\Support\Notify::user($referrer, new \App\Notifications\PointsReceived($bonus, "Your friend {$buyer->username} completed their first order."));
         }
     }
 

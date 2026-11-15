@@ -8,6 +8,9 @@ use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\User;
+use App\Notifications\BatchFinished;
+use App\Notifications\OrderUpdated;
+use App\Support\Notify;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -81,6 +84,12 @@ class OrderService
             foreach ($orders as $order) {
                 SubmitOrderToSupplier::dispatch($order->id)->afterCommit();
             }
+        } else {
+            $first = $orders->first();
+            Notify::admin('manual_order', '🛠 <b>New manual order'.($orders->count() > 1 ? 's ×'.$orders->count() : '').'</b>'
+                ."\n".Notify::e($service->name)
+                ."\nUser: ".Notify::e($user->username).' · '.money($total)
+                ."\n".route('admin.orders.show', $first));
         }
 
         return $orders;
@@ -117,6 +126,7 @@ class OrderService
             $this->points->rewardReferrer($o);
 
             ActivityLog::record('order.success', $o);
+            $this->notifyFinished($o);
         });
     }
 
@@ -135,6 +145,7 @@ class OrderService
 
             $this->refund($o, "Refund · order #{$o->order_no} rejected");
             ActivityLog::record('order.rejected', $o, ['reason' => $reason]);
+            $this->notifyFinished($o);
         });
     }
 
@@ -171,6 +182,11 @@ class OrderService
                 'api_error' => Str::limit($error, 1000),
                 'api_next_check_at' => null,
             ])->save();
+
+            Notify::admin('api_failed', '⚠️ <b>API order failed → manual queue</b>'
+                ."\n#{$o->order_no} · ".Notify::e($o->service_name)
+                ."\n".Notify::e(Str::limit($error, 300))
+                ."\n".route('admin.orders.show', $o));
         });
     }
 
@@ -196,6 +212,31 @@ class OrderService
         });
 
         SubmitOrderToSupplier::dispatch($order->id)->afterCommit();
+    }
+
+    /** Tell the buyer; for bulk orders also send one summary when the last item finishes. */
+    private function notifyFinished(Order $o): void
+    {
+        Notify::user($o->user, new OrderUpdated($o));
+
+        if (! $o->batch_id) {
+            return;
+        }
+
+        $open = Order::where('batch_id', $o->batch_id)->whereIn('status', [Order::PENDING, Order::IN_PROCESS])->exists();
+        if ($open) {
+            return;
+        }
+
+        $stats = Order::where('batch_id', $o->batch_id)->selectRaw(
+            "SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) AS ok,"
+            ." SUM(CASE WHEN status IN ('rejected', 'cancelled') THEN 1 ELSE 0 END) AS bad,"
+            .' SUM(CASE WHEN refunded = 1 THEN price ELSE 0 END) AS refunded'
+        )->first();
+
+        Notify::user($o->user, new BatchFinished(
+            $o->batch_id, $o->service_name, (int) $stats->ok, (int) $stats->bad, (float) $stats->refunded
+        ));
     }
 
     private function refund(Order $o, string $description): void

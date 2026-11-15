@@ -45,6 +45,10 @@
                         </select>
                     </div>
                 </div>
+                <label class="flex items-start gap-2.5 text-sm">
+                    <input type="checkbox" name="notify_email" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(old('notify_email', $user->notify_email))>
+                    <span><strong>Email me</strong> when an order finishes or a top-up is reviewed. (Notifications always appear on the site.)</span>
+                </label>
                 <button class="btn btn-primary self-start">Save profile</button>
             </form>
         </section>

@@ -51,6 +51,7 @@ class SecurityController extends Controller
             'preferred_currency' => ['required', Rule::in(config('unlockhub.currencies'))],
         ]);
 
+        $data['notify_email'] = $request->boolean('notify_email');
         $user->update($data);
 
         return back()->with('success', 'Profile updated.');

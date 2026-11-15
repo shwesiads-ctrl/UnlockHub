@@ -33,6 +33,7 @@
             <div class="ml-auto flex flex-wrap items-center gap-2">
                 <button type="button" class="btn text-[13px]">MM / EN</button>
                 <x-theme-toggle />
+                <x-notification-bell />
                 @auth
                     <a href="{{ route('account.dashboard') }}" class="btn bg-ok-soft text-ok border-transparent font-bold hover:text-ok"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</a>
                     <a href="{{ route('account.dashboard') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>

@@ -18,6 +18,7 @@
                 ['Add Funds', 'wallet', 'account.funds.index'],
                 ['Statement', 'receipt', 'account.statement'],
                 ['Points', 'star', 'account.points'],
+                ['Notifications', 'bell', 'account.notifications'],
                 ['API Access', 'plug', 'account.api'],
                 ['Settings & 2FA', 'sliders', 'account.security'],
             ];
@@ -47,6 +48,7 @@
             <div class="ml-auto flex items-center gap-2 flex-wrap">
                 <span class="btn bg-ok-soft text-ok border-transparent font-bold"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</span>
                 <span class="btn bg-point-soft text-point border-transparent font-bold"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</span>
+                <x-notification-bell />
                 <x-theme-toggle />
             </div>
         </header>

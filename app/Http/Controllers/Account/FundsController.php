@@ -75,13 +75,18 @@ class FundsController extends Controller
 
         $path = $request->file('receipt')->store('receipts/'.now()->format('Y/m'), $receipt['disk']);
 
-        $user->paymentRequests()->create([
+        $pr = $user->paymentRequests()->create([
             'payment_method_id' => $method->id,
             'amount' => $data['amount'],
             'transaction_id' => $txn,
             'receipt_path' => $path,
             'status' => PaymentRequest::PENDING,
         ]);
+
+        \App\Support\Notify::admin('payment', '💰 <b>New top-up receipt</b>'
+            ."\n".\App\Support\Notify::e($user->username).' · '.$method->name.' · '.money($data['amount'])
+            ."\nTxn: ".\App\Support\Notify::e($txn)
+            ."\n".route('admin.payments.show', $pr));
 
         return redirect()->route('account.funds.index')
             ->with('success', 'Receipt received. Your wallet will be credited after approval ('.setting('site.support_hours', '9 AM – 10 PM').').');

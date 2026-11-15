@@ -20,8 +20,17 @@ class SyncSuppliers extends Command
             try {
                 $info = $manager->syncBalance($supplier);
                 $this->line("{$supplier->name}: ".number_format($info['credit'], 2)." {$supplier->currency}");
+
+                $limit = (float) setting('telegram.low_balance', 20);
+                if ($limit > 0 && $info['credit'] < $limit) {
+                    \App\Support\Notify::admin('low_balance', '🔻 <b>Low supplier balance</b>'
+                        ."\n".\App\Support\Notify::e($supplier->name).': '.number_format($info['credit'], 2).' '.$supplier->currency
+                        ."\nTop up to keep API orders running.");
+                }
             } catch (SupplierException $e) {
                 $this->error("{$supplier->name}: {$e->getMessage()}");
+                \App\Support\Notify::admin('api_failed', '⚠️ <b>Supplier connection error</b>'
+                    ."\n".\App\Support\Notify::e($supplier->name).': '.\App\Support\Notify::e($e->getMessage()));
             }
         }
 

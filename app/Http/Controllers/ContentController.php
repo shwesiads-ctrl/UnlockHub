@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Post;
 use App\Models\Service;
 use App\Models\Testimonial;
+use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -66,6 +67,10 @@ class ContentController extends Controller
             ['user_id' => $user->id, 'is_approved' => false],
             ['name' => $user->name, 'message' => $data['message'], 'rating' => $data['rating']]
         );
+
+        Notify::admin('testimonial', '⭐ <b>New review ('.$data['rating'].'/5)</b> from '.Notify::e($user->username)
+            ."\n".Notify::e(\Illuminate\Support\Str::limit($data['message'], 300))
+            ."\n".route('admin.testimonials.index'));
 
         return back()->with('success', 'Thank you! Your review will appear after approval.');
     }
@@ -139,6 +144,10 @@ class ContentController extends Controller
                     ->subject('[Contact] '.$data['subject']);
             });
         }
+
+        Notify::admin('contact', '✉️ <b>Contact: '.Notify::e($data['subject']).'</b>'
+            ."\nFrom: ".Notify::e($data['name']).' &lt;'.Notify::e($data['email']).'&gt;'
+            ."\n".Notify::e(\Illuminate\Support\Str::limit($data['message'], 600)));
 
         return back()->with('success', 'Message sent. We usually reply within a few hours ('.setting('site.support_hours', '9 AM – 10 PM').').');
     }

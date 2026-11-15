@@ -143,6 +143,21 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 
 ဆောင်းပါးတွေကို **Markdown** နဲ့ ရေးပါ (`## ခေါင်းစဉ်`, `**bold**`, `- list`, `[link](https://…)`)။ Publish date ကို အနာဂတ်ထားရင် အဲဒီနေ့ရောက်မှ ပေါ်မယ်။
 
+## Notification
+
+**User (ဆိုဒ်ထဲ 🔔 + Email):**
+- Order Success (result ပါ) / Reject (ငွေပြန်အမ်းကြောင်း)
+- Bulk order — item တစ်ခုချင်းစီ email မပို့ဘဲ အားလုံးပြီးမှ summary email တစ်စောင်ပဲ ပို့
+- ငွေဖြည့်မှု Approve / Reject
+- Referral bonus / Admin ပေးတဲ့ point (ဆိုဒ်ထဲမှာပဲ ပြ)
+- Email မလိုချင်ရင် Account › Settings မှာ ပိတ်လို့ရတယ်
+
+**Admin (Telegram):** Admin › **Settings** မှာ bot token နဲ့ chat ID ထည့် → **Send test message**
+- ပြေစာအသစ်၊ Manual order အသစ်၊ API order fail၊ Supplier balance နည်း၊ Review အသစ်၊ Contact message — တစ်ခုချင်း ဖွင့်/ပိတ်လို့ရ
+- Bot token ကို encrypt လုပ်ပြီး သိမ်းတယ်
+
+> Email တကယ်ပို့ဖို့ `.env` မှာ `MAIL_MAILER=smtp` နဲ့ `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` ကို ထည့်ပါ (Gmail ဆိုရင် App Password သုံး)။ Email / Telegram ပို့မရရင်လည်း order နဲ့ payment ကို မထိခိုက်ပါ။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -175,7 +190,7 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 - [x] **အဆင့် ၆** — Supplier API (DHRU Fusion)၊ Service import၊ Order result auto-check
 - [x] **အဆင့် ၇** — Point system (Redeem၊ Referral bonus၊ Group auto-upgrade၊ Admin adjust)
 - [x] **အဆင့် ၈** — Content စာမျက်နှာ (KB, Blog, Testimonials, Downloads, Track Order, Contact, RSS) + Admin Content
-- [ ] အဆင့် ၉ — Notification (Email + Telegram bot)
+- [x] **အဆင့် ၉** — Notification (ဆိုဒ်ထဲ bell + Email + Admin Telegram bot)
 - [ ] အဆင့် ၁၀ — Admin panel အပြည့်အစုံ
 - [ ] အဆင့် ၁၁ — Test လုပ်ပြီး Deploy
 

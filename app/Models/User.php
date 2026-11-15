@@ -18,7 +18,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'username', 'email', 'phone', 'password',
-        'user_group_id', 'referred_by', 'preferred_locale', 'preferred_currency',
+        'user_group_id', 'referred_by', 'preferred_locale', 'preferred_currency', 'notify_email',
     ];
 
     protected $hidden = [
@@ -35,6 +35,7 @@ class User extends Authenticatable
             'two_factor_secret' => 'encrypted',
             'balance' => 'decimal:2',
             'points' => 'integer',
+            'notify_email' => 'boolean',
         ];
     }
 

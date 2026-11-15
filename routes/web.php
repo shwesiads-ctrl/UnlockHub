@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\FundsController;
+use App\Http\Controllers\Account\NotificationController;
 use App\Http\Controllers\Account\OrderController;
 use App\Http\Controllers\Account\PointsController;
 use App\Http\Controllers\Account\StatementController;
@@ -66,6 +67,10 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::get('/funds/{paymentRequest}/receipt', [FundsController::class, 'receipt'])->name('funds.receipt');
     Route::get('/statement', StatementController::class)->name('statement');
 
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+
     Route::get('/points', [PointsController::class, 'index'])->name('points');
     Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
 
@@ -119,6 +124,10 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
         Route::put('/announcements/{announcement}', 'updateAnnouncement')->name('announcements.update');
         Route::delete('/announcements/{announcement}', 'destroyAnnouncement')->name('announcements.destroy');
     });
+
+    Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
+    Route::put('/settings/telegram', [Admin\SettingsController::class, 'updateTelegram'])->name('settings.telegram');
+    Route::post('/settings/telegram/test', [Admin\SettingsController::class, 'testTelegram'])->name('settings.telegram.test')->middleware('throttle:6,1');
 
     Route::get('/points', [Admin\PointsController::class, 'index'])->name('points.index');
     Route::put('/points/rules', [Admin\PointsController::class, 'updateRules'])->name('points.rules');
