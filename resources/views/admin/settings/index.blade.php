@@ -1,18 +1,27 @@
 @extends('layouts.admin', ['title' => 'Settings', 'subtitle' => 'Site information, contact details and notifications'])
 
 @section('content')
-<form method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
+<div class="settings-page">
+<nav class="settings-nav" aria-label="Settings sections">
+    <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
+    <a href="#site-settings">Site &amp; branding</a>
+    <a href="#social-login">Social login</a>
+    <a href="#telegram-alerts">Telegram alerts</a>
+    <a href="#monthly-statements">Monthly statements</a>
+</nav>
+<div class="settings-content">
+<form id="site-settings" method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
     @csrf @method('PUT')
-    <h2 class="m-0 text-lg font-bold">Site</h2>
+    <div class="settings-heading"><span class="badge badge-info">General</span><h2 class="m-0 text-xl font-bold">Site &amp; branding</h2><p class="m-0 text-sm text-muted">Manage your store identity, contact information and customer support links.</p></div>
     @php
         $f = fn ($key) => old(str_replace('.', '_', $key), $general[$key] ?? '');
         $fields = [
             ['site.name', 'Site name', 'text', 'UnlockHub'],
             ['site.support_hours', 'Support hours', 'text', '9:00 AM – 10:00 PM'],
-            ['contact.email', 'Contact email (receives contact form)', 'email', 'support@…'],
+            ['contact.email', 'Support email', 'email', 'support@…'],
             ['contact.phone', 'Phone', 'text', '09…'],
             ['contact.address', 'Address', 'text', 'Yangon'],
-            ['currency.usd_rate', '1 USD = ? Ks (for USD price display)', 'number', '4500'],
+            ['currency.usd_rate', 'USD exchange rate (Ks)', 'number', '4500'],
         ];
         $social = [
             ['social.telegram', 'Telegram link', 'https://t.me/…'],
@@ -21,13 +30,17 @@
             ['social.youtube', 'YouTube channel', 'https://youtube.com/@…'],
         ];
     @endphp
-    <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
+    <section class="settings-section">
+    <h3 class="m-0 text-base font-bold">Store information</h3>
+    <div class="settings-fields">
         @foreach ($fields as [$key, $label, $type, $ph])
             @php $name = str_replace('.', '_', $key); @endphp
             <div>
                 <label for="{{ $name }}" class="label">{{ $label }}</label>
                 <input id="{{ $name }}" name="{{ $name }}" type="{{ $type }}" @if ($type === 'number') step="0.01" min="0" @endif value="{{ $f($key) }}" placeholder="{{ $ph }}" class="input h-11">
                 <x-field-error :name="$name" />
+                @if ($key === 'contact.email') <p class="m-0 mt-1 text-xs text-muted">Messages from the contact form are sent here.</p> @endif
+                @if ($key === 'currency.usd_rate') <p class="m-0 mt-1 text-xs text-muted">Kyat value of 1 USD, used for USD price display.</p> @endif
             </div>
         @endforeach
         <div>
@@ -39,9 +52,11 @@
             <p class="m-0 mt-1 text-xs text-muted">Write it as a Knowledge Base article, then pick it here (shown in the footer).</p>
         </div>
     </div>
+    </section>
+    <section class="settings-section">
     <h3 class="m-0 text-base font-bold">Logo</h3>
-    <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))] items-start">
-        <div class="flex flex-col gap-2">
+    <div class="settings-fields items-start">
+        <div class="settings-upload flex flex-col gap-2">
             <label for="logo" class="label mb-0">Site logo <span class="font-normal text-muted">(PNG/WebP, transparent, ~ 300×80)</span></label>
             @if ($logo = setting('site.logo'))
                 <div class="p-3 rounded-xl bg-surface-2 flex items-center gap-3"><img src="{{ Storage::disk('public')->url($logo) }}" alt="Current logo" class="h-10 w-auto max-w-[200px] object-contain"><label class="flex items-center gap-2 text-xs text-muted ml-auto"><input type="checkbox" name="remove_logo" value="1">Remove</label></div>
@@ -50,7 +65,7 @@
             <x-field-error name="logo" />
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="logo_show_name" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('site.logo_show_name', '1') === '1')>Show site name next to the logo</label>
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="settings-upload flex flex-col gap-2">
             <label for="favicon" class="label mb-0">Browser tab icon <span class="font-normal text-muted">(PNG/ICO, 64×64)</span></label>
             @if ($fav = setting('site.favicon'))
                 <div class="p-3 rounded-xl bg-surface-2 flex items-center gap-3"><img src="{{ Storage::disk('public')->url($fav) }}" alt="Current icon" class="w-8 h-8 object-contain"><label class="flex items-center gap-2 text-xs text-muted ml-auto"><input type="checkbox" name="remove_favicon" value="1">Remove</label></div>
@@ -59,9 +74,11 @@
             <x-field-error name="favicon" />
         </div>
     </div>
-
+    </section>
+    <section class="settings-section">
     <h3 class="m-0 text-base font-bold">Social &amp; support channels</h3>
-    <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
+    <p class="m-0 text-sm text-muted">These links appear on your public website.</p>
+    <div class="settings-fields">
         @foreach ($social as [$key, $label, $ph])
             @php $name = str_replace('.', '_', $key); @endphp
             <div>
@@ -71,19 +88,20 @@
             </div>
         @endforeach
     </div>
-    <button class="btn btn-primary self-start">Save site settings</button>
+    </section>
+    <div class="settings-actions"><span class="text-xs text-muted">Save to apply your site and branding changes.</span><button class="btn btn-primary">Save site settings</button></div>
 </form>
 
-<form method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
+<form id="social-login" method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
     @csrf @method('PUT')
     <div class="flex flex-col gap-1">
         <h2 class="m-0 text-lg font-bold">Social login</h2>
         <p class="m-0 text-sm text-muted">Create an app on each platform, paste its ID and secret, and add the <strong class="text-ink">Redirect URL</strong> shown below to that app. Secrets are stored encrypted and never shown again.</p>
     </div>
-    <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
+    <div class="settings-fields">
         @foreach ($socialProviders as $key => $p)
             @php $on = setting("social_login.{$key}.enabled") === '1'; $hasSecret = filled(setting("social_login.{$key}.client_secret")); @endphp
-            <fieldset class="m-0 rounded-xl border border-line p-4 flex flex-col gap-3">
+            <fieldset class="m-0 min-w-0 rounded-xl border border-line p-4 flex flex-col gap-3">
                 <legend class="px-1 font-bold">{{ $p['label'] }}</legend>
                 <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="{{ $key }}_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked($on)>Enabled</label>
                 @if ($key === 'telegram')
@@ -103,7 +121,7 @@
 </form>
 
 <div class="flex flex-wrap gap-5 items-start">
-    <form method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
+    <form id="telegram-alerts" method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
         @csrf @method('PUT')
         <div class="flex justify-between items-center gap-3">
             <h2 class="m-0 text-lg font-bold">Telegram admin alerts</h2>
@@ -163,7 +181,7 @@
                 <li>Paste both here, Save, then <strong class="text-ink">Send test message</strong>.</li>
             </ol>
         </section>
-        <form method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
+        <form id="monthly-statements" method="POST" action="{{ route('admin.settings.statements') }}" class="card p-5 flex flex-col gap-3 text-sm">
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Monthly statements</h2>
             <label class="flex items-start gap-2.5">
@@ -180,5 +198,7 @@
             </p>
         </section>
     </aside>
+</div>
+</div>
 </div>
 @endsection

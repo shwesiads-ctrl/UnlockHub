@@ -86,6 +86,32 @@
   :focus-visible { outline: 2px solid var(--uh-brand); outline-offset: 2px; }
 }
 
+.settings-page { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; align-items: start; }
+.settings-nav { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 6px; padding: 16px 0; }
+.settings-nav > span { padding: 0 12px 10px; }
+.settings-nav a { padding: 12px; border-radius: 10px; text-decoration: none; color: var(--uh-muted); font-size: 14px; font-weight: 600; }
+.settings-nav a:hover, .settings-nav a:focus-visible { background: var(--uh-brand-soft); color: var(--uh-brand-ink); }
+.settings-content { display: flex; flex-direction: column; gap: 24px; min-width: 0; max-width: 1120px; }
+.settings-content [id] { scroll-margin-top: 24px; }
+.settings-heading { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-bottom: 20px; border-bottom: 1px solid var(--uh-line); }
+.settings-section { display: flex; flex-direction: column; gap: 18px; padding: 4px 0 24px; border-bottom: 1px solid var(--uh-line); }
+.settings-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.settings-fields > * { min-width: 0; }
+.settings-upload { padding: 18px; border: 1px dashed var(--uh-line); border-radius: 12px; background: var(--uh-bg); }
+.settings-upload input[type=file] { width: 100%; font-size: 12px; color: var(--uh-muted); }
+.settings-upload input[type=file]::file-selector-button { padding: 8px 12px; margin-right: 10px; border: 1px solid var(--uh-line); border-radius: 8px; background: var(--uh-surface); color: var(--uh-ink); cursor: pointer; }
+.settings-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+@media (max-width: 1100px) {
+  .settings-page { grid-template-columns: minmax(0, 1fr); }
+  .settings-nav { position: static; flex-direction: row; flex-wrap: wrap; padding: 0; }
+  .settings-nav > span { width: 100%; padding: 0 0 4px; }
+}
+@media (max-width: 640px) {
+  .settings-fields { grid-template-columns: minmax(0, 1fr); }
+  .settings-content > form { padding: 18px; }
+  .settings-actions .btn { width: 100%; }
+}
+
 .receipt-dialog {
   width: min(800px, calc(100vw - 24px));
   max-height: calc(100dvh - 24px);
