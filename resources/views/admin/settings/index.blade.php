@@ -6,6 +6,7 @@
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
     <a id="tab-site-settings" href="#site-settings" role="tab" aria-controls="site-settings">Site &amp; branding</a>
     <a id="tab-home-page" href="#home-page" role="tab" aria-controls="home-page">Home page</a>
+    <a id="tab-seo" href="#seo" role="tab" aria-controls="seo">SEO &amp; Analytics</a>
     <a id="tab-social-login" href="#social-login" role="tab" aria-controls="social-login">Social login</a>
     <a id="tab-security" href="#security" role="tab" aria-controls="security">Security (CAPTCHA / Cloudflare)</a>
     <a id="tab-smtp" href="#smtp" role="tab" aria-controls="smtp">Email (SMTP)</a>
@@ -212,6 +213,55 @@
 </form>
 </div>
 
+<div id="seo" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-seo">
+<form method="POST" action="{{ route('admin.settings.seo') }}" class="card p-6 flex flex-col gap-5">
+    @csrf @method('PUT')
+    <div class="settings-heading">
+        <span class="badge badge-info">Search &amp; measurement</span>
+        <h2>SEO &amp; Google Analytics</h2>
+        <p>Set the public site metadata and optionally connect a Google Analytics 4 property. Analytics is kept off until enabled here.</p>
+    </div>
+    <section class="settings-section">
+        <h3>Search and social preview</h3>
+        <div class="settings-fields">
+            <div>
+                <label for="seo_title" class="label">Default page title</label>
+                <input id="seo_title" name="title" value="{{ old('title', setting('seo.title')) }}" maxlength="70" class="input h-11" placeholder="{{ setting('site.name', config('app.name')) }}">
+                <x-field-error name="title" />
+            </div>
+            <div>
+                <label for="seo_description" class="label">Meta description</label>
+                <textarea id="seo_description" name="description" rows="3" maxlength="300" class="input" placeholder="A short description of your store">{{ old('description', setting('seo.description')) }}</textarea>
+                <x-field-error name="description" />
+            </div>
+            <div>
+                <label for="seo_keywords" class="label">Keywords <span class="font-normal text-muted">(optional)</span></label>
+                <input id="seo_keywords" name="keywords" value="{{ old('keywords', setting('seo.keywords')) }}" maxlength="500" class="input h-11" placeholder="IMEI unlock, mobile repair, tool credits">
+                <x-field-error name="keywords" />
+            </div>
+            <div>
+                <label for="seo_image_url" class="label">Social share image URL <span class="font-normal text-muted">(Open Graph)</span></label>
+                <input id="seo_image_url" name="image_url" type="url" value="{{ old('image_url', setting('seo.image_url')) }}" class="input h-11" placeholder="https://example.com/share-image.jpg">
+                <x-field-error name="image_url" />
+            </div>
+        </div>
+    </section>
+    <section class="settings-section">
+        <h3>Google Analytics 4</h3>
+        <div class="settings-fields">
+            <div>
+                <label for="seo_ga_id" class="label">Measurement ID</label>
+                <input id="seo_ga_id" name="google_analytics_id" value="{{ old('google_analytics_id', setting('seo.google_analytics_id')) }}" class="input h-11 font-mono" placeholder="G-XXXXXXXXXX" autocomplete="off">
+                <x-field-error name="google_analytics_id" />
+            </div>
+        </div>
+        <label class="flex items-center gap-2 mt-4 text-sm font-semibold"><input type="checkbox" name="analytics_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('analytics_enabled', setting('seo.analytics_enabled', '0')) === '1')>Enable Google Analytics on public pages</label>
+        <p class="m-0 mt-2 text-xs text-muted">Admin pages are excluded. Enter the Measurement ID from Google Analytics → Admin → Data streams. Include your privacy/cookie notice if required in your region.</p>
+    </section>
+    <div class="settings-actions"><span>SEO metadata appears in page source and social previews.</span><button class="btn btn-primary">Save SEO settings</button></div>
+</form>
+</div>
+
 <div id="social-login" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-social-login">
 <form method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
     @csrf @method('PUT')
@@ -411,7 +461,7 @@
 </div>
 <div class="settings-page-nav" aria-label="Settings page navigation">
     <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings section">‹ Previous</a>
-    <span class="settings-page-count" aria-live="polite">Section 1 of 9</span>
+    <span class="settings-page-count" aria-live="polite">Section 1 of 10</span>
     <a class="btn btn-primary" data-settings-next href="#home-page" aria-label="Next settings section">Next ›</a>
 </div>
 </div>

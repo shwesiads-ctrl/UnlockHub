@@ -131,6 +131,26 @@ class SettingsController extends Controller
         return redirect()->to(route('admin.settings.index').'#home-page')->with('success', 'Home page settings saved.');
     }
 
+    public function updateSeo(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'title' => ['nullable', 'string', 'max:70'],
+            'description' => ['nullable', 'string', 'max:300'],
+            'keywords' => ['nullable', 'string', 'max:500'],
+            'image_url' => ['nullable', 'url:http,https', 'max:2048'],
+            'google_analytics_id' => ['nullable', 'string', 'regex:/^G-[A-Z0-9]{4,20}$/i'],
+        ]);
+
+        foreach (['title', 'description', 'keywords', 'image_url', 'google_analytics_id'] as $key) {
+            Setting::put('seo.'.$key, trim((string) ($data[$key] ?? '')));
+        }
+        Setting::put('seo.analytics_enabled', $request->boolean('analytics_enabled') ? '1' : '0');
+
+        ActivityLog::record('settings.seo_updated');
+
+        return redirect()->to(route('admin.settings.index').'#seo')->with('success', 'SEO and analytics settings saved.');
+    }
+
     public function updateSocial(Request $request): RedirectResponse
     {
         $providers = array_keys(\App\Services\Social\SocialProviders::PROVIDERS);

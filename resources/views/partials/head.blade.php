@@ -3,7 +3,25 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="{{ setting('pwa.theme_color', '#2459E8') }}">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0D1220">
-<meta name="description" content="{{ setting('site.tagline') ?: __('Unlock codes, tool credits & activations — in one wallet.') }}">
+@php
+    $seoTitle = setting('seo.title') ?: setting('site.name', config('app.name'));
+    $seoDescription = setting('seo.description') ?: (setting('site.tagline') ?: __('Unlock codes, tool credits & activations — in one wallet.'));
+    $seoImage = setting('seo.image_url');
+    $analyticsId = setting('seo.google_analytics_id');
+    $analyticsOn = setting('seo.analytics_enabled') === '1'
+        && is_string($analyticsId)
+        && preg_match('/^G-[A-Z0-9]{4,20}$/i', $analyticsId)
+        && ! request()->is('admin', 'admin/*');
+@endphp
+<meta name="description" content="{{ $seoDescription }}">
+@if (filled(setting('seo.keywords')))<meta name="keywords" content="{{ setting('seo.keywords') }}">@endif
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ isset($title) ? __($title).' · '.setting('site.name', config('app.name')) : $seoTitle }}">
+<meta property="og:description" content="{{ $seoDescription }}">
+<meta property="og:url" content="{{ url()->current() }}">
+@if ($seoImage)<meta property="og:image" content="{{ $seoImage }}">@endif
+<meta name="twitter:card" content="{{ $seoImage ? 'summary_large_image' : 'summary' }}">
+@if ($seoImage)<meta name="twitter:image" content="{{ $seoImage }}">@endif
 <link rel="manifest" href="{{ route('pwa.manifest') }}">
 <link rel="apple-touch-icon" href="{{ setting('pwa.icon_version') ? Storage::disk('public')->url('pwa/apple-touch-icon.png').'?v='.setting('pwa.icon_version') : asset('icons/apple-touch-icon.png') }}">
 <meta name="mobile-web-app-capable" content="yes">
@@ -15,7 +33,16 @@
 @endphp
 <meta name="sw-version" content="{{ substr(md5($swBuild.'|'.setting('pwa.icon_version').'|2'), 0, 10) }}">
 @auth <meta name="push-key" content="{{ \App\Services\WebPush::enabled() ? \App\Services\WebPush::publicKey() : '' }}"> @endauth
-<title>{{ isset($title) ? __($title).' · ' : '' }}{{ setting('site.name', config('app.name')) }}</title>
+<title>{{ isset($title) ? __($title).' · '.setting('site.name', config('app.name')) : $seoTitle }}</title>
+@if ($analyticsOn)
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ $analyticsId }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', @json($analyticsId));
+</script>
+@endif
 <script>
   (function () {
     try {

@@ -40,9 +40,9 @@
 
         <div class="settings-subpanel">
             <p class="settings-subpanel-title">Cloudflare proxy (orange cloud)</p>
-            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="cloudflare" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.cloudflare') === '1')>
+            <label class="security-toggle text-sm"><span class="security-toggle-control"><input type="checkbox" name="cloudflare" value="1" @checked(setting('security.cloudflare') === '1')><span aria-hidden="true"></span></span>
                 <span>My domain goes through Cloudflare — use the visitor's real IP (<code>CF-Connecting-IP</code>) for rate limits, logs and trusted devices.</span></label>
-            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="cloudflare_only" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.cloudflare_only') === '1')>
+            <label class="security-toggle text-sm"><span class="security-toggle-control"><input type="checkbox" name="cloudflare_only" value="1" @checked(setting('security.cloudflare_only') === '1')><span aria-hidden="true"></span></span>
                 <span>Block visitors who skip Cloudflare and open the server IP directly. <span class="text-muted">(Only turns on when you are connected through Cloudflare right now, so you can't lock yourself out.)</span></span></label>
             <span class="text-xs {{ $via ? 'text-ok' : 'text-muted' }}">This page reached the server {{ $via ? 'through Cloudflare ✓' : 'directly (not through Cloudflare)' }} · your IP: {{ request()->ip() }}</span>
             <span class="text-xs text-muted">Also recommended in Cloudflare: SSL/TLS = Full (strict), "Always Use HTTPS", Bot Fight Mode, and a WAF rate-limit rule for <code>/login</code> and <code>/api/*</code>.</span>
@@ -70,22 +70,22 @@
                     <x-field-error name="login_ip_max" />
                 </div>
             </div>
-            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="login_progressive" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.login_progressive', '1') === '1')>
+            <label class="security-toggle text-sm"><span class="security-toggle-control"><input type="checkbox" name="login_progressive" value="1" @checked(setting('security.login_progressive', '1') === '1')><span aria-hidden="true"></span></span>
                 <span>Longer each time — every new lock doubles the wait (15 → 30 → 60 min …, max 24 hours). Resets after a day without locks.</span></label>
             <span class="text-xs text-muted">Also used for the 6-digit code step (6 tries). Users see a live countdown on the login page. Locks are written to the Activity log (<code>login.locked</code>).</span>
         </div>
 
         <div class="settings-subpanel">
             <p class="settings-subpanel-title">Staff accounts</p>
-            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="staff_2fa" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.staff_2fa') === '1')>
+            <label class="security-toggle text-sm"><span class="security-toggle-control"><input type="checkbox" name="staff_2fa" value="1" @checked(setting('security.staff_2fa') === '1')><span aria-hidden="true"></span></span>
                 <span>Staff must use Google Authenticator to open the admin panel (strongly recommended — staff can approve top-ups and change wallets). <span class="text-muted">(Only turns on if your own account already has it.)</span></span></label>
             <span class="text-xs {{ $staffNo2fa ? 'text-warn' : 'text-ok' }}">{{ $staffNo2fa ? $staffNo2fa.' staff account(s) without Google Authenticator.' : 'Every staff account uses Google Authenticator ✓' }}</span>
         </div>
         <div class="settings-subpanel">
             <p class="settings-subpanel-title">Visitor location → language &amp; payment</p>
-            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="geo_locale" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('geo.auto_locale', '1') === '1')>
+            <label class="security-toggle text-sm"><span class="security-toggle-control"><input type="checkbox" name="geo_locale" value="1" @checked(setting('geo.auto_locale', '1') === '1')><span aria-hidden="true"></span></span>
                 <span>Open the site in the visitor's language by location (Myanmar → မြန်မာ, Thailand → ไทย, China/HK/TW → 中文, Laos → ລາວ, Vietnam → Tiếng Việt, others → English). A language the visitor picks always wins.</span></label>
-            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="geo_payment" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('geo.auto_payment', '1') === '1')>
+            <label class="security-toggle text-sm"><span class="security-toggle-control"><input type="checkbox" name="geo_payment" value="1" @checked(setting('geo.auto_payment', '1') === '1')><span aria-hidden="true"></span></span>
                 <span>Show the payment methods of the visitor's country on Home and Add Funds. A country saved in the profile always wins.</span></label>
             <span class="text-xs text-muted">Location comes from Cloudflare (<code>CF-IPCountry</code> — most accurate, turn on "IP Geolocation" in Cloudflare › Network), the server's GeoIP if your host provides it, or the browser language. No outside service is called.</span>
             <span class="text-xs {{ $geo ? 'text-ok' : 'text-muted' }}">Your location as the site sees it: {{ $geo ?: 'unknown' }}{{ $geo && config('unlockhub.countries.'.$geo) ? ' ('.config('unlockhub.countries.'.$geo).')' : '' }}</span>

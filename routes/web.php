@@ -309,6 +309,7 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     Route::post('/license/deactivate', [Admin\LicenseController::class, 'deactivate'])->name('license.deactivate')->middleware('throttle:5,1');
     Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
     Route::put('/settings/home-page', [Admin\SettingsController::class, 'updateHomePage'])->name('settings.home-page');
+    Route::put('/settings/seo', [Admin\SettingsController::class, 'updateSeo'])->name('settings.seo');
     Route::put('/settings/account-display', [Admin\SettingsController::class, 'updateAccountDisplay'])->name('settings.account-display');
     Route::put('/settings/payments', [Admin\OnlinePaymentAdminController::class, 'settings'])->name('settings.payments');
     Route::post('/settings/payments/{gateway}/test', [Admin\OnlinePaymentAdminController::class, 'test'])->whereIn('gateway', ['stripe', 'paypal'])->name('settings.payments.test')->middleware('throttle:10,1');
