@@ -26,6 +26,10 @@ class RegisterController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (app()->bound('reseller.shop') && app('reseller.shop_by_domain') && ! app('reseller.shop')->allow_signup) {
+            return back()->with('error', 'Sign-up is closed for this shop. Please contact the shop owner.');
+        }
+
         \App\Services\Captcha::check($request, 'register');
 
         $data = $request->validate([
@@ -50,6 +54,10 @@ class RegisterController extends Controller
                 ? User::where('referral_code', strtoupper($data['referral_code']))->value('id')
                 : null,
         ]);
+
+        if (app()->bound('reseller.shop') && app('reseller.shop_by_domain')) {
+            $user->forceFill(['parent_id' => app('reseller.shop')->user_id])->save();
+        }
 
         app(\App\Services\PointService::class)->awardSignup($user);
 

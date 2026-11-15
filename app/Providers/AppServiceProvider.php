@@ -37,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
             'payment_request' => PaymentRequest::class,
             'wallet_adjustment' => \App\Models\WalletAdjustment::class,
             'wallet_transaction' => \App\Models\WalletTransaction::class,
+            'withdrawal_request' => \App\Models\WithdrawalRequest::class,
             'online_payment' => \App\Models\OnlinePayment::class,
             'reconciliation_issue' => \App\Models\ReconciliationIssue::class,
             'point_transaction' => \App\Models\PointTransaction::class,
@@ -54,6 +55,8 @@ class AppServiceProvider extends ServiceProvider
                 'payments' => PaymentRequest::where('status', PaymentRequest::PENDING)->count(),
                 'approvals' => \App\Models\WalletAdjustment::where('status', 'pending')->count(),
                 'pricing' => \App\Models\PriceChangeRequest::where('status', 'pending')->count() + \App\Models\Service::where('sales_paused', true)->count(),
+                'resellers' => \App\Models\ResellerProfile::where('status', 'pending')->count(),
+                'withdrawals' => \App\Models\WithdrawalRequest::where('status', 'pending')->count(),
                 'reconcile' => \App\Models\ReconciliationIssue::whereIn('status', ['open', 'proposed'])->count(),
                 'tickets' => \App\Models\Ticket::where('awaiting_staff', true)->whereNotIn('status', ['resolved', 'closed'])->count(),
             ], ['manual' => 0, 'payments' => 0, 'approvals' => 0, 'tickets' => 0], false));

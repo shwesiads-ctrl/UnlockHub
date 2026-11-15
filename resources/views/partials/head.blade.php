@@ -31,3 +31,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 @vite(['resources/css/app.css', 'resources/js/app.js'])
+@if (isset($shop) && $shop->brand_color && preg_match('/^#[0-9a-fA-F]{6}$/', $shop->brand_color))
+<style>:root, .dark { --uh-brand: {{ $shop->brand_color }}; --uh-brand-ink: {{ $shop->brand_color }}; }</style>
+@endif

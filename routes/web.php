@@ -80,6 +80,22 @@ Route::get('/admin/settings/social/{provider}/test', [SocialAuthController::clas
 Route::delete('/account/social/{provider}', [SocialAuthController::class, 'unlink'])->middleware(['auth', 'active'])->name('social.unlink');
 
 /* ---------------- Signed-in user ---------------- */
+// Reseller panel
+Route::middleware(['auth', 'active', 'reseller', 'nostore'])->prefix('reseller')->name('reseller.')
+    ->controller(\App\Http\Controllers\Reseller\ResellerController::class)->group(function () {
+        Route::get('/', 'dashboard')->name('dashboard');
+        Route::get('/customers', 'customers')->name('customers');
+        Route::post('/customers', 'storeCustomer')->name('customers.store')->middleware('throttle:20,1');
+        Route::get('/customers/{customer}', 'showCustomer')->name('customers.show');
+        Route::put('/customers/{customer}', 'updateCustomer')->name('customers.update');
+        Route::post('/customers/{customer}/transfer', 'transfer')->name('customers.transfer')->middleware('throttle:30,1');
+        Route::get('/prices', 'prices')->name('prices');
+        Route::put('/prices', 'updatePrices')->name('prices.update');
+        Route::get('/orders', 'orders')->name('orders');
+        Route::get('/branding', 'branding')->name('branding');
+        Route::put('/branding', 'updateBranding')->name('branding.update');
+    });
+
 Route::get('/manifest.webmanifest', [\App\Http\Controllers\PwaController::class, 'manifest'])->name('pwa.manifest');
 
 Route::middleware(['auth', 'active', 'nostore'])->prefix('account')->name('account.')->group(function () {
@@ -116,6 +132,11 @@ Route::middleware(['auth', 'active', 'nostore'])->prefix('account')->name('accou
     Route::get('/points', [PointsController::class, 'index'])->name('points');
     Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
     Route::post('/points/check-in', [PointsController::class, 'checkIn'])->name('points.checkin')->middleware('throttle:10,1');
+
+    Route::get('/reseller', [\App\Http\Controllers\Reseller\ResellerController::class, 'apply'])->name('reseller.apply');
+    Route::post('/reseller', [\App\Http\Controllers\Reseller\ResellerController::class, 'submitApplication'])->name('reseller.submit')->middleware('throttle:5,10');
+    Route::get('/earnings', [\App\Http\Controllers\Account\EarningsController::class, 'index'])->name('earnings');
+    Route::post('/earnings/withdraw', [\App\Http\Controllers\Account\EarningsController::class, 'withdraw'])->name('earnings.withdraw')->middleware('throttle:5,10');
 
     Route::post('/funds/online', [\App\Http\Controllers\Account\OnlinePaymentController::class, 'store'])->name('online.store')->middleware('throttle:10,1');
     Route::get('/funds/online/return', [\App\Http\Controllers\Account\OnlinePaymentController::class, 'return'])->name('online.return');
@@ -179,6 +200,13 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     Route::post('/reconcile/{issue}/approve', [Admin\ReconcileController::class, 'approve'])->name('reconcile.approve');
     Route::post('/reconcile/{issue}/reject', [Admin\ReconcileController::class, 'reject'])->name('reconcile.reject');
     Route::post('/reconcile/{issue}/ignore', [Admin\ReconcileController::class, 'ignore'])->name('reconcile.ignore');
+
+    Route::get('/resellers', [Admin\ResellerAdminController::class, 'index'])->name('resellers.index');
+    Route::put('/resellers/settings', [Admin\ResellerAdminController::class, 'settings'])->name('resellers.settings');
+    Route::put('/resellers/{profile}', [Admin\ResellerAdminController::class, 'update'])->name('resellers.update');
+    Route::get('/withdrawals', [Admin\ResellerAdminController::class, 'withdrawals'])->name('withdrawals.index');
+    Route::post('/withdrawals/{withdrawal}/pay', [Admin\ResellerAdminController::class, 'payWithdrawal'])->name('withdrawals.pay');
+    Route::post('/withdrawals/{withdrawal}/reject', [Admin\ResellerAdminController::class, 'rejectWithdrawal'])->name('withdrawals.reject');
 
     Route::get('/staff', [Admin\StaffController::class, 'index'])->name('staff.index');
     Route::post('/staff', [Admin\StaffController::class, 'store'])->name('staff.store');

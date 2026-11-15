@@ -57,6 +57,9 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-6"><div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium">{{ session('error') }}</div></div>
         @endif
 
+        @if (isset($shop) && $shop->about && request()->routeIs('home'))
+            <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-6"><div class="card p-5 text-sm leading-relaxed whitespace-pre-line">{{ $shop->about }}</div></div>
+        @endif
         @yield('content')
     </main>
 

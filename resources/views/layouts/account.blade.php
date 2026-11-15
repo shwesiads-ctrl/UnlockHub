@@ -23,16 +23,23 @@
                 ['Points', 'star', 'account.points'],
                 ['Notifications', 'bell', 'account.notifications'],
                 ['API Access', 'plug', 'account.api'],
+                ['Earnings', 'chart', 'account.earnings'],
                 ['Settings & 2FA', 'sliders', 'account.security'],
             ];
         @endphp
         <nav aria-label="Account" class="flex flex-col gap-0.5">
             @foreach ($nav as [$label, $icon, $route])
                 @continue($route === 'account.points' && ! \App\Services\PointService::systemOn())
+                @continue($route === 'account.earnings' && ! (\App\Services\AffiliateService::enabled() || auth()->user()->isReseller()))
                 <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs($route) || ($route === 'account.tickets.index' && request()->routeIs('account.tickets.*'))])>
                     <x-icon :name="$icon" /><span>{{ __($label) }}</span>
                 </a>
             @endforeach
+            @if (auth()->user()->isReseller())
+                <a href="{{ route('reseller.dashboard') }}" @class(['side-link mt-3', 'active' => request()->routeIs('reseller.*')])><x-icon name="users" /><span>{{ __('Reseller panel') }}</span></a>
+            @elseif (! auth()->user()->parent_id && \App\Services\ResellerService::enabled())
+                <a href="{{ route('account.reseller.apply') }}" @class(['side-link mt-3', 'active' => request()->routeIs('account.reseller.*')])><x-icon name="users" /><span>{{ __('Become a reseller') }}</span></a>
+            @endif
             @if (auth()->user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}" class="side-link mt-3"><x-icon name="server" /><span>{{ __('Admin panel') }}</span></a>
             @endif

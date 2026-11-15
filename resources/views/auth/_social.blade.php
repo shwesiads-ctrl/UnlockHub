@@ -1,3 +1,4 @@
+@unless (app()->bound('reseller.shop_by_domain') && app('reseller.shop_by_domain'))
 @php $socialEnabled = \App\Services\Social\SocialProviders::enabled(); @endphp
 @if ($socialEnabled)
     <div class="flex items-center gap-3 text-xs text-muted" aria-hidden="true"><span class="flex-1 h-px bg-line"></span>or continue with<span class="flex-1 h-px bg-line"></span></div>
@@ -17,3 +18,4 @@
         </div>
     @endif
 @endif
+@endunless

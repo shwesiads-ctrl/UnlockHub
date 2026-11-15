@@ -39,6 +39,8 @@ class Permissions
         'payments.methods' => ['Payments', 'Edit payment methods'],
         'users.view' => ['Customers', 'View customers'],
         'users.update' => ['Customers', 'Edit customers, reset 2FA / password'],
+        'resellers.manage' => ['Customers', 'Approve resellers, domains, commission settings'],
+        'withdrawals.manage' => ['Payments', 'Pay / reject earnings withdrawals'],
         'wallet.view' => ['Wallet', 'View statements'],
         'wallet.adjust' => ['Wallet', 'Add / remove wallet balance'],
         'wallet.approve' => ['Wallet', 'Approve large wallet adjustments (second person)'],
@@ -63,7 +65,7 @@ class Permissions
     public const OWNER_ONLY = ['staff.manage'];
 
     public const DEFAULTS = [
-        'finance' => ['dashboard.view', 'orders.view', 'payments.view', 'payments.approve', 'users.view', 'wallet.view', 'wallet.adjust', 'wallet.approve', 'reconcile.view', 'reconcile.approve', 'reports.view', 'reports.export'],
+        'finance' => ['dashboard.view', 'orders.view', 'payments.view', 'payments.approve', 'withdrawals.manage', 'users.view', 'wallet.view', 'wallet.adjust', 'wallet.approve', 'reconcile.view', 'reconcile.approve', 'reports.view', 'reports.export'],
         'operator' => ['dashboard.view', 'orders.view', 'orders.process', 'users.view', 'tickets.view'],
         'support' => ['dashboard.view', 'orders.view', 'users.view', 'tickets.view', 'tickets.reply'],
         'editor' => ['dashboard.view', 'content.manage', 'services.manage'],
@@ -99,6 +101,8 @@ class Permissions
         'admin.tickets.show' => 'tickets.view',
         'admin.tickets.attachment' => 'tickets.view',
         'admin.tickets.*' => 'tickets.reply',
+        'admin.withdrawals.*' => 'withdrawals.manage',
+        'admin.resellers.*' => 'resellers.manage',
         'admin.services.*' => 'services.manage',
         'admin.categories.*' => 'services.manage',
         'admin.popups.*' => 'services.manage',

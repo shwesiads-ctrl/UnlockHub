@@ -24,7 +24,7 @@ class Order extends Model
     ];
 
     protected $fillable = [
-        'order_no', 'batch_id', 'user_id', 'service_id', 'service_name', 'input', 'imei',
+        'reseller_id', 'reseller_price', 'order_no', 'batch_id', 'user_id', 'service_id', 'service_name', 'input', 'imei',
         'user_note', 'price', 'cost', 'points', 'status', 'processing_mode', 'supplier_id',
         'supplier_order_id', 'api_attempts', 'api_failed', 'api_error', 'api_next_check_at',
         'result', 'admin_note', 'refunded', 'points_awarded', 'processed_by', 'completed_at',
@@ -42,6 +42,9 @@ class Order extends Model
             'points_awarded' => 'boolean',
             'api_next_check_at' => 'datetime',
             'api_submitting_at' => 'datetime',
+            'reseller_paid' => 'boolean',
+            'commission_paid' => 'boolean',
+            'reseller_price' => 'decimal:2',
             'completed_at' => 'datetime',
         ];
     }

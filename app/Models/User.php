@@ -59,6 +59,41 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
+    // ---------------------------------------------------------------- resellers
+
+    public function resellerProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ResellerProfile::class);
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'parent_id');
+    }
+
+    public function subUsers(): HasMany
+    {
+        return $this->hasMany(User::class, 'parent_id');
+    }
+
+    /** Approved reseller (can have customers, own prices, branding). */
+    public function isReseller(): bool
+    {
+        return (bool) $this->resellerProfile?->isApproved() && $this->isActive();
+    }
+
+    /** The reseller this customer buys through (null for normal customers, or if the reseller is not active). */
+    public function activeReseller(): ?User
+    {
+        if (! $this->parent_id) {
+            return null;
+        }
+        $parent = $this->relationLoaded('parent') ? $this->parent : $this->parent()->with('resellerProfile')->first();
+        $this->setRelation('parent', $parent);
+
+        return $parent?->isReseller() ? $parent : null;
+    }
+
     /** Favourite services (pivot: favorites). */
     public function favorites(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {

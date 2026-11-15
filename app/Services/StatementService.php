@@ -19,6 +19,12 @@ class StatementService
         'points_redeem' => 'Points redeemed',
         'admin_credit' => 'Admin credit',
         'admin_debit' => 'Admin debit',
+        'transfer_in' => 'Transfer in',
+        'transfer_out' => 'Transfer out',
+        'reseller_profit' => 'Reseller profit',
+        'commission' => 'Commission',
+        'withdrawal' => 'Withdrawal',
+        'withdrawal_refund' => 'Withdrawal returned',
     ];
 
     /** Max rows in one PDF (keeps memory sane on very busy accounts). */

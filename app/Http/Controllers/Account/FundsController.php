@@ -17,6 +17,10 @@ class FundsController extends Controller
 {
     public function index(Request $request): View
     {
+        if ($reseller = $request->user()->activeReseller()) {
+            return view('account.funds-reseller', ['reseller' => $reseller->load('resellerProfile')]);
+        }
+
         $methods = PaymentMethod::active()->get();
         $selected = $methods->firstWhere('code', $request->query('method', old('method'))) ?? $methods->first();
 
@@ -31,6 +35,7 @@ class FundsController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
+        abort_if($user->activeReseller(), 403, 'Ask your reseller to add funds.');
 
         $request->validate([
             'method' => ['required', 'string'],

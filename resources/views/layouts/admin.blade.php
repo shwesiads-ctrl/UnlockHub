@@ -26,6 +26,8 @@
                 ['Services', 'phone', 'admin.services.index', null, ['admin.services.*', 'admin.categories.*']],
                 ['Suppliers & API', 'plug', 'admin.suppliers.index', null, ['admin.suppliers.*']],
                 ['Users', 'users', 'admin.users.index', null, ['admin.users.*']],
+                ['Resellers', 'users', 'admin.resellers.index', 'resellers', ['admin.resellers.*']],
+                ['Withdrawals', 'wallet', 'admin.withdrawals.index', 'withdrawals', ['admin.withdrawals.*']],
                 ['Groups & Pricing', 'sliders', 'admin.groups.index', null, ['admin.groups.*']],
                 ['Profit guard', 'chart', 'admin.pricing.index', 'pricing', ['admin.pricing.*']],
                 ['Points', 'star', 'admin.points.index', null, ['admin.points.*']],

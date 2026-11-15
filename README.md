@@ -205,6 +205,21 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Reseller Panel, Commission, White-label
+
+- **Customer › Become a reseller** → Admin approve (သို့ auto) → **Reseller panel** (`/reseller`)
+  - **Customers** — Sub-user ဖန်တီး (username/password/opening balance), Wallet ထည့်/ပြန်ယူ (Reseller wallet ↔ customer wallet), Suspend, Password reset, Order စာရင်း
+  - **My prices** — Default markup (% / Ks) + Service တစ်ခုချင်း ကိုယ်ပိုင်ဈေး (Cost ထက်နိမ့်လို့မရ)
+  - **Orders** — Customer ပေးဈေး / ကိုယ့် cost / အမြတ်
+  - **Branding** — Shop name, Logo, Brand colour, Phone/Telegram/Email, About, **Shop address** (`myshop.yourdomain.com`), ကိုယ်တိုင် sign up ခွင့်
+- ငွေစီးပုံ: Customer က Reseller ဈေးပေး → ဆိုဒ်က Reseller cost ယူ → ကွာခြားချက်ကို Order **Success** ဖြစ်မှ Reseller wallet ထဲ အမြတ်အဖြစ်ထည့် (Reject ဆို Customer ကို ပြန်အမ်း၊ အမြတ်မပေး)
+- Sub-user တွေက ဆိုဒ်ရဲ့ Top-up မသုံးရ — Reseller ဆီကနေ ငွေဖြည့် (Add Funds မှာ Reseller contact ပြ)
+- **White-label** — `name.yourdomain.com` / custom domain ဖွင့်ရင် Reseller နာမည်, logo, colour, contact ပဲပြ; အဲဒီမှာ register လုပ်ရင် အဲဒီ Reseller ရဲ့ customer ဖြစ်; Admin page/တခြားသူ account ကို main site ပြန်ပို့. Wildcard DNS `*.yourdomain.com` လို
+- **Affiliate commission** — ညွှန်းပေးသူ ရဲ့ customer order Success ဖြစ်တိုင်း X% (အမြတ် သို့ ဈေး) wallet ထဲ၊ လ အကန့်အသတ်ရွေး
+- **Earnings › Withdraw** — Commission + Reseller profit ကိုပဲ ထုတ်ယူလို့ရ (Top-up မရ) → **Admin › Withdrawals** Mark paid / Reject (ပြန်အမ်း)
+- **Admin › Resellers** — Approve/Suspend, Subdomain/Custom domain, Price group, လစဉ် စာရင်း, Program + Commission settings
+- Report/Dashboard ရဲ့ ဆိုဒ်ဝင်ငွေ = Reseller cost (customer ပေးငွေ မဟုတ်)
+
 ## Security — Google reCAPTCHA / Cloudflare Turnstile / Cloudflare proxy
 
 - **Admin › Settings › Security** — Bot check: **Cloudflare Turnstile**, **Google reCAPTCHA v2** (checkbox) သို့ **v3** (မမြင်ရ, score) ရွေး → Site key + Secret → **Run test**

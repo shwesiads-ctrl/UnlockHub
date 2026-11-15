@@ -12,8 +12,25 @@ class Setting extends Model
     protected $keyType = 'string';
     protected $fillable = ['key', 'value'];
 
+    /** Per-request values (e.g. a reseller's shop name/logo) that win over the database. */
+    private static array $overrides = [];
+
+    public static function override(array $values): void
+    {
+        self::$overrides = $values + self::$overrides;
+    }
+
+    public static function clearOverrides(): void
+    {
+        self::$overrides = [];
+    }
+
     public static function get(string $key, mixed $default = null): mixed
     {
+        if (array_key_exists($key, self::$overrides)) {
+            return self::$overrides[$key] ?? (in_array($key, ['site.name', 'pwa.theme_color', 'pwa.short_name'], true) ? $default : null);
+        }
+
         $all = Cache::rememberForever('settings.all', fn () => static::pluck('value', 'key')->all());
 
         return $all[$key] ?? $default;

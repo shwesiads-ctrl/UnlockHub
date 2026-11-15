@@ -15,6 +15,7 @@ class OnlinePaymentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        abort_if($request->user()->activeReseller(), 403, 'Ask your reseller to add funds.');
         $data = $request->validate([
             'gateway' => ['required', 'in:stripe,paypal'],
             'amount' => ['required', 'numeric', 'min:0.5', 'max:100000'],

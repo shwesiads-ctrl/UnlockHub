@@ -77,11 +77,18 @@ class OrderService
         $price = round((float) $service->priceFor($user), 2);
         $cost = round((float) $service->cost_price, 2);
         $points = $service->pointsFor((string) $price);
+
+        // Reseller's customer: the site earns the reseller's own price; the reseller gets the difference
+        $reseller = $user->activeReseller();
+        $resellerPrice = $reseller ? round(\App\Services\ResellerService::costFor($service, $reseller), 2) : null;
+        if ($reseller) {
+            $points = 0;
+        }
         $total = round($price * count($rows), 2);
         $useApi = $service->usesApi();
 
         $replayed = null;
-        $orders = DB::transaction(function () use ($user, $service, $rows, $note, $price, $cost, $points, $total, $useApi, $key, $options, &$replayed) {
+        $orders = DB::transaction(function () use ($user, $service, $rows, $note, $price, $cost, $points, $total, $useApi, $key, $options, $reseller, $resellerPrice, &$replayed) {
             // The user row lock serialises this user's orders: checks below can't race
             $locked = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
 
@@ -111,6 +118,8 @@ class OrderService
                     'user_note' => $note,
                     'price' => $price,
                     'cost' => $cost,
+                    'reseller_id' => $reseller?->id,
+                    'reseller_price' => $resellerPrice,
                     'points' => $points,
                     'status' => Order::PENDING,
                     'processing_mode' => $useApi ? 'api' : 'manual',
@@ -211,6 +220,8 @@ class OrderService
             }
 
             $this->points->rewardReferrer($o);
+            app(ResellerService::class)->payProfit($o);
+            app(AffiliateService::class)->payCommission($o);
 
             ActivityLog::record('order.success', $o);
             $this->notifyFinished($o);

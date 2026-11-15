@@ -14,11 +14,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Real visitor IP behind Cloudflare (runs before everything, incl. rate limits)
         $middleware->prepend(\App\Http\Middleware\CloudflareProxy::class);
+        // White-label reseller shops (after the session so we know who is logged in)
+        $middleware->web(append: [\App\Http\Middleware\ResolveResellerShop::class]);
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'staff' => \App\Http\Middleware\CheckStaffPermission::class,
             'nostore' => \App\Http\Middleware\NoStore::class,
+            'reseller' => \App\Http\Middleware\EnsureReseller::class,
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
 

@@ -74,9 +74,13 @@ class Service extends Model
         return $q->where('status', 'active');
     }
 
-    /** Price for a user (by group), falling back to default price. */
+    /** Price for a user (by group), falling back to default price. A reseller's customer pays the reseller's price. */
     public function priceFor(?User $user): string
     {
+        if ($user?->parent_id && ($reseller = $user->activeReseller())) {
+            return (string) \App\Services\ResellerService::sellPrice($this, $reseller);
+        }
+
         if ($user?->user_group_id) {
             $price = $this->relationLoaded('prices')
                 ? $this->prices->firstWhere('user_group_id', $user->user_group_id)?->price
