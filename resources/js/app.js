@@ -173,3 +173,26 @@ document.addEventListener('click', (e) => {
   });
 });
 document.querySelectorAll('[data-pay-rate]').forEach(payKs);
+
+// Login waiting time: live countdown, submit buttons stay disabled until it ends.
+document.querySelectorAll('[data-login-wait]').forEach((box) => {
+  const form = box.closest('form') || box.parentElement.querySelector('form') || document.querySelector('form[action$="/login"], form[action*="/login/verify"]');
+  const buttons = form ? form.querySelectorAll('button:not([type="button"])') : [];
+  const clock = box.querySelector('[data-login-wait-clock]');
+  const end = Date.now() + Number(box.dataset.loginWait) * 1000;
+  buttons.forEach((b) => { b.disabled = true; });
+  const tick = () => {
+    const s = Math.max(0, Math.round((end - Date.now()) / 1000));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    clock.textContent = (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(sec).padStart(2, '0');
+    if (s <= 0) {
+      buttons.forEach((b) => { b.disabled = false; });
+      box.classList.remove('bg-warn-soft', 'text-warn');
+      box.classList.add('bg-ok-soft', 'text-ok');
+      box.querySelector('span').textContent = box.dataset.readyText || '✓';
+      return;
+    }
+    setTimeout(tick, 1000);
+  };
+  tick();
+});

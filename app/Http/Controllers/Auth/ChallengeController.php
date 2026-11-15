@@ -9,7 +9,6 @@ use App\Services\TrustedDeviceService;
 use App\Services\TwoFactorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -50,8 +49,8 @@ class ChallengeController extends Controller
         $request->validate(['code' => ['required', 'string', 'max:10']]);
 
         $key = 'challenge|'.$user->id;
-        if (RateLimiter::tooManyAttempts($key, 6)) {
-            throw ValidationException::withMessages(['code' => 'Too many attempts. Try again in '.RateLimiter::availableIn($key).' seconds.']);
+        if ($wait = \App\Support\LoginThrottle::waitFor($key, $request->ip())) {
+            $this->tooMany($wait);
         }
 
         $ok = $user->hasTwoFactor()
@@ -59,11 +58,15 @@ class ChallengeController extends Controller
             : $this->otp->verify($user, $request->input('code'));
 
         if (! $ok) {
-            RateLimiter::hit($key, 300);
-            throw ValidationException::withMessages(['code' => 'That code is not correct or has expired.']);
+            $hit = \App\Support\LoginThrottle::hit($key, $request->ip(), 6);
+            if ($hit['locked']) {
+                \App\Models\ActivityLog::record('login.locked', $user, ['step' => 'code', 'ip' => $request->ip(), 'seconds' => $hit['locked']]);
+                $this->tooMany($hit['locked']);
+            }
+            throw ValidationException::withMessages(['code' => __('That code is not correct or has expired.')]);
         }
 
-        RateLimiter::clear($key);
+        \App\Support\LoginThrottle::clear($key);
 
         // A correct email code also proves the address
         if (! $user->hasTwoFactor() && ! $user->email_verified_at) {
@@ -107,5 +110,14 @@ class ChallengeController extends Controller
         [$name, $domain] = explode('@', $email, 2) + [1 => ''];
 
         return mb_substr($name, 0, 2).str_repeat('•', max(1, mb_strlen($name) - 2)).'@'.$domain;
+    }
+
+    private function tooMany(int $seconds): never
+    {
+        session()->flash('login_wait_until', now()->getTimestamp() + $seconds);
+
+        throw ValidationException::withMessages([
+            'code' => __('Too many wrong tries. Please wait :time and try again.', ['time' => \App\Support\LoginThrottle::human($seconds)]),
+        ]);
     }
 }

@@ -4,6 +4,7 @@
 <x-auth-card title="{{ __('Welcome back') }}" subtitle="{{ __('Log in with your username or email.') }}">
     <form method="POST" action="{{ route('login') }}" class="flex flex-col gap-4" novalidate>
         @csrf
+        <x-login-wait />
         <div>
             <label for="login" class="label">{{ __('Username or email') }}</label>
             <input id="login" name="login" type="text" value="{{ old('login') }}" class="input" autocomplete="username" required autofocus @error('login') aria-invalid="true" aria-describedby="login-error" @enderror>

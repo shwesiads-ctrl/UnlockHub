@@ -127,7 +127,15 @@ class SettingsController extends Controller
             'min_score' => ['required', 'numeric', 'between:0.1,0.9'],
             'forms' => ['array'],
             'forms.*' => ['in:'.implode(',', array_keys(\App\Services\Captcha::FORMS))],
+            'login_max' => ['required', 'integer', 'between:3,20'],
+            'login_wait' => ['required', 'integer', 'between:1,1440'],
+            'login_ip_max' => ['required', 'integer', 'between:10,200'],
         ]);
+
+        Setting::put('security.login_max', (string) $data['login_max']);
+        Setting::put('security.login_wait', (string) $data['login_wait']);
+        Setting::put('security.login_ip_max', (string) $data['login_ip_max']);
+        Setting::put('security.login_progressive', $request->boolean('login_progressive') ? '1' : '0');
 
         $changed = $data['provider'] !== setting('captcha.provider', 'none')
             || ($data['site_key'] ?? null) !== setting('captcha.site_key') || filled($data['secret'] ?? null);

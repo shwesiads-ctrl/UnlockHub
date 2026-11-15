@@ -11,7 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\RateLimiter;
+use App\Support\LoginThrottle;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -36,25 +36,29 @@ class LoginController extends Controller
             'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ]);
-        \App\Services\Captcha::check($request, 'login');
 
+        // Waiting time after too many wrong tries (checked before anything else, even the bot check)
         $key = Str::lower($data['login']).'|'.$request->ip();
-
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            throw ValidationException::withMessages([
-                'login' => 'Too many attempts. Try again in '.RateLimiter::availableIn($key).' seconds.',
-            ]);
+        if ($wait = LoginThrottle::waitFor($key, $request->ip())) {
+            $this->tooMany($wait);
         }
+
+        \App\Services\Captcha::check($request, 'login');
 
         $field = filter_var($data['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $user = User::where($field, $data['login'])->first();
 
         if (! $user || ! Hash::check($data['password'], $user->password)) {
-            RateLimiter::hit($key, 60);
-            throw ValidationException::withMessages(['login' => 'These credentials do not match our records.']);
+            $hit = LoginThrottle::hit($key, $request->ip());
+            if ($hit['locked']) {
+                \App\Models\ActivityLog::record('login.locked', $user, ['login' => Str::limit($data['login'], 60), 'ip' => $request->ip(), 'seconds' => $hit['locked']]);
+                $this->tooMany($hit['locked']);
+            }
+            throw ValidationException::withMessages(['login' => __('These credentials do not match our records.')
+                .($hit['left'] <= 3 ? ' '.trans_choice(':count try left before a waiting time.|:count tries left before a waiting time.', $hit['left'], ['count' => $hit['left']]) : '')]);
         }
 
-        RateLimiter::clear($key);
+        LoginThrottle::clear($key);
 
         if (! $user->isActive()) {
             throw ValidationException::withMessages(['login' => 'This account is suspended. Please contact support.']);
@@ -81,6 +85,16 @@ class LoginController extends Controller
         }
 
         return redirect()->route('login.challenge');
+    }
+
+    /** Stop with a "please wait" message; the login page shows a live countdown. */
+    private function tooMany(int $seconds): never
+    {
+        session()->flash('login_wait_until', now()->getTimestamp() + $seconds);
+
+        throw ValidationException::withMessages([
+            'login' => __('Too many wrong tries. Please wait :time and try again.', ['time' => LoginThrottle::human($seconds)]),
+        ]);
     }
 
     public function destroy(Request $request): RedirectResponse

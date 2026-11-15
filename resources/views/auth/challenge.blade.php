@@ -9,6 +9,7 @@
 
     <form method="POST" action="{{ route('login.challenge') }}" class="flex flex-col gap-4" novalidate>
         @csrf
+        <x-login-wait />
         <div>
             <label for="code" class="label">{{ __('Code') }}</label>
             <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10"

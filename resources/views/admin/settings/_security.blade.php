@@ -52,6 +52,30 @@
             $geo = \App\Support\GeoLocale::detect(request());
             $staffNo2fa = \App\Models\User::where('role', 'admin')->whereNull('two_factor_confirmed_at')->count();
         @endphp
+        <div class="rounded-xl border border-line p-4 flex flex-col gap-3">
+            <span class="font-semibold">Login limits &amp; waiting time</span>
+            <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(180px,100%),1fr))]">
+                <div>
+                    <label for="login_max" class="label text-xs">Wrong tries before waiting</label>
+                    <input id="login_max" name="login_max" type="number" min="3" max="20" value="{{ old('login_max', setting('security.login_max', 5)) }}" class="input h-10">
+                    <x-field-error name="login_max" />
+                </div>
+                <div>
+                    <label for="login_wait" class="label text-xs">Waiting time (minutes)</label>
+                    <input id="login_wait" name="login_wait" type="number" min="1" max="1440" value="{{ old('login_wait', setting('security.login_wait', 15)) }}" class="input h-10">
+                    <x-field-error name="login_wait" />
+                </div>
+                <div>
+                    <label for="login_ip_max" class="label text-xs">Max wrong tries per IP (all accounts, 15 min)</label>
+                    <input id="login_ip_max" name="login_ip_max" type="number" min="10" max="200" value="{{ old('login_ip_max', setting('security.login_ip_max', 30)) }}" class="input h-10">
+                    <x-field-error name="login_ip_max" />
+                </div>
+            </div>
+            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="login_progressive" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.login_progressive', '1') === '1')>
+                <span>Longer each time — every new lock doubles the wait (15 → 30 → 60 min …, max 24 hours). Resets after a day without locks.</span></label>
+            <span class="text-xs text-muted">Also used for the 6-digit code step (6 tries). Users see a live countdown on the login page. Locks are written to the Activity log (<code>login.locked</code>).</span>
+        </div>
+
         <div class="rounded-xl border border-line p-4 flex flex-col gap-2">
             <span class="font-semibold">Staff accounts</span>
             <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="staff_2fa" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.staff_2fa') === '1')>
