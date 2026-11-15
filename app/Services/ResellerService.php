@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Models\ResellerPrice;
+use App\Models\ResellerProfile;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
