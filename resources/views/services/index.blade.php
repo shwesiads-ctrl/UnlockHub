@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex flex-col gap-5">
     <div class="flex flex-col gap-1.5">
-        <h1 class="m-0 text-[34px] font-bold">Services &amp; Reseller Pricing</h1>
+        <h1 class="m-0 text-[34px] font-bold">{{ __('Services & Reseller Pricing') }}</h1>
         <p class="m-0 text-muted text-[15px]">
             @auth
                 Prices shown for your group: <strong class="text-ink">{{ auth()->user()->group?->name ?? 'Customer' }}</strong>.
@@ -19,7 +19,7 @@
             <a href="{{ route('services.index', ['type' => $key]) }}" @class([
                 'btn',
                 'btn-primary' => $type === $key,
-            ]) @if ($type === $key) aria-current="page" @endif>{{ $label }}</a>
+            ]) @if ($type === $key) aria-current="page" @endif>{{ __($label) }}</a>
         @endforeach
     </nav>
 
@@ -28,25 +28,25 @@
         <div class="flex-[1_1_300px] flex items-center gap-2.5 h-11 px-3.5 rounded-[10px] border border-line bg-bg text-muted">
             <x-icon name="search" />
             <label for="q" class="sr-only">Search services</label>
-            <input id="q" name="q" type="search" value="{{ $search }}" placeholder="Search services…" class="flex-1 bg-transparent outline-none text-ink text-sm">
+            <input id="q" name="q" type="search" value="{{ $search }}" placeholder="{{ __('Search services…') }}" class="flex-1 bg-transparent outline-none text-ink text-sm">
         </div>
         <label for="category" class="sr-only">Group</label>
         <select id="category" name="category" class="input h-11 w-auto min-w-52" onchange="this.form.submit()">
-            <option value="">All groups</option>
+            <option value="">{{ __('All groups') }}</option>
             @foreach ($allCategories as $cat)
                 <option value="{{ $cat->id }}" @selected($categoryId === $cat->id)>{{ $cat->name }}</option>
             @endforeach
         </select>
         <label @class(['btn cursor-pointer', 'bg-danger-soft text-danger border-danger' => $hotOnly])>
             <input type="checkbox" name="hot" value="1" class="sr-only" @checked($hotOnly) onchange="this.form.submit()">
-            <x-icon name="fire" size="16" /> HOT only
+            <x-icon name="fire" size="16" /> {{ __('HOT only') }}
         </label>
-        <button class="btn btn-primary">Search</button>
+        <button class="btn btn-primary">{{ __('Search') }}</button>
     </form>
 
     @if ($categories->isEmpty())
         <div class="card p-10 text-center flex flex-col gap-2 items-center">
-            <span class="font-semibold">No services found.</span>
+            <span class="font-semibold">{{ __('No services found.') }}</span>
             @if ($otherTabHits)
                 <span class="text-sm text-muted">
                     Found in:
@@ -63,10 +63,10 @@
             <table class="table min-w-[760px]">
                 <thead>
                     <tr>
-                        <th>Service</th>
-                        <th>Delivery time</th>
-                        <th>Points</th>
-                        <th class="text-right">Price</th>
+                        <th>{{ __('Service') }}</th>
+                        <th>{{ __('Delivery time') }}</th>
+                        <th>{{ __('Points') }}</th>
+                        <th class="text-right">{{ __('Price') }}</th>
                         <th><span class="sr-only">Action</span></th>
                     </tr>
                 </thead>
@@ -90,7 +90,7 @@
                             <td class="text-muted whitespace-nowrap">{{ $service->delivery_time ?: '—' }}</td>
                             <td class="text-point font-semibold whitespace-nowrap">+{{ $service->pointsFor($p) }}</td>
                             <td class="text-right font-display font-bold text-[15px] whitespace-nowrap">{{ price($p) }}</td>
-                            <td class="text-right"><a href="{{ route('services.show', $service) }}" class="btn btn-primary h-10">Order</a></td>
+                            <td class="text-right"><a href="{{ route('services.show', $service) }}" class="btn btn-primary h-10">{{ __('Order') }}</a></td>
                         </tr>
                     @endforeach
                 @endforeach

@@ -19,6 +19,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 
+Route::get('/locale/{locale}', function (string $locale) {
+    abort_unless(array_key_exists($locale, config('unlockhub.locales')), 404);
+    session(['locale' => $locale]);
+    auth()->user()?->forceFill(['preferred_locale' => $locale])->save();
+
+    return back();
+})->name('locale');
+
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
 Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
 Route::post('/services/{service}/order', [OrderController::class, 'store'])
@@ -91,7 +99,24 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
 
 /* ---------------- Admin ---------------- */
 Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('/', 'admin.dashboard')->name('dashboard');
+    Route::get('/', Admin\DashboardController::class)->name('dashboard');
+
+    Route::get('/users', [Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [Admin\UserController::class, 'show'])->name('users.show');
+    Route::put('/users/{user}', [Admin\UserController::class, 'update'])->name('users.update');
+    Route::post('/users/{user}/wallet', [Admin\UserController::class, 'wallet'])->name('users.wallet');
+    Route::post('/users/{user}/reset-2fa', [Admin\UserController::class, 'resetTwoFactor'])->name('users.reset-2fa');
+    Route::post('/users/{user}/password-reset', [Admin\UserController::class, 'sendPasswordReset'])->name('users.password-reset')->middleware('throttle:6,1');
+
+    Route::get('/groups', [Admin\GroupController::class, 'index'])->name('groups.index');
+    Route::post('/groups', [Admin\GroupController::class, 'store'])->name('groups.store');
+    Route::put('/groups/{group}', [Admin\GroupController::class, 'update'])->name('groups.update');
+    Route::post('/groups/{group}/default', [Admin\GroupController::class, 'makeDefault'])->name('groups.default');
+    Route::delete('/groups/{group}', [Admin\GroupController::class, 'destroy'])->name('groups.destroy');
+
+    Route::get('/reports', [Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export', [Admin\ReportController::class, 'export'])->name('reports.export');
+    Route::get('/activity', [Admin\ActivityLogController::class, 'index'])->name('activity.index');
 
     Route::get('/categories', [Admin\CategoryController::class, 'index'])->name('categories.index');
     Route::post('/categories', [Admin\CategoryController::class, 'store'])->name('categories.store');
@@ -126,7 +151,8 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
     });
 
     Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
-    Route::put('/settings/telegram', [Admin\SettingsController::class, 'updateTelegram'])->name('settings.telegram');
+    Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
+    Route::put('/settings/telegram',[Admin\SettingsController::class, 'updateTelegram'])->name('settings.telegram');
     Route::post('/settings/telegram/test', [Admin\SettingsController::class, 'testTelegram'])->name('settings.telegram.test')->middleware('throttle:6,1');
 
     Route::get('/points', [Admin\PointsController::class, 'index'])->name('points.index');

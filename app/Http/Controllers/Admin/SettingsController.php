@@ -12,18 +12,54 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use Throwable;
 
-/** Site settings. Step 9: Telegram admin alerts. */
+/** Site settings: general info, contact, social links, Telegram admin alerts. */
 class SettingsController extends Controller
 {
     public function index(): View
     {
         return view('admin.settings.index', [
+            'general' => collect(self::GENERAL)->mapWithKeys(fn ($rule, $key) => [$key => setting($key)])->all(),
+            'kbPages' => \App\Models\Post::where('type', 'kb')->orderBy('title')->get(['title', 'slug']),
             'telegramConfigured' => (bool) Notify::telegramToken(),
             'chatId' => Notify::telegramChatId(),
             'events' => Notify::TELEGRAM_EVENTS,
             'lowBalance' => setting('telegram.low_balance', 20),
             'mailDriver' => config('mail.default'),
         ]);
+    }
+
+    /** setting key => validation rules */
+    public const GENERAL = [
+        'site.name' => ['required', 'string', 'max:60'],
+        'site.support_hours' => ['nullable', 'string', 'max:60'],
+        'contact.email' => ['nullable', 'email', 'max:255'],
+        'contact.phone' => ['nullable', 'string', 'max:40'],
+        'contact.address' => ['nullable', 'string', 'max:255'],
+        'social.telegram' => ['nullable', 'url:http,https', 'max:255'],
+        'social.viber' => ['nullable', 'string', 'max:255'],
+        'social.facebook' => ['nullable', 'url:http,https', 'max:255'],
+        'social.youtube' => ['nullable', 'url:http,https', 'max:255'],
+        'currency.usd_rate' => ['nullable', 'numeric', 'min:0'],
+        'pages.terms_slug' => ['nullable', 'string', 'exists:posts,slug'],
+    ];
+
+    public function updateGeneral(Request $request): RedirectResponse
+    {
+        // Form field names use _ instead of . (site_name → site.name)
+        $rules = [];
+        foreach (self::GENERAL as $key => $rule) {
+            $rules[str_replace('.', '_', $key)] = $rule;
+        }
+        $data = $request->validate($rules);
+
+        foreach (array_keys(self::GENERAL) as $key) {
+            $value = $data[str_replace('.', '_', $key)] ?? null;
+            Setting::put($key, $value === null ? null : (string) $value);
+        }
+
+        ActivityLog::record('settings.general_updated');
+
+        return back()->with('success', 'Settings saved.');
     }
 
     public function updateTelegram(Request $request): RedirectResponse

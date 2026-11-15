@@ -14,24 +14,26 @@
             </span>
         </div>
         @php
+            // [label, icon, route, badge key, active route patterns]
             $nav = [
-                ['Dashboard', 'grid', 'admin.dashboard', null],
-                ['Orders', 'list', 'admin.orders.index', null],
-                ['Manual Queue', 'hand', 'admin.orders.manual', 'manual'],
-                ['Payments', 'receipt', 'admin.payments.index', 'payments'],
-                ['Services', 'phone', 'admin.services.index', null],
-                ['Suppliers & API', 'plug', 'admin.suppliers.index', null],
-                ['Users', 'users', 'admin.users.index', null],
-                ['Groups & Pricing', 'sliders', 'admin.groups.index', null],
-                ['Points', 'star', 'admin.points.index', null],
-                ['Content', 'file', 'admin.posts.index', null],
-                ['Reports', 'chart', 'admin.reports.index', null],
-                ['Settings', 'sliders', 'admin.settings.index', null],
+                ['Dashboard', 'grid', 'admin.dashboard', null, ['admin.dashboard']],
+                ['Orders', 'list', 'admin.orders.index', null, ['admin.orders.index', 'admin.orders.show']],
+                ['Manual Queue', 'hand', 'admin.orders.manual', 'manual', ['admin.orders.manual']],
+                ['Payments', 'receipt', 'admin.payments.index', 'payments', ['admin.payments.*', 'admin.payment-methods.*']],
+                ['Services', 'phone', 'admin.services.index', null, ['admin.services.*', 'admin.categories.*']],
+                ['Suppliers & API', 'plug', 'admin.suppliers.index', null, ['admin.suppliers.*']],
+                ['Users', 'users', 'admin.users.index', null, ['admin.users.*']],
+                ['Groups & Pricing', 'sliders', 'admin.groups.index', null, ['admin.groups.*']],
+                ['Points', 'star', 'admin.points.index', null, ['admin.points.*']],
+                ['Content', 'file', 'admin.posts.index', null, ['admin.posts.*', 'admin.testimonials.*', 'admin.downloads.*', 'admin.announcements.*']],
+                ['Reports', 'chart', 'admin.reports.index', null, ['admin.reports.*']],
+                ['Activity Log', 'clock', 'admin.activity.index', null, ['admin.activity.*']],
+                ['Settings', 'sliders', 'admin.settings.index', null, ['admin.settings.*']],
             ];
         @endphp
         <nav aria-label="Admin" class="flex flex-col gap-0.5">
-            @foreach ($nav as [$label, $icon, $route, $badgeKey])
-                <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs($route.'*')])>
+            @foreach ($nav as [$label, $icon, $route, $badgeKey, $patterns])
+                <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs(...$patterns)])>
                     <x-icon :name="$icon" />
                     <span class="flex-1">{{ $label }}</span>
                     @if ($badgeKey && ($adminBadges[$badgeKey] ?? 0) > 0)
@@ -54,7 +56,7 @@
                 @isset($subtitle) <span class="text-[13px] text-muted">{{ $subtitle }}</span> @endisset
             </div>
             <div class="ml-auto flex items-center gap-2">
-                <form role="search" class="hidden md:flex items-center gap-2 h-11 px-3 rounded-[10px] border border-line bg-bg text-muted min-w-60">
+                <form role="search" action="{{ route('admin.orders.index') }}" class="hidden md:flex items-center gap-2 h-11 px-3 rounded-[10px] border border-line bg-bg text-muted min-w-60">
                     <x-icon name="search" size="16" />
                     <label for="admin-search" class="sr-only">Search</label>
                     <input id="admin-search" name="q" type="text" placeholder="Order ID, IMEI, user…" class="flex-1 bg-transparent outline-none text-ink text-sm">

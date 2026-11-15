@@ -158,6 +158,19 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 
 > Email တကယ်ပို့ဖို့ `.env` မှာ `MAIL_MAILER=smtp` နဲ့ `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` ကို ထည့်ပါ (Gmail ဆိုရင် App Password သုံး)။ Email / Telegram ပို့မရရင်လည်း order နဲ့ payment ကို မထိခိုက်ပါ။
 
+## Admin panel
+
+| Menu | လုပ်လို့ရတာ |
+|---|---|
+| **Dashboard** | ဒီနေ့ ရောင်းအား/အမြတ်၊ ၇ ရက် chart၊ Pending payment၊ Manual queue၊ Supplier balance၊ Top service၊ လတ်တလော activity |
+| **Users** | ရှာ / filter / sort၊ user တစ်ယောက်ချင်း — balance, point, ငွေဖြည့်/သုံးစွဲမှု, order, wallet မှတ်တမ်း၊ နာမည်/email/group/status/role ပြင်၊ **Wallet ငွေ ထည့်/နုတ်** (အကြောင်းပြချက်နဲ့)၊ 2FA reset၊ Password reset link ပို့ |
+| **Groups & Pricing** | Group ထည့်/ပြင်/ဖျက်၊ Rank၊ Default group ပြောင်း (ဖျက်ရင် user တွေ default ကို ရွှေ့) |
+| **Reports** | ရက်အပိုင်းအခြား (ဒီနေ့ / ၇ ရက် / ဒီလ / ပြီးခဲ့တဲ့လ / စိတ်ကြိုက်)၊ ရောင်းအား, cost, အမြတ်, အောင်မြင်နှုန်း, ငွေဖြည့်, user အသစ်၊ နေ့အလိုက် chart + table၊ Top service / customer / payment method၊ **CSV** |
+| **Activity Log** | Admin ဘယ်သူ ဘာလုပ်ခဲ့လဲ (approve, order result, balance ပြင်, setting) |
+| **Settings** | ဆိုဒ်နာမည်, Support hours, Contact email/phone/address, Social link, USD rate, Terms စာမျက်နှာ, Telegram |
+
+**ဘာသာစကား:** Header က **မြန်မာ / English** ခလုတ်နဲ့ ပြောင်းလို့ရတယ် (login ဝင်ထားရင် မှတ်ထားမယ်)။ ဘာသာပြန်တွေက `lang/my.json` မှာ ရှိတယ် — Menu, Home, Services, Account menu, Status တွေ ပြန်ပြီးပြီ။ ကျန်တဲ့ စာမျက်နှာတွေကို `__('English text')` နဲ့ wrap လုပ်ပြီး `lang/my.json` ထဲ ထပ်ထည့်ရုံပါပဲ။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -191,7 +204,7 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 - [x] **အဆင့် ၇** — Point system (Redeem၊ Referral bonus၊ Group auto-upgrade၊ Admin adjust)
 - [x] **အဆင့် ၈** — Content စာမျက်နှာ (KB, Blog, Testimonials, Downloads, Track Order, Contact, RSS) + Admin Content
 - [x] **အဆင့် ၉** — Notification (ဆိုဒ်ထဲ bell + Email + Admin Telegram bot)
-- [ ] အဆင့် ၁၀ — Admin panel အပြည့်အစုံ
+- [x] **အဆင့် ၁၀** — Admin panel အပြည့်အစုံ (Users, Groups, Reports, Activity log, Site settings, Dashboard, MM/EN)
 - [ ] အဆင့် ၁၁ — Test လုပ်ပြီး Deploy
 
 ## License

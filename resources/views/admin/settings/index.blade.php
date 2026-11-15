@@ -1,6 +1,58 @@
-@extends('layouts.admin', ['title' => 'Settings', 'subtitle' => 'Notifications'])
+@extends('layouts.admin', ['title' => 'Settings', 'subtitle' => 'Site information, contact details and notifications'])
 
 @section('content')
+<form method="POST" action="{{ route('admin.settings.general') }}" class="card p-6 flex flex-col gap-5">
+    @csrf @method('PUT')
+    <h2 class="m-0 text-lg font-bold">Site</h2>
+    @php
+        $f = fn ($key) => old(str_replace('.', '_', $key), $general[$key] ?? '');
+        $fields = [
+            ['site.name', 'Site name', 'text', 'UnlockHub'],
+            ['site.support_hours', 'Support hours', 'text', '9:00 AM – 10:00 PM'],
+            ['contact.email', 'Contact email (receives contact form)', 'email', 'support@…'],
+            ['contact.phone', 'Phone', 'text', '09…'],
+            ['contact.address', 'Address', 'text', 'Yangon'],
+            ['currency.usd_rate', '1 USD = ? Ks (for USD price display)', 'number', '4500'],
+        ];
+        $social = [
+            ['social.telegram', 'Telegram link', 'https://t.me/…'],
+            ['social.viber', 'Viber link / number', 'viber://chat?number=…'],
+            ['social.facebook', 'Facebook page', 'https://facebook.com/…'],
+            ['social.youtube', 'YouTube channel', 'https://youtube.com/@…'],
+        ];
+    @endphp
+    <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
+        @foreach ($fields as [$key, $label, $type, $ph])
+            @php $name = str_replace('.', '_', $key); @endphp
+            <div>
+                <label for="{{ $name }}" class="label">{{ $label }}</label>
+                <input id="{{ $name }}" name="{{ $name }}" type="{{ $type }}" @if ($type === 'number') step="0.01" min="0" @endif value="{{ $f($key) }}" placeholder="{{ $ph }}" class="input h-11">
+                <x-field-error :name="$name" />
+            </div>
+        @endforeach
+        <div>
+            <label for="pages_terms_slug" class="label">Terms &amp; Refunds page</label>
+            <select id="pages_terms_slug" name="pages_terms_slug" class="input h-11">
+                <option value="">— none —</option>
+                @foreach ($kbPages as $p) <option value="{{ $p->slug }}" @selected($f('pages.terms_slug') === $p->slug)>{{ $p->title }}</option> @endforeach
+            </select>
+            <p class="m-0 mt-1 text-xs text-muted">Write it as a Knowledge Base article, then pick it here (shown in the footer).</p>
+        </div>
+    </div>
+    <h3 class="m-0 text-base font-bold">Social &amp; support channels</h3>
+    <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
+        @foreach ($social as [$key, $label, $ph])
+            @php $name = str_replace('.', '_', $key); @endphp
+            <div>
+                <label for="{{ $name }}" class="label">{{ $label }}</label>
+                <input id="{{ $name }}" name="{{ $name }}" value="{{ $f($key) }}" placeholder="{{ $ph }}" class="input h-11">
+                <x-field-error :name="$name" />
+            </div>
+        @endforeach
+    </div>
+    <button class="btn btn-primary self-start">Save site settings</button>
+</form>
+
 <div class="flex flex-wrap gap-5 items-start">
     <form method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">
         @csrf @method('PUT')

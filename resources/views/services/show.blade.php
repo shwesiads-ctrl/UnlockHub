@@ -30,7 +30,7 @@
 
             <form method="POST" action="{{ Route::has('orders.store') ? route('orders.store', $service) : '#' }}" class="card p-6 flex flex-col gap-4">
                 @csrf
-                <h2 class="m-0 text-xl font-bold">Order details</h2>
+                <h2 class="m-0 text-xl font-bold">{{ __('Order details') }}</h2>
                 @forelse ($service->fields as $field)
                     <div>
                         <label for="f_{{ $field->name }}" class="label">
@@ -66,15 +66,15 @@
                 </div>
                 <label class="flex items-start gap-2.5 text-sm text-muted leading-normal">
                     <input type="checkbox" name="confirm" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" required>
-                    <span>I checked the details. Wrong entries are non-refundable and In Process orders can't be cancelled.</span>
+                    <span>{{ __('I checked the details. Wrong entries are non-refundable and In Process orders can\'t be cancelled.') }}</span>
                 </label>
                 <x-field-error name="confirm" />
 
                 @guest
-                    <a href="{{ route('login') }}" class="btn btn-primary btn-lg">Log in to order</a>
+                    <a href="{{ route('login') }}" class="btn btn-primary btn-lg">{{ __('Log in to order') }}</a>
                 @else
                     @if (Route::has('orders.store'))
-                        <button class="btn btn-primary btn-lg">Place order</button>
+                        <button class="btn btn-primary btn-lg">{{ __('Place order') }}</button>
                     @else
                         <button class="btn btn-primary btn-lg opacity-60" disabled>Ordering opens soon</button>
                     @endif
@@ -84,7 +84,7 @@
 
         <aside class="flex-[1_1_340px] min-w-0 flex flex-col gap-4">
             <div class="card p-6 flex flex-col gap-3.5">
-                <h2 class="m-0 text-xl font-bold">Summary</h2>
+                <h2 class="m-0 text-xl font-bold">{{ __('Summary') }}</h2>
                 <div class="flex justify-between text-sm"><span class="text-muted">Unit price</span><span class="font-semibold">{{ price($price) }}</span></div>
                 <div class="flex justify-between text-sm"><span class="text-muted">Points if successful</span><span class="font-semibold text-point">+{{ $points }} pts</span></div>
                 @auth

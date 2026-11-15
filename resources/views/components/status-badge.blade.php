@@ -6,4 +6,4 @@
         'manual' => 'Manual', 'api' => 'API',
     ];
 @endphp
-<span {{ $attributes->merge(['class' => 'badge badge-'.$status]) }}>{{ $labels[$status] ?? ucfirst($status) }}</span>
+<span {{ $attributes->merge(['class' => 'badge badge-'.$status]) }}>{{ __($labels[$status] ?? ucfirst($status)) }}</span>

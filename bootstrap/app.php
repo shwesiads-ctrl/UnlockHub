@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Remember ?ref=CODE so the register form can prefill it
         $middleware->web(append: [
             \App\Http\Middleware\CaptureReferral::class,
+            \App\Http\Middleware\SetLocale::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

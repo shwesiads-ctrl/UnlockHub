@@ -26,15 +26,15 @@
         <nav aria-label="Account" class="flex flex-col gap-0.5">
             @foreach ($nav as [$label, $icon, $route])
                 <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs($route)])>
-                    <x-icon :name="$icon" /><span>{{ $label }}</span>
+                    <x-icon :name="$icon" /><span>{{ __($label) }}</span>
                 </a>
             @endforeach
             @if (auth()->user()->isAdmin())
-                <a href="{{ route('admin.dashboard') }}" class="side-link mt-3"><x-icon name="server" /><span>Admin panel</span></a>
+                <a href="{{ route('admin.dashboard') }}" class="side-link mt-3"><x-icon name="server" /><span>{{ __('Admin panel') }}</span></a>
             @endif
             <form method="POST" action="{{ route('logout') }}" class="mt-3">
                 @csrf
-                <button class="side-link w-full bg-transparent border-0 cursor-pointer text-left"><x-icon name="logout" /><span>Log out</span></button>
+                <button class="side-link w-full bg-transparent border-0 cursor-pointer text-left"><x-icon name="logout" /><span>{{ __('Log out') }}</span></button>
             </form>
         </nav>
     </aside>
@@ -42,8 +42,8 @@
     <div class="flex-[999_1_560px] min-w-0 flex flex-col">
         <header class="bg-surface border-b border-line px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3">
             <div class="flex flex-col">
-                <span class="font-display text-[22px] font-bold">{{ $title ?? 'Account' }}</span>
-                <span class="text-[13px] text-muted">Group: {{ auth()->user()->group?->name ?? '—' }}</span>
+                <span class="font-display text-[22px] font-bold">{{ __($title ?? 'Account') }}</span>
+                <span class="text-[13px] text-muted">{{ __('Group') }}: {{ auth()->user()->group?->name ?? '—' }}</span>
             </div>
             <div class="ml-auto flex items-center gap-2 flex-wrap">
                 <span class="btn bg-ok-soft text-ok border-transparent font-bold"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</span>
