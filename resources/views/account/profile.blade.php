@@ -173,14 +173,35 @@
         </section>
     </aside>
 </div>
-<section class="card p-6 flex flex-col gap-4">
-    <div class="flex flex-wrap items-center justify-between gap-3"><div><h2 class="m-0 text-xl font-bold">Social accounts</h2><p class="m-0 mt-2 text-sm text-muted">Manage the accounts connected to your login.</p></div><a href="{{ route('account.security') }}" class="btn">Manage connected accounts</a></div>
+<section id="social-accounts" class="card p-6 flex flex-col gap-4">
+    <div><h2 class="m-0 text-xl font-bold">Social accounts</h2><p class="m-0 mt-2 text-sm text-muted">Connect or disconnect a login directly from here.</p></div>
     <div class="profile-social-grid">
     @foreach (\App\Services\Social\SocialProviders::PROVIDERS as $provider => $info)
-        @php $connected = $user->socialAccounts->firstWhere('provider', $provider); @endphp
+        @php $connected = $user->socialAccounts->firstWhere('provider', $provider); $connectable = \App\Services\Social\SocialProviders::isEnabled($provider); @endphp
         <div class="profile-social-card"><div class="flex justify-between gap-3"><strong>{{ $info['label'] }}</strong><span class="badge {{ $connected ? 'badge-success' : 'bg-surface-2 text-muted' }}">{{ $connected ? 'Connected' : 'Not connected' }}</span></div>
-            @if ($connected)<p class="m-0 text-sm text-muted break-all">{{ $connected->name ?: $connected->email ?: 'Linked account' }}</p><span class="text-xs text-muted">Last used: {{ $connected->last_login_at?->diffForHumans() ?? '—' }}</span>
-            @else <p class="m-0 text-sm text-muted">Connect this account from security settings when available.</p> @endif
+            @if ($connected)
+                <p class="m-0 text-sm text-muted break-all">{{ $connected->name ?: $connected->email ?: 'Linked account' }}</p>
+                <span class="text-xs text-muted">Last used: {{ $connected->last_login_at?->diffForHumans() ?? '—' }}</span>
+                @if ($user->password_set || $user->socialAccounts->count() > 1)
+                    <form method="POST" action="{{ route('social.unlink', $provider) }}" class="mt-auto" onsubmit="return confirm('Disconnect {{ $info['label'] }} from your login?')">
+                        @csrf @method('DELETE')
+                        <button class="btn h-9 px-3 text-xs">Disconnect {{ $info['label'] }}</button>
+                    </form>
+                @else
+                    <a href="{{ route('account.security') }}" class="text-xs">Set a password before disconnecting</a>
+                @endif
+            @elseif ($connectable && $provider === 'telegram')
+                <p class="m-0 text-sm text-muted">Use your Telegram account to sign in.</p>
+                <form method="POST" action="{{ route('social.telegram.start') }}" class="mt-auto">
+                    @csrf
+                    <button class="btn btn-primary h-9 px-3 text-xs">Connect Telegram</button>
+                </form>
+            @elseif ($connectable)
+                <p class="m-0 text-sm text-muted">Use your {{ $info['label'] }} account to sign in.</p>
+                <a href="{{ route('social.redirect', $provider) }}" class="btn btn-primary h-9 px-3 text-xs self-start mt-auto">Connect {{ $info['label'] }}</a>
+            @else
+                <p class="m-0 text-sm text-muted">This sign-in option is not enabled yet.</p>
+            @endif
         </div>
     @endforeach
     </div>
