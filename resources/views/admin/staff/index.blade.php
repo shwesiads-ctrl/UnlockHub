@@ -1,9 +1,9 @@
 @extends('layouts.admin', ['title' => 'Staff & permissions', 'subtitle' => 'Owner only'])
 
 @section('content')
-<div class="flex flex-wrap gap-5 items-start">
+<div class="grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(300px,.8fr)] items-start">
     <section class="card flex-[999_1_560px] min-w-0 overflow-hidden">
-        <h2 class="m-0 px-5 py-4 text-lg font-bold">Staff</h2>
+        <div class="px-5 py-4 border-b border-line"><h2 class="m-0 text-lg font-bold">Staff accounts</h2><p class="m-0 mt-1 text-xs text-muted">Only verified staff with two-factor authentication can access admin tools.</p></div>
         <div class="table-wrap">
             <table class="table min-w-[560px]">
                 <thead><tr><th>Name</th><th>Role</th><th>2FA</th><th></th></tr></thead>
@@ -41,7 +41,7 @@
     <aside class="flex-[1_1_320px] min-w-0 flex flex-col gap-5">
         <form method="POST" action="{{ route('admin.staff.store') }}" class="card p-5 flex flex-col gap-3">
             @csrf
-            <h2 class="m-0 text-lg font-bold">Add staff</h2>
+            <div><h2 class="m-0 text-lg font-bold">Add staff</h2><p class="m-0 mt-1 text-xs text-muted">Grant an existing account a staff role.</p></div>
             <div><label for="login" class="label text-xs">Username or email (existing account)</label><input id="login" name="login" value="{{ old('login') }}" class="input h-10" required></div>
             <div>
                 <label for="staff_role" class="label text-xs">Role</label>
@@ -58,7 +58,7 @@
 
         <form id="threshold" method="POST" action="{{ route('admin.staff.threshold') }}" class="card p-5 flex flex-col gap-3">
             @csrf @method('PUT')
-            <h2 class="m-0 text-lg font-bold">Second approval for wallet changes</h2>
+            <div><h2 class="m-0 text-lg font-bold">Wallet approval threshold</h2><p class="m-0 mt-1 text-xs text-muted">Large manual balance changes require a second staff member.</p></div>
             <div><label for="th" class="label text-xs">Manual add/remove of this amount (Ks) or more needs another staff member. 0 = off.</label>
                 <input id="th" name="threshold" type="number" min="0" step="1" value="{{ (int) $threshold }}" class="input h-10"></div>
             <button class="btn self-start">Save</button>
@@ -66,18 +66,18 @@
     </aside>
 </div>
 
-<form method="POST" action="{{ route('admin.staff.permissions') }}" class="card overflow-hidden">
+<form method="POST" action="{{ route('admin.staff.permissions') }}" class="card overflow-hidden mt-5">
     @csrf @method('PUT')
     <div class="px-5 py-4 flex flex-wrap justify-between items-center gap-2">
         <div>
             <h2 class="m-0 text-lg font-bold">What each role can do</h2>
-            <p class="m-0 text-[13px] text-muted">Blocked pages are closed by URL too, not only hidden from the menu. Owner always has everything.</p>
+            <p class="m-0 mt-1 text-[13px] text-muted">Permissions apply to direct URLs as well as navigation. Owner access is always enabled.</p>
         </div>
         <button class="btn btn-primary">Save permissions</button>
     </div>
     <div class="table-wrap">
         <table class="table min-w-[760px]">
-            <thead><tr><th>Permission</th>@foreach (\App\Support\Permissions::ROLES as $k => $l)<th class="text-center">{{ $l }}</th>@endforeach</tr></thead>
+            <thead><tr><th class="sticky left-0 z-10 bg-surface">Permission</th>@foreach (\App\Support\Permissions::ROLES as $k => $l)<th class="text-center">{{ $l }}</th>@endforeach</tr></thead>
             <tbody>
             @php $group = null; @endphp
             @foreach (\App\Support\Permissions::ALL as $perm => [$g, $label])
@@ -86,7 +86,7 @@
                     <tr><td colspan="{{ count(\App\Support\Permissions::ROLES) + 1 }}" class="bg-surface-2 text-xs font-bold uppercase tracking-wide text-muted">{{ $g }}</td></tr>
                 @endif
                 <tr>
-                    <td>{{ $label }} <code class="text-[11px] text-muted">{{ $perm }}</code></td>
+                    <td class="sticky left-0 z-10 bg-surface"><span class="font-medium">{{ $label }}</span><code class="block text-[11px] text-muted">{{ $perm }}</code></td>
                     @foreach (\App\Support\Permissions::ROLES as $role => $l)
                         <td class="text-center">
                             @if ($role === 'owner' || in_array($perm, \App\Support\Permissions::OWNER_ONLY, true))

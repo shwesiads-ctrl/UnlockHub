@@ -49,7 +49,7 @@
     <aside class="flex-[1_1_360px] min-w-0 flex flex-col gap-5">
         <form method="POST" action="{{ route('admin.points.rules') }}" class="card p-5 flex flex-col gap-4">
             @csrf @method('PUT')
-            <h2 class="m-0 text-lg font-bold">On / Off</h2>
+            <div><h2 class="m-0 text-lg font-bold">Point system</h2><p class="m-0 mt-1 text-xs text-muted">Control availability and configure how users earn or redeem points.</p></div>
             <label class="flex items-center justify-between gap-3 p-3 rounded-xl {{ setting('points.enabled', '1') === '1' ? 'bg-ok-soft' : 'bg-danger-soft' }}">
                 <span class="flex flex-col">
                     <span class="font-bold">Point system</span>
@@ -67,7 +67,7 @@
                 @endforeach
             </fieldset>
 
-            <h2 class="m-0 text-lg font-bold pt-2">Rules</h2>
+            <div class="border-t border-line pt-4"><h3 class="m-0 text-base font-bold">Earning &amp; redemption</h3><p class="m-0 mt-1 text-xs text-muted">Set the default earn rate and the value users receive when redeeming.</p></div>
             <div>
                 <label for="per_ks" class="label">Earn 1 point per … Ks spent</label>
                 <input id="per_ks" name="per_ks" type="number" min="0" value="{{ old('per_ks', $rules['per_ks']) }}" class="input h-11">
@@ -86,6 +86,9 @@
                     <x-field-error name="redeem_min" />
                 </div>
             </div>
+            <details class="rounded-xl border border-line bg-bg/40 p-4">
+                <summary class="cursor-pointer font-semibold">Bonuses &amp; check-in</summary>
+                <div class="mt-4 flex flex-col gap-4">
             <div>
                 <label for="referral_bonus" class="label">Referral bonus (points)</label>
                 <input id="referral_bonus" name="referral_bonus" type="number" min="0" value="{{ old('referral_bonus', $rules['referral_bonus']) }}" class="input h-11">
@@ -121,6 +124,11 @@
                 </div>
             </div>
             <p class="m-0 -mt-2 text-xs text-muted">Day 1 gives "Check-in"; each next day in a row adds "+ per day", up to "Max days". Check-in 0 = off.</p>
+                </div>
+            </details>
+            <details class="rounded-xl border border-line bg-bg/40 p-4">
+                <summary class="cursor-pointer font-semibold">Automatic group upgrades</summary>
+                <div class="mt-4">
             <fieldset class="m-0 p-0 border-0 flex flex-col gap-2">
                 <legend class="label">Auto-upgrade group at lifetime points</legend>
                 @foreach ($groups as $g)
@@ -131,6 +139,8 @@
                 @endforeach
                 <p class="m-0 text-xs text-muted">Empty = no automatic upgrade. Users are only moved up (by group sort order), never down.</p>
             </fieldset>
+                </div>
+            </details>
             <button class="btn btn-primary">Save rules</button>
         </form>
 

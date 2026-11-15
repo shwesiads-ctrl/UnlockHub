@@ -3,13 +3,14 @@
 @section('content')
 <div class="flex flex-wrap gap-5 items-start">
     <section class="flex-[999_1_560px] min-w-0 card table-wrap">
-        <table class="table min-w-[680px]">
-            <thead><tr><th>Name &amp; badge</th><th class="w-24">Rank</th><th>Pricing rule (auto services)</th><th>Users</th><th>Custom prices</th><th>Auto-upgrade</th><th><span class="sr-only">Actions</span></th></tr></thead>
+        <div class="min-w-[1040px] px-5 py-4 border-b border-line"><h2 class="m-0 text-lg font-bold">Customer groups</h2><p class="m-0 mt-1 text-xs text-muted">Set tier order, automatic pricing rules and group defaults. Scroll horizontally to see all controls.</p></div>
+        <table class="table min-w-[1040px]">
+            <thead><tr><th class="min-w-[300px]">Group &amp; badge</th><th class="w-24">Rank</th><th class="min-w-[270px]">Pricing rule</th><th>Users</th><th>Custom prices</th><th>Upgrade at</th><th><span class="sr-only">Actions</span></th></tr></thead>
             <tbody>
             @foreach ($groups as $g)
                 <tr>
                     <td colspan="3" class="p-0">
-                        <form id="g{{ $g->id }}" method="POST" action="{{ route('admin.groups.update', $g) }}" class="grid grid-cols-[1fr_6rem_17rem] items-center">
+                        <form id="g{{ $g->id }}" method="POST" action="{{ route('admin.groups.update', $g) }}" class="grid grid-cols-[minmax(15rem,1fr)_6rem_17rem] items-center">
                             @csrf @method('PUT')
                             <div class="px-4 py-2.5 flex items-center gap-2 flex-wrap">
                                 <label for="gn{{ $g->id }}" class="sr-only">Name</label>
@@ -51,7 +52,7 @@
     <aside class="flex-[1_1_320px] min-w-0 flex flex-col gap-5">
         <form method="POST" action="{{ route('admin.groups.pricing-settings') }}" class="card p-5 flex flex-col gap-3">
             @csrf @method('PUT')
-            <h2 class="m-0 text-lg font-bold">Pricing &amp; profit protection</h2>
+            <div><h2 class="m-0 text-lg font-bold">Pricing &amp; profit protection</h2><p class="m-0 mt-1 text-xs text-muted">Defaults used when services are set to automatic pricing.</p></div>
             <p class="m-0 text-xs text-muted">Auto-priced services: price = cost + group markup (at least the group's min profit), rounded up. Manual services keep their own prices.</p>
             <div class="grid grid-cols-2 gap-3">
                 <div><label for="rounding" class="label text-xs">Round up to</label>
@@ -73,7 +74,7 @@
         </form>
         <form method="POST" action="{{ route('admin.groups.store') }}" class="card p-5 flex flex-col gap-3.5">
             @csrf
-            <h2 class="m-0 text-lg font-bold">Add group</h2>
+            <div><h2 class="m-0 text-lg font-bold">Add a group</h2><p class="m-0 mt-1 text-xs text-muted">Create a pricing tier for customers or resellers.</p></div>
             <div><label for="name" class="label">Name</label><input id="name" name="name" value="{{ old('name') }}" class="input h-11" placeholder="e.g. Gold Reseller" required><x-field-error name="name" /></div>
             <div><label for="sort" class="label">Rank <span class="font-normal text-muted">(higher = better tier)</span></label><input id="sort" name="sort" type="number" min="0" value="{{ old('sort') }}" class="input h-11"></div>
             <button class="btn btn-primary">Add</button>
