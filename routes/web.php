@@ -25,7 +25,8 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/locale/{locale}', function (string $locale) {
     abort_unless(array_key_exists($locale, config('unlockhub.locales')), 404);
     session(['locale' => $locale]);
-    auth()->user()?->forceFill(['preferred_locale' => $locale])->save();
+    // Picked by hand: stop following the visitor's location from now on.
+    auth()->user()?->forceFill(['preferred_locale' => $locale, 'locale_auto' => false])->save();
 
     return back();
 })->name('locale');

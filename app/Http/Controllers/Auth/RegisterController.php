@@ -55,6 +55,9 @@ class RegisterController extends Controller
                 : null,
         ]);
 
+        // Start in the language they are reading now (it keeps following their location until they pick one).
+        $user->forceFill(['preferred_locale' => app()->getLocale()])->save();
+
         if (app()->bound('reseller.shop') && app('reseller.shop_by_domain')) {
             $user->forceFill(['parent_id' => app('reseller.shop')->user_id])->save();
         }

@@ -48,6 +48,7 @@
     "Ask about an order, a payment or your account. We reply here and by email.": "สอบถามเรื่องคำสั่งซื้อ การชำระเงิน หรือบัญชี เราจะตอบที่นี่และทางอีเมล",
     "At least 8 characters with letters and numbers.": "อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข",
     "Attach files": "แนบไฟล์",
+    "Auto (by my location)": "อัตโนมัติ (ตามตำแหน่งของฉัน)",
     "Auto (from language)": "อัตโนมัติ (ตามภาษา)",
     "Auto refund on rejected orders": "คืนเงินอัตโนมัติเมื่อคำสั่งถูกปฏิเสธ",
     "Balance": "ยอดคงเหลือ",

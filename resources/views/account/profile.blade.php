@@ -89,15 +89,16 @@
             <div>
                 <label for="preferred_locale" class="label">{{ __('Language') }}</label>
                 <select id="preferred_locale" name="preferred_locale" class="input">
+                    <option value="auto" @selected($user->locale_auto)>{{ __('Auto (by my location)') }}</option>
                     @foreach (config('unlockhub.locales') as $code => $label)
-                        <option value="{{ $code }}" @selected($user->preferred_locale === $code)>{{ $label }}</option>
+                        <option value="{{ $code }}" @selected(! $user->locale_auto && $user->preferred_locale === $code)>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
             <div>
                 <label for="country" class="label">{{ __('Country') }} <span class="font-normal text-muted text-xs">· {{ __('decides which payment methods you see') }}</span></label>
                 <select id="country" name="country" class="input">
-                    <option value="">{{ __('Auto (from language)') }}</option>
+                    <option value="">{{ __('Auto (by my location)') }}</option>
                     @foreach (config('unlockhub.countries') as $code => $label)
                         <option value="{{ $code }}" @selected($user->country === $code)>{{ __($label) }}</option>
                     @endforeach

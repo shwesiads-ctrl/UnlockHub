@@ -145,6 +145,9 @@ class SettingsController extends Controller
             Setting::put('captcha.verified_at', null); // not enforced until tested again
         }
 
+        Setting::put('geo.auto_locale', $request->boolean('geo_locale') ? '1' : '0');
+        Setting::put('geo.auto_payment', $request->boolean('geo_payment') ? '1' : '0');
+
         $cfWas = setting('security.cloudflare');
         Setting::put('security.cloudflare', $request->boolean('cloudflare') ? '1' : '0');
         // "Cloudflare only" needs the proxy setting and must come through Cloudflare right now (no self-lockout)

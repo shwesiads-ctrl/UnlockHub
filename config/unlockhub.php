@@ -40,6 +40,12 @@ return [
         'vi' => 'Tiếng Việt',
     ],
 
+    // Visitor country (Cloudflare / GeoIP / browser) → first language shown.
+    'country_locale' => [
+        'MM' => 'my', 'TH' => 'th', 'LA' => 'lo', 'VN' => 'vi',
+        'CN' => 'zh', 'HK' => 'zh', 'TW' => 'zh', 'MO' => 'zh', 'SG' => 'zh',
+    ],
+
     // Language → country, used to pick payment methods for visitors without a saved country.
     'locale_country' => ['my' => 'MM', 'th' => 'TH', 'zh' => 'CN', 'lo' => 'LA', 'vi' => 'VN'],
 

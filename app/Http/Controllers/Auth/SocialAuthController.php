@@ -200,7 +200,8 @@ class SocialAuthController extends Controller
             ]);
             $user->forceFill([
                 'password_set' => false,
-                'email_verified_at' => $profile['email'] && $profile['email_verified'] ? now() : null,
+                'preferred_locale' => app()->getLocale(),
+                    'email_verified_at' => $profile['email'] && $profile['email_verified'] ? now() : null,
             ])->save();
 
             SocialAccount::create([

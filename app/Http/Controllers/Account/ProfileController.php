@@ -44,7 +44,7 @@ class ProfileController extends Controller
             'phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s\-]{6,20}$/'],
             'shop_name' => ['nullable', 'string', 'max:100'],
             'city' => ['nullable', 'string', 'max:60'],
-            'preferred_locale' => ['required', Rule::in(array_keys(config('unlockhub.locales')))],
+            'preferred_locale' => ['required', Rule::in([...array_keys(config('unlockhub.locales')), 'auto'])],
             'preferred_currency' => ['required', Rule::in(config('unlockhub.currencies'))],
             'country' => ['nullable', Rule::in(array_keys(config('unlockhub.countries')))],
         ]);
@@ -54,7 +54,9 @@ class ProfileController extends Controller
             'phone' => $data['phone'] ?? null,
             'shop_name' => $data['shop_name'] ?? null,
             'city' => $data['city'] ?? null,
-            'preferred_locale' => $data['preferred_locale'],
+            // "auto" = follow the visitor's location; otherwise the language is fixed
+            'preferred_locale' => $data['preferred_locale'] === 'auto' ? app()->getLocale() : $data['preferred_locale'],
+            'locale_auto' => $data['preferred_locale'] === 'auto',
             'preferred_currency' => $data['preferred_currency'],
             'country' => $data['country'] ?? null,
             'notify_email' => $request->boolean('notify_email'),
@@ -67,7 +69,11 @@ class ProfileController extends Controller
         }
 
         $user->save();
-        session(['locale' => $user->preferred_locale]);
+        if ($user->locale_auto) {
+            session()->forget('locale');
+        } else {
+            session(['locale' => $user->preferred_locale]);
+        }
         session()->forget('pay_country');
 
         $msg = 'Profile saved.';

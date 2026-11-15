@@ -51,14 +51,17 @@ class PaymentMethod extends Model
     }
 
     /**
-     * Country to show payment methods for: the user's saved country,
-     * then the language they use, then Myanmar.
+     * Country to show payment methods for: the user's saved country, a country
+     * picked on the page, where the visitor is, the language they use, then Myanmar.
      */
     public static function countryFor(?User $user = null): string
     {
         $countries = config('unlockhub.countries', ['MM' => 'Myanmar']);
+        $request = request();
+
         $pick = $user?->country
             ?? session('pay_country')
+            ?? (\App\Support\GeoLocale::enabled('payment') ? \App\Support\GeoLocale::paymentCountry($request) : null)
             ?? (config('unlockhub.locale_country')[app()->getLocale()] ?? null);
 
         return isset($countries[$pick]) ? $pick : 'MM';

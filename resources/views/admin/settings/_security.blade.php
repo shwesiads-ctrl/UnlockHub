@@ -48,6 +48,16 @@
             <span class="text-xs {{ $via ? 'text-ok' : 'text-muted' }}">This page reached the server {{ $via ? 'through Cloudflare ✓' : 'directly (not through Cloudflare)' }} · your IP: {{ request()->ip() }}</span>
             <span class="text-xs text-muted">Also recommended in Cloudflare: SSL/TLS = Full (strict), "Always Use HTTPS", Bot Fight Mode, and a WAF rate-limit rule for <code>/login</code> and <code>/api/*</code>.</span>
         </div>
+        @php $geo = \App\Support\GeoLocale::detect(request()); @endphp
+        <div class="rounded-xl border border-line p-4 flex flex-col gap-2">
+            <span class="font-semibold">Visitor location → language &amp; payment</span>
+            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="geo_locale" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('geo.auto_locale', '1') === '1')>
+                <span>Open the site in the visitor's language by location (Myanmar → မြန်မာ, Thailand → ไทย, China/HK/TW → 中文, Laos → ລາວ, Vietnam → Tiếng Việt, others → English). A language the visitor picks always wins.</span></label>
+            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="geo_payment" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('geo.auto_payment', '1') === '1')>
+                <span>Show the payment methods of the visitor's country on Home and Add Funds. A country saved in the profile always wins.</span></label>
+            <span class="text-xs text-muted">Location comes from Cloudflare (<code>CF-IPCountry</code> — most accurate, turn on "IP Geolocation" in Cloudflare › Network), the server's GeoIP if your host provides it, or the browser language. No outside service is called.</span>
+            <span class="text-xs {{ $geo ? 'text-ok' : 'text-muted' }}">Your location as the site sees it: {{ $geo ?: 'unknown' }}{{ $geo && config('unlockhub.countries.'.$geo) ? ' ('.config('unlockhub.countries.'.$geo).')' : '' }}</span>
+        </div>
         <button class="btn btn-primary self-start">Save security settings</button>
     </form>
 

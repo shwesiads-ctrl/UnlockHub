@@ -37,6 +37,7 @@ class User extends Authenticatable
             'balance' => 'decimal:2',
             'points' => 'integer',
             'notify_email' => 'boolean',
+            'locale_auto' => 'boolean',
             'password_set' => 'boolean',
             'profile_bonus_awarded' => 'boolean',
             'last_checkin_on' => 'date',

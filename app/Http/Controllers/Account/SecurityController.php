@@ -49,12 +49,19 @@ class SecurityController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s\-]{6,20}$/'],
-            'preferred_locale' => ['required', Rule::in(array_keys(config('unlockhub.locales')))],
+            'preferred_locale' => ['required', Rule::in([...array_keys(config('unlockhub.locales')), 'auto'])],
             'preferred_currency' => ['required', Rule::in(config('unlockhub.currencies'))],
         ]);
 
         $data['notify_email'] = $request->boolean('notify_email');
-        $user->update($data);
+        $data['locale_auto'] = $data['preferred_locale'] === 'auto';
+        if ($data['locale_auto']) {
+            $data['preferred_locale'] = app()->getLocale();
+            session()->forget('locale');
+        } else {
+            session(['locale' => $data['preferred_locale']]);
+        }
+        $user->forceFill($data)->save();
 
         return back()->with('success', 'Profile updated.');
     }
