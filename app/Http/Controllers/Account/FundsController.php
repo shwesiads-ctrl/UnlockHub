@@ -21,14 +21,34 @@ class FundsController extends Controller
             return view('account.funds-reseller', ['reseller' => $reseller->load('resellerProfile')]);
         }
 
-        $methods = PaymentMethod::active()->get();
+        $user = $request->user();
+        $countries = config('unlockhub.countries');
+
+        // Switching the country tab remembers the choice on the account.
+        $asked = strtoupper((string) $request->query('country'));
+        if ($asked !== '' && isset($countries[$asked])) {
+            session(['pay_country' => $asked]);
+            if ($user->country !== $asked) {
+                $user->forceFill(['country' => $asked])->save();
+            }
+        }
+
+        $country = PaymentMethod::countryFor($user);
+        $all = PaymentMethod::active()->get();
+        $methods = $all->filter(fn ($m) => $m->country === null || $m->country === $country)->values();
         $selected = $methods->firstWhere('code', $request->query('method', old('method'))) ?? $methods->first();
+
+        // Only offer tabs for countries that have at least one method turned on.
+        $withMethods = $all->pluck('country')->filter()->unique();
+        $tabs = collect($countries)->filter(fn ($label, $code) => $withMethods->contains($code) || $code === $country);
 
         return view('account.funds', [
             'methods' => $methods,
             'selected' => $selected,
-            'history' => $request->user()->paymentRequests()->with('method:id,name')->latest()->paginate(10)->withQueryString(),
-            'pendingCount' => $request->user()->paymentRequests()->where('status', PaymentRequest::PENDING)->count(),
+            'country' => $country,
+            'tabs' => $tabs->count() > 1 ? $tabs : collect(),
+            'history' => $user->paymentRequests()->with('method:id,name')->latest()->paginate(10)->withQueryString(),
+            'pendingCount' => $user->paymentRequests()->where('status', PaymentRequest::PENDING)->count(),
         ]);
     }
 
@@ -45,7 +65,7 @@ class FundsController extends Controller
         $method = PaymentMethod::active()->where('code', $request->input('method'))->firstOrFail();
 
         $receipt = config('unlockhub.receipts');
-        $amountRules = ['required', 'numeric', 'min:'.(float) $method->min_amount];
+        $amountRules = ['required', 'numeric', 'gt:0', 'min:'.(float) $method->min_amount];
         if ($method->max_amount) {
             $amountRules[] = 'max:'.(float) $method->max_amount;
         }
@@ -55,7 +75,8 @@ class FundsController extends Controller
             'transaction_id' => ['required', 'string', 'min:4', 'max:64', 'regex:/^[A-Za-z0-9\-\s]+$/'],
             'receipt' => ['required', 'file', 'image', 'mimes:'.implode(',', $receipt['mimes']), 'max:'.$receipt['max_kb']],
         ], [
-            'amount.min' => 'Minimum top-up for '.$method->name.' is '.money($method->min_amount).'.',
+            'amount.min' => 'Minimum top-up for '.$method->name.' is '.pay_amount($method->min_amount, $method->currency).'.',
+            'amount.max' => 'Maximum top-up for '.$method->name.' is '.pay_amount($method->max_amount, $method->currency).'.',
             'transaction_id.regex' => 'Transaction ID can only contain letters, numbers, spaces and dashes.',
         ]);
 
@@ -98,13 +119,17 @@ class FundsController extends Controller
         $pr = $user->paymentRequests()->create([
             'payment_method_id' => $method->id,
             'amount' => $data['amount'],
+            // Rate is copied now, so changing it later never changes this top-up.
+            'currency' => $method->currency ?: 'MMK',
+            'rate' => $method->currency === 'MMK' ? 1 : $method->rate,
             'transaction_id' => $txn,
             'receipt_path' => $path,
             'status' => PaymentRequest::PENDING,
         ]);
 
         \App\Support\Notify::admin('payment', '💰 <b>New top-up receipt</b>'
-            ."\n".\App\Support\Notify::e($user->username).' · '.$method->name.' · '.money($data['amount'])
+            ."\n".\App\Support\Notify::e($user->username).' · '.$method->name.' · '.pay_amount($data['amount'], $method->currency)
+            .($method->isForeign() ? ' ≈ '.money($method->toKs((float) $data['amount'])) : '')
             ."\nTxn: ".\App\Support\Notify::e($txn)
             ."\n".route('admin.payments.show', $pr));
 

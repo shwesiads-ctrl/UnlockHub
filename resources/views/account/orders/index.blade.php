@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="flex flex-wrap gap-2 items-center">
-    <nav aria-label="Status" class="flex flex-wrap gap-2">
+    <nav aria-label="{{ __('Status') }}" class="flex flex-wrap gap-2">
         <a href="{{ route('account.orders.index') }}" @class(['btn h-9 text-[13px]', 'btn-primary' => ! $status && ! request('batch')])>All ({{ $counts->sum() }})</a>
         @foreach (\App\Models\Order::STATUS_LABELS as $k => $label)
             @if (($counts[$k] ?? 0) > 0 || $status === $k)
@@ -12,24 +12,24 @@
     </nav>
     <form method="GET" class="ml-auto flex gap-2">
         @if ($status) <input type="hidden" name="status" value="{{ $status }}"> @endif
-        <label for="q" class="sr-only">Search</label>
-        <input id="q" name="q" type="search" value="{{ request('q') }}" placeholder="Order no, IMEI, service…" class="input h-9 w-60 text-sm">
-        <button class="btn h-9 text-[13px]">Search</button>
+        <label for="q" class="sr-only">{{ __('Search') }}</label>
+        <input id="q" name="q" type="search" value="{{ request('q') }}" placeholder="{{ __('Order no, IMEI, service…') }}" class="input h-9 w-60 text-sm">
+        <button class="btn h-9 text-[13px]">{{ __('Search') }}</button>
     </form>
 </div>
 
 @if (request('batch'))
     <div class="rounded-xl px-4 py-3 text-sm bg-brand-soft text-brand-ink flex flex-wrap gap-3 items-center">
         <span class="flex-1">Showing one bulk order ({{ $orders->total() }} items).</span>
-        <a href="{{ route('account.orders.export', ['batch' => request('batch')]) }}" class="btn h-9 text-[13px]">Download CSV</a>
+        <a href="{{ route('account.orders.export', ['batch' => request('batch')]) }}" class="btn h-9 text-[13px]">{{ __('Download CSV') }}</a>
         @if ($orders->first()) <a href="{{ route('account.orders.reorder', $orders->first()) }}" class="btn h-9 text-[13px]">{{ __('Order this bulk again') }}</a> @endif
-        <a href="{{ route('account.orders.index') }}" class="btn h-9 text-[13px]">Show all orders</a>
+        <a href="{{ route('account.orders.index') }}" class="btn h-9 text-[13px]">{{ __('Show all orders') }}</a>
     </div>
 @endif
 
 <section class="card table-wrap">
     <table class="table min-w-[760px]">
-        <thead><tr><th>Order</th><th>Service · Input</th><th>Result</th><th class="text-right">Price</th><th>Status</th></tr></thead>
+        <thead><tr><th>{{ __('Order') }}</th><th>{{ __('Service · Input') }}</th><th>{{ __('Result') }}</th><th class="text-right">{{ __('Price') }}</th><th>{{ __('Status') }}</th></tr></thead>
         <tbody>
         @forelse ($orders as $order)
             <tr>
@@ -50,11 +50,11 @@
                 <td class="text-right whitespace-nowrap">{{ price($order->price) }}</td>
                 <td>
                     <x-status-badge :status="$order->status" />
-                    @if ($order->refunded) <div class="text-[11px] text-muted mt-1">refunded</div> @endif
+                    @if ($order->refunded) <div class="text-[11px] text-muted mt-1">{{ __('refunded') }}</div> @endif
                 </td>
             </tr>
         @empty
-            <tr><td colspan="5" class="text-center text-muted py-10">No orders found. <a href="{{ route('services.index') }}">Browse services</a></td></tr>
+            <tr><td colspan="5" class="text-center text-muted py-10">{{ __('No orders found.') }} <a href="{{ route('services.index') }}">{{ __('Browse services') }}</a></td></tr>
         @endforelse
         </tbody>
     </table>
@@ -63,7 +63,7 @@
 <div class="flex flex-wrap gap-3 items-center justify-between">
     {{ $orders->links() }}
     @if ($orders->total() > 0 && ! request('batch'))
-        <a href="{{ route('account.orders.export') }}" class="btn h-9 text-[13px]">Download CSV</a>
+        <a href="{{ route('account.orders.export') }}" class="btn h-9 text-[13px]">{{ __('Download CSV') }}</a>
     @endif
 </div>
 @endsection

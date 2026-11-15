@@ -11,7 +11,7 @@
     <h2 class="m-0 text-lg font-bold">1. {{ __('Download a template') }}</h2>
     <p class="m-0 text-sm text-muted">{{ __('One row per order. Columns') }}: <strong>{{ $service->fields->pluck('label')->join(', ') ?: 'IMEI' }}</strong>. {{ __('The Excel template keeps every column as Text, so IMEIs keep their leading zeros.') }}</p>
     <div class="flex flex-wrap gap-2">
-        <a href="{{ route('account.bulk.template', [$service, 'xlsx']) }}" class="btn"><x-icon name="file" size="16" />Excel (.xlsx)</a>
+        <a href="{{ route('account.bulk.template', [$service, 'xlsx']) }}" class="btn"><x-icon name="file" size="16" />{{ __('Excel (.xlsx)') }}</a>
         <a href="{{ route('account.bulk.template', [$service, 'csv']) }}" class="btn"><x-icon name="file" size="16" />CSV</a>
     </div>
 </section>

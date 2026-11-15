@@ -9,13 +9,13 @@
             @auth
                 Prices shown for your group: <strong class="text-ink">{{ auth()->user()->group?->name ?? 'Customer' }}</strong>.
             @else
-                Showing standard prices. <a href="{{ route('login') }}">Log in</a> to see your reseller price.
+                Showing standard prices. <a href="{{ route('login') }}">{{ __('Log in') }}</a> to see your reseller price.
             @endauth
             Delivery times are estimates.
         </p>
     </div>
 
-    <nav aria-label="Service type" class="flex flex-wrap gap-2">
+    <nav aria-label="{{ __('Service type') }}" class="flex flex-wrap gap-2">
         @foreach (\App\Models\Service::TYPES as $key => $label)
             <a href="{{ route('services.index', ['type' => $key]) }}" @class([
                 'btn',
@@ -28,10 +28,10 @@
         <input type="hidden" name="type" value="{{ $type }}">
         <div class="flex-[1_1_300px] flex items-center gap-2.5 h-11 px-3.5 rounded-[10px] border border-line bg-bg text-muted">
             <x-icon name="search" />
-            <label for="q" class="sr-only">Search services</label>
+            <label for="q" class="sr-only">{{ __('Search services') }}</label>
             <input id="q" name="q" type="search" value="{{ $search }}" placeholder="{{ __('Search services…') }}" class="flex-1 bg-transparent outline-none text-ink text-sm">
         </div>
-        <label for="category" class="sr-only">Group</label>
+        <label for="category" class="sr-only">{{ __('Group') }}</label>
         <select id="category" name="category" class="input h-11 w-auto min-w-52" onchange="this.form.submit()">
             <option value="">{{ __('All groups') }}</option>
             @foreach ($allCategories as $cat)
@@ -56,7 +56,7 @@
                     @endforeach
                 </span>
             @elseif ($search || $hotOnly || $categoryId)
-                <a href="{{ route('services.index', ['type' => $type]) }}" class="text-sm">Clear filters</a>
+                <a href="{{ route('services.index', ['type' => $type]) }}" class="text-sm">{{ __('Clear filters') }}</a>
             @endif
         </div>
     @else
@@ -68,7 +68,7 @@
                         <th>{{ __('Delivery time') }}</th>
                         @if ($pointsOn) <th>{{ __('Points') }}</th> @endif
                         <th class="text-right">{{ __('Price') }}</th>
-                        <th><span class="sr-only">Action</span></th>
+                        <th><span class="sr-only">{{ __('Action') }}</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,7 +84,7 @@
                                     @auth
                                         <form method="POST" action="{{ route('account.favorites.toggle', $service) }}" data-favorite>
                                             @csrf
-                                            <button class="text-lg leading-none bg-transparent border-0 cursor-pointer p-0 {{ in_array($service->id, $favoriteIds, true) ? 'text-point' : 'text-muted' }}" aria-pressed="{{ in_array($service->id, $favoriteIds, true) ? 'true' : 'false' }}" aria-label="Favourite">{{ in_array($service->id, $favoriteIds, true) ? '★' : '☆' }}</button>
+                                            <button class="text-lg leading-none bg-transparent border-0 cursor-pointer p-0 {{ in_array($service->id, $favoriteIds, true) ? 'text-point' : 'text-muted' }}" aria-pressed="{{ in_array($service->id, $favoriteIds, true) ? 'true' : 'false' }}" aria-label="{{ __('Favourite') }}">{{ in_array($service->id, $favoriteIds, true) ? '★' : '☆' }}</button>
                                         </form>
                                     @endauth
                                     <a href="{{ route('services.show', $service) }}" class="text-ink hover:text-brand-ink no-underline">{{ $service->name }}</a>

@@ -58,3 +58,18 @@ document.addEventListener('change', (e) => {
   const section = e.target.closest('[data-mode-section]');
   section?.querySelector('[data-api-only]')?.classList.toggle('hidden', e.target.value !== 'api');
 });
+
+// Top-up approval in a foreign currency: credited Ks = received × rate.
+document.querySelectorAll('[data-approve-calc]').forEach((box) => {
+  const form = box.closest('form');
+  const amount = box.querySelector('[data-calc-amount]');
+  const rate = box.querySelector('[data-calc-rate]');
+  const result = form && form.querySelector('[data-calc-result]');
+  if (!amount || !rate || !result) return;
+  const calc = () => {
+    const ks = Number(amount.value || 0) * Number(rate.value || 0);
+    if (ks > 0) result.value = Math.round(ks);
+  };
+  amount.addEventListener('input', calc);
+  rate.addEventListener('input', calc);
+});

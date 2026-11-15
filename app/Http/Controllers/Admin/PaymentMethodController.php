@@ -9,21 +9,33 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
-/** KBZPay / WavePay / AYA Pay / CB Pay account settings. */
+/** Payment accounts per country (KBZPay, PromptPay, Alipay, BCEL One, MoMo…), each with its currency and rate. */
 class PaymentMethodController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $country = $request->query('country');
+
         return view('admin.payment-methods.index', [
-            'methods' => PaymentMethod::orderBy('sort')->withCount(['requests as pending_count' => fn ($q) => $q->where('status', 'pending')])->orderBy('id')->paginate(20)->withQueryString(),
+            'country' => $country,
+            'countries' => config('unlockhub.countries'),
+            'methods' => PaymentMethod::query()
+                ->when($country === 'all', fn ($q) => $q->whereNull('country'))
+                ->when($country && $country !== 'all', fn ($q) => $q->where('country', $country))
+                ->orderBy('sort')->withCount(['requests as pending_count' => fn ($q) => $q->where('status', 'pending')])->orderBy('id')->paginate(20)->withQueryString(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:60']]);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:60'],
+            'country' => ['nullable', Rule::in(array_keys(config('unlockhub.countries')))],
+            'currency' => ['nullable', 'string', 'size:3', 'alpha'],
+        ]);
 
         $code = Str::slug($data['name'], '');
         $i = 1;
@@ -34,6 +46,9 @@ class PaymentMethodController extends Controller
         PaymentMethod::create([
             'name' => $data['name'],
             'code' => $code,
+            'country' => $data['country'] ?? null,
+            'currency' => strtoupper($data['currency'] ?? 'MMK'),
+            'rate' => 1,
             'is_active' => false,
             'sort' => (int) PaymentMethod::max('sort') + 1,
         ]);
@@ -45,6 +60,9 @@ class PaymentMethodController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:60'],
+            'country' => ['nullable', Rule::in(array_keys(config('unlockhub.countries')))],
+            'currency' => ['required', 'string', 'size:3', 'alpha'],
+            'rate' => ['required', 'numeric', 'gt:0', 'max:9999999'],
             'account_name' => ['nullable', 'string', 'max:100'],
             'account_number' => ['nullable', 'string', 'max:50'],
             'instructions' => ['nullable', 'string', 'max:1000'],
@@ -58,6 +76,14 @@ class PaymentMethodController extends Controller
         $active = $request->boolean('is_active');
         if ($active && blank($data['account_number'])) {
             return back()->withErrors(["account_number_{$paymentMethod->id}" => 'Add the account number before turning this method on.']);
+        }
+
+        $currency = strtoupper($data['currency']);
+        if ($currency === 'MMK') {
+            $data['rate'] = 1;
+        } elseif ($active && (float) $data['rate'] === 1.0) {
+            // A foreign currency at 1:1 is almost certainly a rate that was never set.
+            return back()->withErrors(["rate_{$paymentMethod->id}" => "Set how many Ks 1 {$currency} is worth before turning this method on."]);
         }
 
         if ($request->boolean('remove_qr') && $paymentMethod->qr_path) {
@@ -74,6 +100,9 @@ class PaymentMethodController extends Controller
 
         $paymentMethod->fill([
             'name' => $data['name'],
+            'country' => $data['country'] ?? null,
+            'currency' => $currency,
+            'rate' => $data['rate'],
             'account_name' => $data['account_name'] ?? null,
             'account_number' => $data['account_number'] ?? null,
             'instructions' => $data['instructions'] ?? null,
@@ -83,7 +112,7 @@ class PaymentMethodController extends Controller
             'is_active' => $active,
         ])->save();
 
-        ActivityLog::record('payment_method.updated', null, ['method' => $paymentMethod->code, 'active' => $active]);
+        ActivityLog::record('payment_method.updated', null, ['method' => $paymentMethod->code, 'active' => $active, 'country' => $paymentMethod->country, 'currency' => $currency, 'rate' => (float) $data['rate']]);
 
         return back()->with('success', "{$paymentMethod->name} saved.");
     }

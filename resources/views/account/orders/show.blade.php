@@ -1,7 +1,7 @@
 @extends('layouts.account', ['title' => 'Order #'.$order->order_no])
 
 @section('content')
-<a href="{{ route('account.orders.index') }}" class="text-sm self-start">← All orders</a>
+<a href="{{ route('account.orders.index') }}" class="text-sm self-start">{{ __('← All orders') }}</a>
 
 <div class="flex flex-wrap gap-5 items-start">
     <section class="flex-[999_1_520px] min-w-0 flex flex-col gap-5">
@@ -13,13 +13,13 @@
 
             @if ($order->status === 'success')
                 <div class="rounded-xl p-4 bg-ok-soft flex flex-col gap-2">
-                    <span class="text-sm font-semibold text-ok">Result</span>
+                    <span class="text-sm font-semibold text-ok">{{ __('Result') }}</span>
                     <pre class="m-0 font-mono text-[15px] text-ink whitespace-pre-wrap break-all">{{ $order->result }}</pre>
-                    <button type="button" class="btn h-9 text-[13px] self-start" data-copy="{{ $order->result }}">Copy result</button>
+                    <button type="button" class="btn h-9 text-[13px] self-start" data-copy="{{ $order->result }}">{{ __('Copy result') }}</button>
                 </div>
             @elseif ($order->status === 'rejected')
                 <div class="rounded-xl p-4 bg-danger-soft text-danger text-sm leading-relaxed">
-                    <strong>Rejected:</strong> {{ $order->result ?: 'No reason given.' }}
+                    <strong>{{ __('Rejected:') }}</strong> {{ $order->result ?: 'No reason given.' }}
                     @if ($order->refunded) <br>{{ money($order->price) }} was refunded to your wallet. @endif
                 </div>
             @elseif ($order->status === 'cancelled')
@@ -36,7 +36,7 @@
                     <div><dt class="text-muted">{{ $label }}</dt><dd class="m-0 font-mono font-semibold break-all">{{ $value }}</dd></div>
                 @endforeach
                 @if ($order->user_note)
-                    <div class="col-span-full"><dt class="text-muted">Your note</dt><dd class="m-0">{{ $order->user_note }}</dd></div>
+                    <div class="col-span-full"><dt class="text-muted">{{ __('Your note') }}</dt><dd class="m-0">{{ $order->user_note }}</dd></div>
                 @endif
             </dl>
         </div>
@@ -44,15 +44,15 @@
 
     <aside class="flex-[1_1_320px] min-w-0 flex flex-col gap-4">
         <div class="card p-5 flex flex-col gap-3 text-sm">
-            <div class="flex justify-between"><span class="text-muted">Order no.</span><span class="font-mono font-semibold">{{ $order->order_no }}</span></div>
-            <div class="flex justify-between"><span class="text-muted">Placed</span><span>{{ $order->created_at->format('d M Y H:i') }}</span></div>
+            <div class="flex justify-between"><span class="text-muted">{{ __('Order no.') }}</span><span class="font-mono font-semibold">{{ $order->order_no }}</span></div>
+            <div class="flex justify-between"><span class="text-muted">{{ __('Placed') }}</span><span>{{ $order->created_at->format('d M Y H:i') }}</span></div>
             @if ($order->completed_at)
-                <div class="flex justify-between"><span class="text-muted">Finished</span><span>{{ $order->completed_at->format('d M Y H:i') }}</span></div>
+                <div class="flex justify-between"><span class="text-muted">{{ __('Finished') }}</span><span>{{ $order->completed_at->format('d M Y H:i') }}</span></div>
             @endif
-            <div class="flex justify-between"><span class="text-muted">Price</span><span class="font-semibold">{{ price($order->price) }}</span></div>
-            <div class="flex justify-between"><span class="text-muted">Points</span><span class="font-semibold text-point">{{ $order->points_awarded ? '+'.$order->points.' earned' : '+'.$order->points.' on success' }}</span></div>
+            <div class="flex justify-between"><span class="text-muted">{{ __('Price') }}</span><span class="font-semibold">{{ price($order->price) }}</span></div>
+            <div class="flex justify-between"><span class="text-muted">{{ __('Points') }}</span><span class="font-semibold text-point">{{ $order->points_awarded ? '+'.$order->points.' earned' : '+'.$order->points.' on success' }}</span></div>
             @if ($order->batch_id)
-                <a href="{{ route('account.orders.index', ['batch' => $order->batch_id]) }}" class="text-[13px]">View the whole bulk order</a>
+                <a href="{{ route('account.orders.index', ['batch' => $order->batch_id]) }}" class="text-[13px]">{{ __('View the whole bulk order') }}</a>
             @endif
         </div>
 

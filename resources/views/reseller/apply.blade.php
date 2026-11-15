@@ -29,7 +29,7 @@
         <div><label for="shop_name" class="label">{{ __('Shop name') }}</label><input id="shop_name" name="shop_name" value="{{ old('shop_name', $profile?->shop_name ?? $user->shop_name) }}" class="input" required maxlength="80"><x-field-error name="shop_name" /></div>
         <div class="grid gap-4 sm:grid-cols-2">
             <div><label for="contact_phone" class="label">{{ __('Phone / Viber') }}</label><input id="contact_phone" name="contact_phone" value="{{ old('contact_phone', $profile?->contact_phone ?? $user->phone) }}" class="input"></div>
-            <div><label for="contact_telegram" class="label">Telegram</label><input id="contact_telegram" name="contact_telegram" value="{{ old('contact_telegram', $profile?->contact_telegram) }}" class="input" placeholder="@yourshop"></div>
+            <div><label for="contact_telegram" class="label">{{ __('Telegram') }}</label><input id="contact_telegram" name="contact_telegram" value="{{ old('contact_telegram', $profile?->contact_telegram) }}" class="input" placeholder="@yourshop"></div>
         </div>
         <div><label for="application_note" class="label">{{ __('Tell us about your business') }} <span class="font-normal text-muted">({{ __('optional') }})</span></label><textarea id="application_note" name="application_note" rows="3" maxlength="500" class="input">{{ old('application_note') }}</textarea></div>
         <button class="btn btn-primary self-start">{{ __('Apply') }}</button>

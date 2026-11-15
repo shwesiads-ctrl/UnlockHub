@@ -46,6 +46,7 @@ class ProfileController extends Controller
             'city' => ['nullable', 'string', 'max:60'],
             'preferred_locale' => ['required', Rule::in(array_keys(config('unlockhub.locales')))],
             'preferred_currency' => ['required', Rule::in(config('unlockhub.currencies'))],
+            'country' => ['nullable', Rule::in(array_keys(config('unlockhub.countries')))],
         ]);
 
         $user->fill([
@@ -55,6 +56,7 @@ class ProfileController extends Controller
             'city' => $data['city'] ?? null,
             'preferred_locale' => $data['preferred_locale'],
             'preferred_currency' => $data['preferred_currency'],
+            'country' => $data['country'] ?? null,
             'notify_email' => $request->boolean('notify_email'),
         ]);
 
@@ -66,6 +68,7 @@ class ProfileController extends Controller
 
         $user->save();
         session(['locale' => $user->preferred_locale]);
+        session()->forget('pay_country');
 
         $msg = 'Profile saved.';
         if ($awarded = $this->points->maybeAwardProfileBonus($user)) {

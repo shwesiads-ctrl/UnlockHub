@@ -176,7 +176,27 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 | **Activity Log** | Admin ဘယ်သူ ဘာလုပ်ခဲ့လဲ (approve, order result, balance ပြင်, setting) |
 | **Settings** | ဆိုဒ်နာမည်, Support hours, Contact email/phone/address, Social link, USD rate, Terms စာမျက်နှာ, Telegram |
 
-**ဘာသာစကား:** Header က **မြန်မာ / English** ခလုတ်နဲ့ ပြောင်းလို့ရတယ် (login ဝင်ထားရင် မှတ်ထားမယ်)။ ဘာသာပြန်တွေက `lang/my.json` မှာ ရှိတယ် — Menu, Home, Services, Account menu, Status တွေ ပြန်ပြီးပြီ။ ကျန်တဲ့ စာမျက်နှာတွေကို `__('English text')` နဲ့ wrap လုပ်ပြီး `lang/my.json` ထဲ ထပ်ထည့်ရုံပါပဲ။
+**ဘာသာစကား:** Header က 🌐 dropdown နဲ့ **English · မြန်မာ · ไทย · 中文 · ລາວ · Tiếng Việt** ပြောင်းလို့ရတယ် (login ဝင်ထားရင် account မှာ မှတ်ထားမယ်)။ ဘာသာပြန်တွေက `lang/{my,th,zh,lo,vi}.json` — customer ဘက် စာမျက်နှာအားလုံး (home, services, order, funds, statement, tickets, reseller, security…) ပြန်ပြီးပြီ။ ဘာသာစကားအလိုက် font (Noto Sans Myanmar / Thai / Lao / SC) ကို အဲ့ဘာသာ သုံးတဲ့အခါမှ load လုပ်တယ်။ ဘာသာအသစ်ထည့်ချင်ရင် `config/unlockhub.php` → `locales` မှာ ထည့်ပြီး `lang/xx.json` ဖိုင်တစ်ခု ဖန်တီးပါ။ Admin panel ကတော့ English ပဲ။
+
+## နိုင်ငံအလိုက် ငွေပေးချေမှု (TH / CN / LA / VN)
+
+| နိုင်ငံ | နည်းလမ်း (seed လုပ်ထား၊ ပိတ်ထား) | ငွေကြေး |
+|---|---|---|
+| 🇲🇲 Myanmar | KBZPay, WavePay, AYA Pay, CB Pay | MMK |
+| 🇹🇭 Thailand | PromptPay, TrueMoney Wallet | THB |
+| 🇨🇳 China | Alipay, WeChat Pay | CNY |
+| 🇱🇦 Laos | BCEL One, U-Money | LAK |
+| 🇻🇳 Vietnam | MoMo, VietQR (bank) | VND |
+
+- **Admin › Payments › Payment methods** — နိုင်ငံ tab နဲ့ စစ်ပြီး method တစ်ခုချင်းစီမှာ **Country** (ဘယ်နိုင်ငံက user မြင်မလဲ / Every country), **Currency**, **Rate (1 unit = ဘယ်နှစ် Ks)**, account, QR ထည့်ပြီး On လုပ်ပါ။ MMK မဟုတ်တဲ့ method ကို rate မသတ်မှတ်ဘဲ (1 ဖြစ်နေရင်) On လို့မရပါ။
+- User ဘယ်နိုင်ငံလဲဆိုတာ — Profile ထဲက **Country** → မရှိရင် ရွေးထားတဲ့ ဘာသာစကား (ไทย→TH, 中文→CN, ລາວ→LA, Tiếng Việt→VN, မြန်မာ/English→MM)။ Home page နဲ့ Add Funds မှာ နိုင်ငံ tab နဲ့ ပြောင်းလို့ရတယ်။
+- Add Funds မှာ user က method ရဲ့ ငွေကြေးနဲ့ ထည့်ရတယ် (ဥပမာ 500 THB) — "≈ 30,000 Ks" preview ပြတယ်။ Request မှာ အဲ့အချိန်က currency + rate ကို သိမ်းထားလို့ နောက်မှ rate ပြောင်းလည်း မပြောင်းဘူး။
+- **Admin approve စာမျက်နှာ** — "500 THB × 60 = 30,000 Ks" ပြပြီး Credit (Ks) ကို အလိုအလျောက် ဖြည့်ထားတယ်။ တကယ်ရတဲ့ ပမာဏ / rate ကို ပြင်လို့ရပြီး Ks ကို ပြန်တွက်ပေးတယ်။ Wallet ထဲကို **Ks ပဲ** ဝင်တယ် (ledger တစ်ခုတည်း)။
+
+```bash
+php artisan migrate
+php artisan db:seed --class=PaymentMethodSeeder   # TH/CN/LA/VN method တွေ ထည့် (ပိတ်ထားမယ်)
+```
 
 ## Social Login (Google, Facebook, Discord, TikTok, Telegram)
 

@@ -27,7 +27,7 @@
                 ['Settings & 2FA', 'sliders', 'account.security'],
             ];
         @endphp
-        <nav aria-label="Account" class="flex flex-col gap-0.5">
+        <nav aria-label="{{ __('Account') }}" class="flex flex-col gap-0.5">
             @foreach ($nav as [$label, $icon, $route])
                 @continue($route === 'account.points' && ! \App\Services\PointService::systemOn())
                 @continue($route === 'account.earnings' && ! (\App\Services\AffiliateService::enabled() || auth()->user()->isReseller()))
@@ -63,8 +63,9 @@
                     <a href="{{ route('account.points') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
                 @endif
                 <x-notification-bell />
+                <x-locale-switcher />
                 <x-theme-toggle />
-                <a href="{{ route('account.profile') }}" aria-label="My profile" class="no-underline"><x-avatar :user="auth()->user()" :size="44" /></a>
+                <a href="{{ route('account.profile') }}" aria-label="{{ __('My profile') }}" class="no-underline"><x-avatar :user="auth()->user()" :size="44" /></a>
             </div>
         </header>
 

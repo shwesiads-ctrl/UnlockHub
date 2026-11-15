@@ -21,7 +21,7 @@
             </a>
 
             <button type="button" class="btn btn-icon md:hidden order-2" data-toggle-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="{{ __('Menu') }}"><x-icon name="menu" /></button>
-            <nav id="main-nav" aria-label="Main" class="hidden md:flex order-3 md:order-none basis-full md:basis-auto flex-col md:flex-row md:flex-wrap gap-1 md:ml-3">
+            <nav id="main-nav" aria-label="{{ __('Main') }}" class="hidden md:flex order-3 md:order-none basis-full md:basis-auto flex-col md:flex-row md:flex-wrap gap-1 md:ml-3">
                 <a href="{{ route('home') }}" @class(['nav-link', 'active' => request()->routeIs('home')])>{{ __('Home') }}</a>
                 <a href="{{ route('services.index') }}" @class(['nav-link', 'active' => request()->routeIs('services.*')])>{{ __('Services & Pricing') }}</a>
                 <a href="{{ route('track') }}" @class(['nav-link', 'active' => request()->routeIs('track')])>{{ __('Track Order') }}</a>
@@ -31,8 +31,7 @@
             </nav>
 
             <div class="ml-auto order-1 md:order-none flex flex-wrap items-center gap-2">
-                @php $other = app()->getLocale() === 'my' ? 'en' : 'my'; @endphp
-                <a href="{{ route('locale', $other) }}" class="btn text-[13px]" lang="{{ $other }}" aria-label="{{ $other === 'my' ? 'Switch to Myanmar' : 'Switch to English' }}">{{ $other === 'my' ? 'မြန်မာ' : 'English' }}</a>
+                <x-locale-switcher />
                 <x-theme-toggle />
                 <x-notification-bell />
                 @auth
@@ -40,7 +39,7 @@
                     @if (\App\Services\PointService::systemOn())
                         <a href="{{ route('account.points') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
                     @endif
-                    <a href="{{ route('account.profile') }}" class="no-underline" aria-label="My profile"><x-avatar :user="auth()->user()" :size="44" /></a>
+                    <a href="{{ route('account.profile') }}" class="no-underline" aria-label="{{ __('My profile') }}"><x-avatar :user="auth()->user()" :size="44" /></a>
                 @else
                     <a href="{{ route('login') }}" class="btn">{{ __('Login') }}</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">{{ __('Register') }}</a>

@@ -1,4 +1,4 @@
-<nav aria-label="Reseller" class="flex flex-wrap gap-2">
+<nav aria-label="{{ __('Reseller') }}" class="flex flex-wrap gap-2">
     @foreach (['reseller.dashboard' => 'Overview', 'reseller.customers' => 'Customers', 'reseller.orders' => 'Orders', 'reseller.prices' => 'My prices', 'reseller.branding' => 'Branding', 'account.earnings' => 'Earnings'] as $r => $l)
         <a href="{{ route($r) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => request()->routeIs($r) || ($r === 'reseller.customers' && request()->routeIs('reseller.customers.*'))])>{{ __($l) }}</a>
     @endforeach

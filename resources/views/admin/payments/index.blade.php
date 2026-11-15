@@ -33,8 +33,11 @@
                     @endif
                 </td>
                 <td class="text-right font-display font-bold whitespace-nowrap">
-                    {{ money($r->amount) }}
-                    @if ($r->status === 'approved' && (float) $r->credited_amount !== (float) $r->amount)
+                    {{ pay_amount($r->amount, $r->currency) }}
+                    @if ($r->isForeign() && $r->status === 'pending')
+                        <div class="font-sans text-xs text-muted font-normal">≈ {{ money($r->suggestedCredit()) }}</div>
+                    @endif
+                    @if ($r->status === 'approved' && ($r->isForeign() || (float) $r->credited_amount !== (float) $r->amount))
                         <div class="font-sans text-xs text-muted font-normal">credited {{ money($r->credited_amount) }}</div>
                     @endif
                 </td>

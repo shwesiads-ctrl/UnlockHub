@@ -142,3 +142,34 @@ document.addEventListener('submit', (e) => {
     });
   });
 }, true);
+
+// Language switcher: close the dropdown on outside click or Escape.
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('details[data-locale-switcher][open]').forEach((d) => {
+    if (!d.contains(e.target)) d.removeAttribute('open');
+  });
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('details[data-locale-switcher][open]').forEach((d) => d.removeAttribute('open'));
+});
+
+// Add Funds in a foreign currency: show roughly how many Ks the wallet gets.
+const payKs = (input) => {
+  const out = input.form && input.form.querySelector('[data-pay-ks]');
+  if (!out) return;
+  const ks = Math.max(0, Number(input.value || 0)) * Number(input.dataset.payRate || 0);
+  out.textContent = ks ? '≈ ' + Math.round(ks).toLocaleString('en-US') + ' Ks' : '—';
+};
+document.addEventListener('input', (e) => {
+  if (e.target.matches && e.target.matches('[data-pay-rate]')) payKs(e.target);
+});
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest && e.target.closest('[data-fill]');
+  if (!btn) return;
+  setTimeout(() => {
+    const input = document.querySelector(btn.dataset.fill);
+    if (input && input.dataset.payRate) payKs(input);
+  });
+});
+document.querySelectorAll('[data-pay-rate]').forEach(payKs);

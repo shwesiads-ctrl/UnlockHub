@@ -9,9 +9,9 @@
             <p class="m-0 text-muted text-[15px]">{{ $isKb ? 'How-to guides, ordering tips and answers to common questions.' : 'News, new services and updates.' }}</p>
         </div>
         <form method="GET" role="search" class="flex gap-2">
-            <label for="q" class="sr-only">Search</label>
+            <label for="q" class="sr-only">{{ __('Search') }}</label>
             <input id="q" name="q" type="search" value="{{ $search }}" placeholder="Search {{ $isKb ? 'articles' : 'posts' }}…" class="input h-11 w-72">
-            <button class="btn h-11">Search</button>
+            <button class="btn h-11">{{ __('Search') }}</button>
         </form>
     </div>
 

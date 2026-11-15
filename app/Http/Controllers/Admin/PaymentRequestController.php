@@ -77,7 +77,18 @@ class PaymentRequestController extends Controller
         $data = $request->validate([
             'credited_amount' => ['required', 'numeric', 'min:1', 'max:9999999999'],
             'admin_note' => ['nullable', 'string', 'max:500'],
+            'paid_amount' => ['nullable', 'numeric', 'gt:0', 'max:9999999999'],
+            'rate' => ['nullable', 'numeric', 'gt:0', 'max:9999999'],
         ]);
+
+        // Foreign-currency top-up: keep the amount and rate the admin confirmed,
+        // so the record shows exactly how the Ks were worked out.
+        if ($paymentRequest->isForeign() && $paymentRequest->status === PaymentRequest::PENDING) {
+            $paymentRequest->forceFill(array_filter([
+                'amount' => $data['paid_amount'] ?? null,
+                'rate' => $data['rate'] ?? null,
+            ]))->save();
+        }
 
         try {
             $this->approvals->approve($paymentRequest, (float) $data['credited_amount'], $data['admin_note'] ?? null);

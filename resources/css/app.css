@@ -54,8 +54,8 @@
 }
 
 @theme inline {
-  --font-sans: Inter, "Noto Sans Myanmar", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", Inter, "Noto Sans Myanmar", sans-serif;
+  --font-sans: Inter, "Noto Sans Myanmar", "Noto Sans Thai", "Noto Sans Lao", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", Inter, "Noto Sans Myanmar", "Noto Sans Thai", "Noto Sans Lao", "Noto Sans SC", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-bg: var(--uh-bg);

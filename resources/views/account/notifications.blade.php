@@ -14,9 +14,9 @@
     <button type="button" class="btn btn-primary" data-install-app>{{ __('Install app') }}</button>
 </section>
 <div class="flex flex-wrap gap-2 items-center">
-    <p class="m-0 text-sm text-muted flex-1">Order results, top-up decisions and points. Email copies can be turned off in <a href="{{ route('account.security') }}">Settings</a>.</p>
+    <p class="m-0 text-sm text-muted flex-1">{{ __('Order results, top-up decisions and points. Email copies can be turned off in') }} <a href="{{ route('account.security') }}">{{ __('Settings') }}</a>.</p>
     @if (auth()->user()->unreadNotifications()->exists())
-        <form method="POST" action="{{ route('account.notifications.read-all') }}">@csrf<button class="btn h-9 text-[13px]">Mark all as read</button></form>
+        <form method="POST" action="{{ route('account.notifications.read-all') }}">@csrf<button class="btn h-9 text-[13px]">{{ __('Mark all as read') }}</button></form>
     @endif
 </div>
 
@@ -39,10 +39,10 @@
                 <span class="text-sm text-muted">{{ $n->data['body'] ?? '' }}</span>
             </span>
             <span class="text-xs text-muted whitespace-nowrap">{{ $n->created_at->diffForHumans() }}</span>
-            @unless ($n->read_at) <span class="sr-only">(unread)</span> @endunless
+            @unless ($n->read_at) <span class="sr-only">{{ __('(unread)') }}</span> @endunless
         </a>
     @empty
-        <p class="m-0 p-10 text-center text-muted">No notifications yet.</p>
+        <p class="m-0 p-10 text-center text-muted">{{ __('No notifications yet.') }}</p>
     @endforelse
 </section>
 

@@ -11,8 +11,8 @@
             <div class="flex flex-wrap items-center gap-2 text-[13px]">
                 @if ($m->author && ($staffView || ! $m->is_staff)) <x-avatar :user="$m->author" :size="28" /> @endif
                 <strong>{{ $m->is_staff && ! $staffView ? __('Support team') : ($m->author?->name ?? 'Deleted user') }}</strong>
-                @if ($m->is_staff && $staffView) <span class="badge badge-info">Staff</span> @endif
-                @if ($m->is_internal) <span class="badge badge-pending">Internal note — customer can't see</span> @endif
+                @if ($m->is_staff && $staffView) <span class="badge badge-info">{{ __('Staff') }}</span> @endif
+                @if ($m->is_internal) <span class="badge badge-pending">{{ __('Internal note — customer can\'t see') }}</span> @endif
                 <span class="ml-auto text-muted">{{ $m->created_at->format('d M Y H:i') }}</span>
             </div>
             <div class="text-sm leading-relaxed whitespace-pre-line break-words">{{ $m->body }}</div>

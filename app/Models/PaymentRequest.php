@@ -12,7 +12,7 @@ class PaymentRequest extends Model
     public const REJECTED = 'rejected';
 
     protected $fillable = [
-        'user_id', 'payment_method_id', 'amount', 'transaction_id', 'receipt_path',
+        'user_id', 'payment_method_id', 'amount', 'currency', 'rate', 'transaction_id', 'receipt_path',
         'status', 'credited_amount', 'reject_reason', 'admin_note', 'reviewed_by', 'reviewed_at',
     ];
 
@@ -20,9 +20,21 @@ class PaymentRequest extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'rate' => 'decimal:4',
             'credited_amount' => 'decimal:2',
             'reviewed_at' => 'datetime',
         ];
+    }
+
+    public function isForeign(): bool
+    {
+        return ($this->currency ?: 'MMK') !== 'MMK';
+    }
+
+    /** Ks the wallet should get by default: amount × rate (rounded to whole Ks). */
+    public function suggestedCredit(): float
+    {
+        return round((float) $this->amount * (float) ($this->rate ?: 1));
     }
 
     public function user(): BelongsTo

@@ -31,7 +31,7 @@
         <h2 class="m-0 text-lg font-bold">{{ __('Add a customer') }}</h2>
         <div><label for="c_name" class="label text-xs">{{ __('Name') }}</label><input id="c_name" name="name" value="{{ old('name') }}" class="input h-10" required><x-field-error name="name" /></div>
         <div><label for="c_user" class="label text-xs">{{ __('Username (to log in)') }}</label><input id="c_user" name="username" value="{{ old('username') }}" class="input h-10" required><x-field-error name="username" /></div>
-        <div><label for="c_email" class="label text-xs">Email <span class="font-normal text-muted">({{ __('optional') }})</span></label><input id="c_email" name="email" type="email" value="{{ old('email') }}" class="input h-10"><x-field-error name="email" /></div>
+        <div><label for="c_email" class="label text-xs">{{ __('Email') }} <span class="font-normal text-muted">({{ __('optional') }})</span></label><input id="c_email" name="email" type="email" value="{{ old('email') }}" class="input h-10"><x-field-error name="email" /></div>
         <div><label for="c_phone" class="label text-xs">{{ __('Phone') }} <span class="font-normal text-muted">({{ __('optional') }})</span></label><input id="c_phone" name="phone" value="{{ old('phone') }}" class="input h-10"></div>
         <div><label for="c_pass" class="label text-xs">{{ __('Password') }}</label><input id="c_pass" name="password" type="password" class="input h-10" required autocomplete="new-password"><x-field-error name="password" /></div>
         <div><label for="c_bal" class="label text-xs">{{ __('Opening balance from my wallet (Ks)') }}</label><input id="c_bal" name="opening_balance" type="number" min="0" step="1" value="{{ old('opening_balance') }}" class="input h-10"></div>

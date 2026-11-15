@@ -17,7 +17,7 @@
     @if ($wl)
         <div>
             <label for="subdomain" class="label">{{ __('Shop address') }}</label>
-            <div class="flex items-center gap-2"><input id="subdomain" name="subdomain" value="{{ old('subdomain', $profile->subdomain) }}" class="input" placeholder="myshop" maxlength="40"><span class="text-sm text-muted whitespace-nowrap">.{{ $base }}</span></div>
+            <div class="flex items-center gap-2"><input id="subdomain" name="subdomain" value="{{ old('subdomain', $profile->subdomain) }}" class="input" placeholder="{{ __('myshop') }}" maxlength="40"><span class="text-sm text-muted whitespace-nowrap">.{{ $base }}</span></div>
             <x-field-error name="subdomain" />
             @if ($profile->custom_domain) <p class="m-0 mt-1 text-xs text-muted">{{ __('Custom domain') }}: <strong>{{ $profile->custom_domain }}</strong> ({{ __('set by admin') }})</p> @endif
             @if ($url = $profile->storeUrl()) <p class="m-0 mt-1 text-xs"><a href="{{ $url }}" target="_blank" rel="noopener">{{ $url }}</a></p> @endif
@@ -25,8 +25,8 @@
     @endif
     <div class="grid gap-4 sm:grid-cols-3">
         <div><label for="cp" class="label text-xs">{{ __('Phone / Viber') }}</label><input id="cp" name="contact_phone" value="{{ old('contact_phone', $profile->contact_phone) }}" class="input h-10"></div>
-        <div><label for="ct" class="label text-xs">Telegram</label><input id="ct" name="contact_telegram" value="{{ old('contact_telegram', $profile->contact_telegram) }}" class="input h-10" placeholder="@myshop"></div>
-        <div><label for="ce" class="label text-xs">Email</label><input id="ce" name="contact_email" type="email" value="{{ old('contact_email', $profile->contact_email) }}" class="input h-10"></div>
+        <div><label for="ct" class="label text-xs">{{ __('Telegram') }}</label><input id="ct" name="contact_telegram" value="{{ old('contact_telegram', $profile->contact_telegram) }}" class="input h-10" placeholder="@myshop"></div>
+        <div><label for="ce" class="label text-xs">{{ __('Email') }}</label><input id="ce" name="contact_email" type="email" value="{{ old('contact_email', $profile->contact_email) }}" class="input h-10"></div>
     </div>
     <div><label for="about" class="label">{{ __('About your shop') }} <span class="font-normal text-muted">({{ __('shown on your home page') }})</span></label><textarea id="about" name="about" rows="3" maxlength="2000" class="input">{{ old('about', $profile->about) }}</textarea></div>
     <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="allow_signup" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked($profile->allow_signup)>{{ __('Let customers register themselves on my shop address') }}</label>

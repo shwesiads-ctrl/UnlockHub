@@ -31,6 +31,34 @@ return [
         'trusted_device_days' => 30,
     ],
 
-    'locales' => ['en' => 'English', 'my' => 'မြန်မာ'],
+    'locales' => [
+        'en' => 'English',
+        'my' => 'မြန်မာ',
+        'th' => 'ไทย',
+        'zh' => '中文',
+        'lo' => 'ລາວ',
+        'vi' => 'Tiếng Việt',
+    ],
+
+    // Language → country, used to pick payment methods for visitors without a saved country.
+    'locale_country' => ['my' => 'MM', 'th' => 'TH', 'zh' => 'CN', 'lo' => 'LA', 'vi' => 'VN'],
+
+    // Countries customers can choose (payment methods are grouped by these).
+    // Quick-amount buttons on Add Funds, per currency of the payment method.
+    'quick_amounts' => [
+        'MMK' => [10000, 50000, 100000, 500000],
+        'THB' => [100, 500, 1000, 5000],
+        'CNY' => [20, 100, 500, 1000],
+        'LAK' => [50000, 100000, 500000, 1000000],
+        'VND' => [50000, 100000, 500000, 1000000],
+    ],
+
+    'countries' => [
+        'MM' => 'Myanmar',
+        'TH' => 'Thailand',
+        'CN' => 'China',
+        'LA' => 'Laos',
+        'VN' => 'Vietnam',
+    ],
     'currencies' => ['MMK', 'USD'],
 ];

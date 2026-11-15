@@ -41,7 +41,7 @@
             // Only show what this staff member may open
             $nav = array_values(array_filter($nav, fn ($item) => \App\Support\Permissions::allowsRoute(auth()->user(), $item[2])));
         @endphp
-        <nav aria-label="Admin" class="flex flex-col gap-0.5">
+        <nav aria-label="{{ __('Admin') }}" class="flex flex-col gap-0.5">
             @foreach ($nav as [$label, $icon, $route, $badgeKey, $patterns])
                 <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs(...$patterns)])>
                     <x-icon :name="$icon" />
@@ -51,10 +51,10 @@
                     @endif
                 </a>
             @endforeach
-            <a href="{{ route('account.dashboard') }}" class="side-link mt-3"><x-icon name="hand" /><span>My account</span></a>
+            <a href="{{ route('account.dashboard') }}" class="side-link mt-3"><x-icon name="hand" /><span>{{ __('My account') }}</span></a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button class="side-link w-full bg-transparent border-0 cursor-pointer text-left"><x-icon name="logout" /><span>Log out</span></button>
+                <button class="side-link w-full bg-transparent border-0 cursor-pointer text-left"><x-icon name="logout" /><span>{{ __('Log out') }}</span></button>
             </form>
         </nav>
     </aside>
@@ -69,11 +69,12 @@
             <div class="ml-auto flex items-center gap-2">
                 <form role="search" action="{{ route('admin.orders.index') }}" class="hidden md:flex items-center gap-2 h-11 px-3 rounded-[10px] border border-line bg-bg text-muted min-w-60">
                     <x-icon name="search" size="16" />
-                    <label for="admin-search" class="sr-only">Search</label>
-                    <input id="admin-search" name="q" type="text" placeholder="Order ID, IMEI, user…" class="flex-1 bg-transparent outline-none text-ink text-sm">
+                    <label for="admin-search" class="sr-only">{{ __('Search') }}</label>
+                    <input id="admin-search" name="q" type="text" placeholder="{{ __('Order ID, IMEI, user…') }}" class="flex-1 bg-transparent outline-none text-ink text-sm">
                 </form>
+                <x-locale-switcher />
                 <x-theme-toggle />
-                <a href="{{ route('account.profile') }}" aria-label="My profile" class="no-underline"><x-avatar :user="auth()->user()" :size="44" /></a>
+                <a href="{{ route('account.profile') }}" aria-label="{{ __('My profile') }}" class="no-underline"><x-avatar :user="auth()->user()" :size="44" /></a>
             </div>
         </header>
 

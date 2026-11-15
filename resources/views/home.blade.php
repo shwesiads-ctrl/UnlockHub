@@ -5,9 +5,15 @@
     <div class="flex-[1_1_520px] min-w-0 flex flex-col gap-5">
         <span class="self-start badge badge-info text-[13px]">{{ __('For repair shops & resellers in Myanmar') }}</span>
         <h1 class="m-0 text-4xl sm:text-[56px] leading-[1.05] font-bold tracking-tight">{{ __('Unlock codes, tool credits & activations — in one wallet.') }}</h1>
-        <p class="m-0 text-lg leading-relaxed text-muted max-w-xl">{{ __('Top up with KBZPay, WavePay or AYA Pay, place IMEI and server orders, track every result, and earn points on each successful order.') }}</p>
+        <p class="m-0 text-lg leading-relaxed text-muted max-w-xl">
+            @if ($paymentMethods->isNotEmpty())
+                {{ __('Top up with :methods, place IMEI and server orders, track every result, and earn points on each successful order.', ['methods' => $paymentMethods->take(3)->pluck('name')->join(', ')]) }}
+            @else
+                {{ __('Top up your wallet, place IMEI and server orders, track every result, and earn points on each successful order.') }}
+            @endif
+        </p>
         <form role="search" action="{{ route('services.index') }}" class="flex flex-wrap gap-2 max-w-xl">
-            <label for="hsearch" class="sr-only">Search services</label>
+            <label for="hsearch" class="sr-only">{{ __('Search services') }}</label>
             <div class="flex-[1_1_320px] flex items-center gap-2.5 h-[52px] px-4 rounded-xl border border-line bg-surface text-muted">
                 <x-icon name="search" />
                 <input id="hsearch" name="q" type="text" placeholder="{{ __('Search: Samsung NCK, UnlockTool, AT&T…') }}" class="flex-1 bg-transparent outline-none text-ink text-[15px]">
@@ -76,18 +82,38 @@
     </div>
 </section>
 
-@if ($paymentMethods->isNotEmpty())
-<section class="max-w-7xl mx-auto px-4 sm:px-8 py-8">
-    <div class="bg-brand text-white rounded-[18px] p-9 flex flex-wrap gap-6 items-center justify-between">
-        <div class="flex-[1_1_400px] flex flex-col gap-2">
-            <span class="font-display text-[26px] font-bold">{{ __('Pay the Myanmar way') }}</span>
-            <span class="text-[15px] opacity-95">{{ __('Transfer, upload your receipt and your wallet is credited after approval.') }}</span>
+@if ($paymentMethods->isNotEmpty() || $payCountries->isNotEmpty())
+<section class="max-w-7xl mx-auto px-4 sm:px-8 py-8" id="pay">
+    <div class="bg-brand text-white rounded-[18px] p-9 flex flex-col gap-5">
+        <div class="flex flex-wrap gap-6 items-center justify-between">
+            <div class="flex-[1_1_400px] flex flex-col gap-2">
+                <span class="font-display text-[26px] font-bold">
+                    {{ $payCountry === 'MM' ? __('Pay the Myanmar way') : __('Pay with local wallets in :country', ['country' => __(config('unlockhub.countries.'.$payCountry))]) }}
+                </span>
+                <span class="text-[15px] opacity-95">{{ __('Transfer, upload your receipt and your wallet is credited after approval.') }}</span>
+            </div>
+            <div class="flex flex-wrap gap-2.5">
+                @forelse ($paymentMethods as $m)
+                    <span class="px-4 py-3 rounded-[10px] bg-white text-slate-900 font-bold text-sm">
+                        {{ $m->name }}@if ($m->isForeign()) <span class="font-normal text-slate-500">· {{ $m->currency }}</span>@endif
+                    </span>
+                @empty
+                    <span class="text-[15px] opacity-95">{{ __('No local payment methods for this country yet.') }}</span>
+                @endforelse
+            </div>
         </div>
-        <div class="flex flex-wrap gap-2.5">
-            @foreach ($paymentMethods as $m)
-                <span class="px-4 py-3 rounded-[10px] bg-white text-slate-900 font-bold text-sm">{{ $m->name }}</span>
-            @endforeach
-        </div>
+        @if ($payCountries->count() > 1 || ($payCountries->isNotEmpty() && ! $payCountries->has($payCountry)))
+            <nav class="flex flex-wrap items-center gap-2 text-sm" aria-label="{{ __('Payment country') }}">
+                <span class="opacity-90">{{ __('Paying from') }}:</span>
+                @foreach ($payCountries as $code => $label)
+                    <a href="{{ route('home', ['country' => $code]) }}#pay" @class([
+                        'px-3 py-1.5 rounded-full no-underline font-semibold',
+                        'bg-white text-slate-900' => $code === $payCountry,
+                        'bg-white/15 text-white hover:text-white' => $code !== $payCountry,
+                    ]) @if ($code === $payCountry) aria-current="true" @endif>{{ __($label) }}</a>
+                @endforeach
+            </nav>
+        @endif
     </div>
 </section>
 @endif

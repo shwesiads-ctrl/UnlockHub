@@ -1,10 +1,21 @@
 @extends('layouts.account', ['title' => 'Add Funds'])
 
 @section('content')
-<p class="m-0 text-muted text-[15px]">Transfer to our account, then upload the receipt. Your wallet is credited when admin approves ({{ setting('site.support_hours', '9 AM – 10 PM') }}).</p>
+<p class="m-0 text-muted text-[15px]">{{ __('Transfer to our account, then upload the receipt. Your wallet is credited when admin approves') }} ({{ setting('site.support_hours', '9 AM – 10 PM') }}).</p>
+
+@if ($tabs->isNotEmpty())
+    <nav class="flex flex-wrap gap-2" aria-label="{{ __('Country') }}">
+        @foreach ($tabs as $code => $label)
+            <a href="{{ route('account.funds.index', ['country' => $code]) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => $country === $code]) @if ($country === $code) aria-current="true" @endif>{{ __($label) }}</a>
+        @endforeach
+    </nav>
+@endif
 
 @if ($methods->isEmpty())
-    <div class="card p-8 text-center text-muted">Top-ups are not available right now. Please contact support.</div>
+    @if ($tabs->isEmpty() && $country !== 'MM')
+        <p class="m-0"><a href="{{ route('account.funds.index', ['country' => 'MM']) }}">{{ __('Show Myanmar payment methods') }}</a></p>
+    @endif
+    <div class="card p-8 text-center text-muted">{{ __('Top-ups are not available right now. Please contact support.') }}</div>
 @else
 <div class="flex flex-wrap gap-6 items-start">
     <section class="flex-[999_1_560px] min-w-0 flex flex-col gap-5">
@@ -36,8 +47,8 @@
         @endif
         {{-- 1. Choose method --}}
         <div class="card p-6 flex flex-col gap-4">
-            <h2 class="m-0 text-xl font-bold">1 · Choose payment method</h2>
-            <nav aria-label="Payment method" class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
+            <h2 class="m-0 text-xl font-bold">{{ __('1 · Choose payment method') }}</h2>
+            <nav aria-label="{{ __('Payment method') }}" class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
                 @foreach ($methods as $m)
                     <a href="{{ route('account.funds.index', ['method' => $m->code]) }}" @class([
                         'min-h-[76px] p-3 rounded-xl flex flex-col justify-center gap-1 no-underline',
@@ -45,7 +56,7 @@
                         'border border-line bg-bg text-ink hover:text-ink' => ! $selected->is($m),
                     ]) @if ($selected->is($m)) aria-current="true" @endif>
                         <span class="font-bold text-base">{{ $m->name }}</span>
-                        <span class="text-xs opacity-85">Min {{ money($m->min_amount) }}</span>
+                        <span class="text-xs opacity-85">{{ __('Min') }} {{ pay_amount($m->min_amount, $m->currency) }}</span>
                     </a>
                 @endforeach
             </nav>
@@ -55,20 +66,23 @@
                     <img src="{{ Storage::disk('public')->url($selected->qr_path) }}" alt="{{ $selected->name }} QR code" class="w-36 h-36 rounded-xl bg-white p-2 object-contain">
                 @endif
                 <div class="flex-[1_1_240px] flex flex-col gap-2.5 text-sm">
-                    <div class="flex justify-between gap-3"><span class="text-muted">Account name</span><span class="font-semibold">{{ $selected->account_name ?: '—' }}</span></div>
+                    <div class="flex justify-between gap-3"><span class="text-muted">{{ __('Account name') }}</span><span class="font-semibold">{{ $selected->account_name ?: '—' }}</span></div>
                     <div class="flex justify-between gap-3 items-center">
-                        <span class="text-muted">{{ $selected->name }} number</span>
+                        <span class="text-muted">{{ $selected->name }} {{ __('number') }}</span>
                         <span class="flex gap-2 items-center">
                             <span class="font-display font-bold text-base">{{ $selected->account_number ?: '—' }}</span>
                             @if ($selected->account_number)
-                                <button type="button" class="btn h-8 px-2.5 text-xs" data-copy="{{ $selected->account_number }}">Copy</button>
+                                <button type="button" class="btn h-8 px-2.5 text-xs" data-copy="{{ $selected->account_number }}">{{ __('Copy') }}</button>
                             @endif
                         </span>
                     </div>
                     @if ($selected->instructions)
                         <div class="px-3 py-2.5 rounded-lg bg-warn-soft text-warn text-[13px] font-medium leading-normal whitespace-pre-line">{{ str_replace(':username', auth()->user()->username, $selected->instructions) }}</div>
                     @endif
-                    <div class="text-[13px] text-muted">Write your username <strong class="text-ink">{{ auth()->user()->username }}</strong> in the transfer note.</div>
+                    @if ($selected->isForeign())
+                        <div class="text-[13px]">{{ __('Pay in') }} <strong>{{ $selected->currency }}</strong> · 1 {{ $selected->currency }} = {{ rtrim(rtrim(number_format((float) $selected->rate, 4), '0'), '.') }} Ks</div>
+                    @endif
+                    <div class="text-[13px] text-muted">{{ __('Write your username') }} <strong class="text-ink">{{ auth()->user()->username }}</strong> {{ __('in the transfer note.') }}</div>
                 </div>
             </div>
         </div>
@@ -77,21 +91,25 @@
         <form method="POST" action="{{ route('account.funds.store') }}" enctype="multipart/form-data" data-submit-once class="card p-6 flex flex-col gap-4" novalidate>
             @csrf
             <input type="hidden" name="method" value="{{ $selected->code }}">
-            <h2 class="m-0 text-xl font-bold">2 · Upload receipt</h2>
+            <h2 class="m-0 text-xl font-bold">{{ __('2 · Upload receipt') }}</h2>
             <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
                 <div>
-                    <label for="amount" class="label">Amount transferred (Ks) <span class="text-danger">*</span></label>
-                    <input id="amount" name="amount" type="number" min="{{ (float) $selected->min_amount }}" step="1" inputmode="numeric" value="{{ old('amount') }}" class="input" placeholder="Min {{ number_format($selected->min_amount) }}" required data-amount>
+                    @php $cur = $selected->currency ?: 'MMK'; $whole = in_array($cur, ['MMK', 'LAK', 'VND'], true); @endphp
+                    <label for="amount" class="label">{{ __('Amount transferred') }} ({{ $cur === 'MMK' ? 'Ks' : $cur }}) <span class="text-danger">*</span></label>
+                    <input id="amount" name="amount" type="number" min="{{ (float) $selected->min_amount }}" @if ($selected->max_amount) max="{{ (float) $selected->max_amount }}" @endif step="{{ $whole ? 1 : '0.01' }}" inputmode="{{ $whole ? 'numeric' : 'decimal' }}" value="{{ old('amount') }}" class="input" placeholder="{{ __('Min') }} {{ pay_amount($selected->min_amount, $cur) }}" required data-amount @if ($selected->isForeign()) data-pay-rate="{{ (float) $selected->rate }}" @endif>
+                    @if ($selected->isForeign())
+                        <p class="m-0 mt-1.5 text-sm">{{ __('Wallet gets about') }} <strong data-pay-ks>—</strong> <span class="text-muted text-xs">· {{ __('final amount is confirmed by admin') }}</span></p>
+                    @endif
                     <x-field-error name="amount" />
                 </div>
                 <div>
-                    <label for="transaction_id" class="label">Transaction ID <span class="text-danger">*</span></label>
-                    <input id="transaction_id" name="transaction_id" type="text" value="{{ old('transaction_id') }}" class="input font-mono" placeholder="From your payment app" required>
+                    <label for="transaction_id" class="label">{{ __('Transaction ID') }} <span class="text-danger">*</span></label>
+                    <input id="transaction_id" name="transaction_id" type="text" value="{{ old('transaction_id') }}" class="input font-mono" placeholder="{{ __('From your payment app') }}" required>
                     <x-field-error name="transaction_id" />
                 </div>
             </div>
-            <div class="flex flex-wrap gap-2" aria-label="Quick amounts">
-                @foreach ([10000, 50000, 100000, 500000] as $quick)
+            <div class="flex flex-wrap gap-2" aria-label="{{ __('Quick amounts') }}">
+                @foreach (config('unlockhub.quick_amounts.'.$cur, []) as $quick)
                     @if ($quick >= $selected->min_amount && (! $selected->max_amount || $quick <= $selected->max_amount))
                         <button type="button" class="btn h-9 rounded-full text-[13px]" data-fill="#amount" data-value="{{ $quick }}">{{ number_format($quick) }}</button>
                     @endif
@@ -99,12 +117,12 @@
             </div>
             <label for="receipt" class="flex flex-col items-center justify-center gap-2.5 py-9 px-5 rounded-2xl border-2 border-dashed border-line bg-bg cursor-pointer text-center" data-dropzone>
                 <span class="w-[52px] h-[52px] rounded-2xl bg-brand-soft text-brand-ink flex items-center justify-center"><x-icon name="upload" size="24" /></span>
-                <span class="font-semibold text-[15px]" data-file-name>Upload receipt screenshot</span>
+                <span class="font-semibold text-[15px]" data-file-name>{{ __('Upload receipt screenshot') }}</span>
                 <span class="text-[13px] text-muted">JPG, PNG or WEBP, up to {{ (int) (config('unlockhub.receipts.max_kb') / 1024) }} MB</span>
                 <input id="receipt" name="receipt" type="file" accept="image/*" class="sr-only" required>
             </label>
             <x-field-error name="receipt" />
-            <button class="btn btn-primary btn-lg">Submit for approval</button>
+            <button class="btn btn-primary btn-lg">{{ __('Submit for approval') }}</button>
         </form>
     </section>
 
@@ -112,31 +130,31 @@
     <aside class="flex-[1_1_340px] min-w-0">
         <div class="card p-5 flex flex-col gap-3">
             <div class="flex justify-between items-center">
-                <h2 class="m-0 text-lg font-bold">Recent top-ups</h2>
-                @if ($pendingCount) <span class="badge badge-pending">{{ $pendingCount }} pending</span> @endif
+                <h2 class="m-0 text-lg font-bold">{{ __('Recent top-ups') }}</h2>
+                @if ($pendingCount) <span class="badge badge-pending">{{ $pendingCount }} {{ __('pending') }}</span> @endif
             </div>
             @forelse ($history as $h)
                 <div class="p-3 rounded-[10px] bg-surface-2 flex flex-col gap-1.5">
                     <div class="flex justify-between items-center gap-3">
                         <div class="flex flex-col gap-0.5">
-                            <span class="font-bold">{{ money($h->status === 'approved' ? $h->credited_amount : $h->amount) }}</span>
+                            <span class="font-bold">{{ $h->status === 'approved' ? money($h->credited_amount) : pay_amount($h->amount, $h->currency) }}</span>
                             <span class="text-xs text-muted">{{ $h->method->name }} · {{ $h->created_at->format('d M H:i') }}</span>
                         </div>
                         <x-status-badge :status="$h->status" />
                     </div>
                     @if ($h->status === 'rejected' && $h->reject_reason)
-                        <span class="text-xs text-danger">Reason: {{ $h->reject_reason }}</span>
+                        <span class="text-xs text-danger">{{ __('Reason') }}: {{ $h->reject_reason }}</span>
                     @endif
-                    @if ($h->status === 'approved' && (float) $h->credited_amount !== (float) $h->amount)
-                        <span class="text-xs text-muted">You sent {{ money($h->amount) }}, credited {{ money($h->credited_amount) }}.</span>
+                    @if ($h->status === 'approved' && ($h->isForeign() || (float) $h->credited_amount !== (float) $h->amount))
+                        <span class="text-xs text-muted">{{ __('You sent') }} {{ pay_amount($h->amount, $h->currency) }} · {{ __('credited') }} {{ money($h->credited_amount) }}</span>
                     @endif
-                    <a href="{{ route('account.funds.receipt', $h) }}" target="_blank" rel="noopener" class="text-xs">View receipt</a>
+                    <a href="{{ route('account.funds.receipt', $h) }}" target="_blank" rel="noopener" class="text-xs">{{ __('View receipt') }}</a>
                 </div>
             @empty
-                <p class="m-0 text-sm text-muted">No top-ups yet.</p>
+                <p class="m-0 text-sm text-muted">{{ __('No top-ups yet.') }}</p>
             @endforelse
             {{ $history->links() }}
-            <p class="m-0 text-[13px] text-muted leading-normal">Rejected? Check the reason, then upload the correct receipt again.</p>
+            <p class="m-0 text-[13px] text-muted leading-normal">{{ __('Rejected? Check the reason, then upload the correct receipt again.') }}</p>
         </div>
     </aside>
 </div>

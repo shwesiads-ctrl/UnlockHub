@@ -13,7 +13,7 @@
             <p class="m-0 text-sm text-muted">{{ __('Used for every service without its own price below. Your customers pay your cost + this.') }}</p>
         </div>
         <div><label for="mv" class="label text-xs">{{ __('Markup') }}</label><input id="mv" name="markup_value" type="number" min="0" step="0.01" value="{{ (float) $p->markup_value }}" class="input h-10 w-28"></div>
-        <div><label for="mt" class="label text-xs">{{ __('Type') }}</label><select id="mt" name="markup_type" class="input h-10 w-24"><option value="percent" @selected($p->markup_type === 'percent')>%</option><option value="fixed" @selected($p->markup_type === 'fixed')>Ks</option></select></div>
+        <div><label for="mt" class="label text-xs">{{ __('Type') }}</label><select id="mt" name="markup_type" class="input h-10 w-24"><option value="percent" @selected($p->markup_type === 'percent')>%</option><option value="fixed" @selected($p->markup_type === 'fixed')>{{ __('Ks') }}</option></select></div>
         <button class="btn btn-primary h-10">{{ __('Save prices') }}</button>
     </section>
 

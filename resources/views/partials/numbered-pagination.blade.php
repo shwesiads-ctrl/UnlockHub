@@ -9,11 +9,11 @@
         $window['last'],
     ]);
 @endphp
-<nav aria-label="Pagination" class="flex flex-wrap items-center gap-1.5">
+<nav aria-label="{{ __('Pagination') }}" class="flex flex-wrap items-center gap-1.5">
     @if ($paginator->onFirstPage())
-        <span class="btn h-9 px-3 opacity-50" aria-disabled="true" aria-label="Previous page">‹</span>
+        <span class="btn h-9 px-3 opacity-50" aria-disabled="true" aria-label="{{ __('Previous page') }}">‹</span>
     @else
-        <a class="btn h-9 px-3" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="Previous page">‹</a>
+        <a class="btn h-9 px-3" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="{{ __('Previous page') }}">‹</a>
     @endif
     @foreach ($elements as $element)
         @if (is_string($element))
@@ -29,9 +29,9 @@
         @endif
     @endforeach
     @if ($paginator->hasMorePages())
-        <a class="btn h-9 px-3" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="Next page">›</a>
+        <a class="btn h-9 px-3" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="{{ __('Next page') }}">›</a>
     @else
-        <span class="btn h-9 px-3 opacity-50" aria-disabled="true" aria-label="Next page">›</span>
+        <span class="btn h-9 px-3 opacity-50" aria-disabled="true" aria-label="{{ __('Next page') }}">›</span>
     @endif
 </nav>
 @endif

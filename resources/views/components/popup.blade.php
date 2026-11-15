@@ -8,10 +8,10 @@
         @if ($title)
             <div class="flex items-start gap-3 px-5 py-3.5 text-white bg-[#3B0A5C]">
                 <span class="flex-1 font-medium leading-snug">{{ $title }}</span>
-                <form method="dialog"><button class="text-white/90 hover:text-white text-xl leading-none px-1" aria-label="Close">&times;</button></form>
+                <form method="dialog"><button class="text-white/90 hover:text-white text-xl leading-none px-1" aria-label="{{ __('Close') }}">&times;</button></form>
             </div>
         @else
-            <form method="dialog" class="flex justify-end px-4 pt-3"><button class="text-sm text-ink hover:underline" aria-label="Close">{{ __('Close') }}</button></form>
+            <form method="dialog" class="flex justify-end px-4 pt-3"><button class="text-sm text-ink hover:underline" aria-label="{{ __('Close') }}">{{ __('Close') }}</button></form>
         @endif
         <div class="overflow-y-auto px-4 sm:px-8 pt-4 pb-6 flex flex-col gap-3">
             @include('popups._card', ['popup' => $popup])

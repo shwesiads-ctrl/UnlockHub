@@ -2,8 +2,8 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex flex-col gap-5">
-    <nav aria-label="Breadcrumb" class="text-sm text-muted flex flex-wrap gap-2">
-        <a href="{{ route('services.index') }}">Services</a><span>/</span>
+    <nav aria-label="{{ __('Breadcrumb') }}" class="text-sm text-muted flex flex-wrap gap-2">
+        <a href="{{ route('services.index') }}">{{ __('Services') }}</a><span>/</span>
         <a href="{{ route('services.index', ['type' => $service->type]) }}">{{ \App\Models\Service::TYPES[$service->type] }}</a><span>/</span>
         <span class="text-ink">{{ $service->category->name }}</span>
     </nav>
@@ -31,7 +31,7 @@
                     @if ($points > 0)
                         <span class="flex items-center gap-1.5 text-point font-semibold"><x-icon name="star" size="16" />+{{ $points }} points per success</span>
                     @endif
-                    <span>Price: <strong class="font-display text-ink text-base">{{ price($price) }}</strong>{{ $service->allow_bulk ? ' / item' : '' }}</span>
+                    <span>{{ __('Price:') }} <strong class="font-display text-ink text-base">{{ price($price) }}</strong>{{ $service->allow_bulk ? ' / item' : '' }}</span>
                 </div>
                 @if ($delivery && $delivery->reliable())
                     @php $hm = fn ($m) => \App\Services\DeliveryStatsService::human((int) $m); @endphp
@@ -74,7 +74,7 @@
                             <textarea id="f_{{ $field->name }}" name="fields[{{ $field->name }}]" rows="5" class="input font-mono" placeholder="{{ $field->placeholder }}" @required($field->is_required)>{{ old('fields.'.$field->name) }}</textarea>
                         @elseif ($field->input_type === 'select')
                             <select id="f_{{ $field->name }}" name="fields[{{ $field->name }}]" class="input" @required($field->is_required)>
-                                <option value="">Select…</option>
+                                <option value="">{{ __('Select…') }}</option>
                                 @foreach ($field->options ?? [] as $opt)
                                     <option @selected(old('fields.'.$field->name) === $opt)>{{ $opt }}</option>
                                 @endforeach
@@ -89,10 +89,10 @@
                         <x-field-error :name="'fields.'.$field->name" />
                     </div>
                 @empty
-                    <p class="m-0 text-sm text-muted">No extra details needed for this service.</p>
+                    <p class="m-0 text-sm text-muted">{{ __('No extra details needed for this service.') }}</p>
                 @endforelse
                 <div>
-                    <label for="user_note" class="label">Note to admin <span class="font-normal text-muted">(optional)</span></label>
+                    <label for="user_note" class="label">{{ __('Note to admin') }} <span class="font-normal text-muted">{{ __('(optional)') }}</span></label>
                     <input id="user_note" name="user_note" type="text" maxlength="255" value="{{ old('user_note') }}" class="input">
                 </div>
                 <label class="flex items-start gap-2.5 text-sm text-muted leading-normal">
@@ -142,7 +142,7 @@
                     @if (Route::has('orders.store'))
                         <button class="btn btn-primary btn-lg">{{ __('Place order') }}</button>
                     @else
-                        <button class="btn btn-primary btn-lg opacity-60" disabled>Ordering opens soon</button>
+                        <button class="btn btn-primary btn-lg opacity-60" disabled>{{ __('Ordering opens soon') }}</button>
                     @endif
                 @endguest
                 @endif
@@ -152,22 +152,22 @@
         <aside class="flex-[1_1_340px] min-w-0 flex flex-col gap-4">
             <div class="card p-6 flex flex-col gap-3.5">
                 <h2 class="m-0 text-xl font-bold">{{ __('Summary') }}</h2>
-                <div class="flex justify-between text-sm"><span class="text-muted">Unit price</span><span class="font-semibold">{{ price($price) }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-muted">{{ __('Unit price') }}</span><span class="font-semibold">{{ price($price) }}</span></div>
                 @if ($points > 0)
-                    <div class="flex justify-between text-sm"><span class="text-muted">Points if successful</span><span class="font-semibold text-point">+{{ $points }} pts</span></div>
+                    <div class="flex justify-between text-sm"><span class="text-muted">{{ __('Points if successful') }}</span><span class="font-semibold text-point">+{{ $points }} pts</span></div>
                 @endif
                 @auth
-                    <div class="flex justify-between text-sm p-3 rounded-[10px] bg-ok-soft text-ok font-semibold"><span>Wallet balance</span><span>{{ price(auth()->user()->balance) }}</span></div>
+                    <div class="flex justify-between text-sm p-3 rounded-[10px] bg-ok-soft text-ok font-semibold"><span>{{ __('Wallet balance') }}</span><span>{{ price(auth()->user()->balance) }}</span></div>
                 @endauth
-                <p class="m-0 text-xs text-muted leading-normal text-center">Credit is deducted when you order and refunded automatically if the order is rejected.</p>
+                <p class="m-0 text-xs text-muted leading-normal text-center">{{ __('Credit is deducted when you order and refunded automatically if the order is rejected.') }}</p>
             </div>
             <div class="card p-5 flex flex-col gap-2.5 text-sm">
-                <span class="font-bold">Order status flow</span>
+                <span class="font-bold">{{ __('Order status flow') }}</span>
                 <div class="flex flex-wrap items-center gap-2">
                     <x-status-badge status="pending" /><span class="text-muted">→</span>
                     <x-status-badge status="in_process" /><span class="text-muted">→</span>
                     <x-status-badge status="success" /><span class="text-muted">/</span>
-                    <span class="badge badge-rejected">Rejected · Refunded</span>
+                    <span class="badge badge-rejected">{{ __('Rejected · Refunded') }}</span>
                 </div>
             </div>
         </aside>

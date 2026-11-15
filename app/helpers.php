@@ -37,3 +37,21 @@ if (! function_exists('money')) {
         return number_format($amount, 0).' Ks';
     }
 }
+
+if (! function_exists('pay_amount')) {
+    /**
+     * An amount in a payment method's own currency, e.g. "500 THB", "120.50 CNY".
+     * MMK stays in the usual "125,000 Ks" form.
+     */
+    function pay_amount(string|int|float|null $amount, ?string $currency = 'MMK'): string
+    {
+        $currency = strtoupper($currency ?: 'MMK');
+        if ($currency === 'MMK') {
+            return money($amount);
+        }
+        $amount = (float) ($amount ?? 0);
+        $decimals = in_array($currency, ['LAK', 'VND', 'KRW', 'JPY', 'IDR'], true) || floor($amount) == $amount ? 0 : 2;
+
+        return number_format($amount, $decimals).' '.$currency;
+    }
+}

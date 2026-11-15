@@ -29,7 +29,16 @@
 @endif
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+@php
+    // Only the script font for the current language is loaded, so pages stay light.
+    $scriptFont = [
+        'my' => '&family=Noto+Sans+Myanmar:wght@400;600;700',
+        'th' => '&family=Noto+Sans+Thai:wght@400;600;700',
+        'lo' => '&family=Noto+Sans+Lao:wght@400;600;700',
+        'zh' => '&family=Noto+Sans+SC:wght@400;600;700',
+    ][app()->getLocale()] ?? '';
+@endphp
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700{!! $scriptFont !!}&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @if (isset($shop) && $shop->brand_color && preg_match('/^#[0-9a-fA-F]{6}$/', $shop->brand_color))
 <style>:root, .dark { --uh-brand: {{ $shop->brand_color }}; --uh-brand-ink: {{ $shop->brand_color }}; }</style>

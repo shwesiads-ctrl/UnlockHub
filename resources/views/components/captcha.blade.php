@@ -15,7 +15,7 @@
             @once <script src="https://www.google.com/recaptcha/api.js" async defer></script> @endonce
         @else
             <input type="hidden" name="g-recaptcha-response" value="">
-            <p class="m-0 text-[11px] text-muted">Protected by reCAPTCHA · <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> · <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a></p>
+            <p class="m-0 text-[11px] text-muted">{{ __('Protected by reCAPTCHA ·') }} <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">{{ __('Privacy') }}</a> · <a href="https://policies.google.com/terms" target="_blank" rel="noopener">{{ __('Terms') }}</a></p>
             @once <script src="https://www.google.com/recaptcha/api.js?render={{ urlencode($siteKey) }}" async defer></script> @endonce
         @endif
         <x-field-error name="captcha" />
