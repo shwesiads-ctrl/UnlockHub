@@ -59,6 +59,11 @@
         @yield('content')
     </main>
 
+    @php $homePopup = \App\Support\Popup::home(); @endphp
+    @if (\App\Support\Popup::homeVisible($homePopup))
+        <x-popup :popup="$homePopup" id="welcome-popup" />
+    @endif
+
     <footer class="mt-12 bg-surface border-t border-line">
         <div class="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-wrap gap-10">
             <div class="flex-[1_1_280px] flex flex-col gap-2.5">

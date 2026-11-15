@@ -24,6 +24,7 @@
                 ['Users', 'users', 'admin.users.index', null, ['admin.users.*']],
                 ['Groups & Pricing', 'sliders', 'admin.groups.index', null, ['admin.groups.*']],
                 ['Points', 'star', 'admin.points.index', null, ['admin.points.*']],
+                ['Popups', 'bell', 'admin.popups.edit', null, ['admin.popups.*']],
                 ['Content', 'file', 'admin.posts.index', null, ['admin.posts.*', 'admin.testimonials.*', 'admin.downloads.*', 'admin.announcements.*']],
                 ['Reports', 'chart', 'admin.reports.index', null, ['admin.reports.*']],
                 ['Activity Log', 'clock', 'admin.activity.index', null, ['admin.activity.*']],

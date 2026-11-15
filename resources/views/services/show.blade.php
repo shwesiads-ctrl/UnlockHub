@@ -25,12 +25,15 @@
                     @endif
                     <span>Price: <strong class="font-display text-ink text-base">{{ price($price) }}</strong>{{ $service->allow_bulk ? ' / item' : '' }}</span>
                 </div>
+                @if (($service->popup['enabled'] ?? false))
+                    <button type="button" class="btn w-fit text-brand-ink" data-open-popup="service-popup"><x-icon name="file" size="16" />{{ __('Service info & rules') }}</button>
+                @endif
                 @if ($service->description)
                     <div class="text-sm leading-relaxed text-muted whitespace-pre-line">{{ $service->description }}</div>
                 @endif
             </div>
 
-            <form method="POST" action="{{ Route::has('orders.store') ? route('orders.store', $service) : '#' }}" class="card p-6 flex flex-col gap-4">
+            <form id="order" method="POST" action="{{ Route::has('orders.store') ? route('orders.store', $service) : '#' }}" class="card p-6 flex flex-col gap-4">
                 @csrf
                 <h2 class="m-0 text-xl font-bold">{{ __('Order details') }}</h2>
                 @forelse ($service->fields as $field)
@@ -108,4 +111,9 @@
         </aside>
     </div>
 </div>
+
+@if ($service->popup['enabled'] ?? false)
+    @php $sp = \App\Support\Popup::sanitize($service->popup); @endphp
+    <x-popup :popup="$sp" id="service-popup" :title="$service->name" :delivery="$service->delivery_time" :auto="$sp['trigger'] === 'open'" />
+@endif
 @endsection

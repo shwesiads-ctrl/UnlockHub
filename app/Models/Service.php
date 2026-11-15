@@ -32,6 +32,7 @@ class Service extends Model
             'allow_bulk' => 'boolean',
             'allow_cancel_pending' => 'boolean',
             'fallback_to_manual' => 'boolean',
+            'popup' => 'array',
         ];
     }
 

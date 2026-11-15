@@ -151,6 +151,10 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
     Route::delete('/categories/{category}', [Admin\CategoryController::class, 'destroy'])->name('categories.destroy');
 
     Route::resource('services', Admin\ServiceController::class)->except('show');
+    Route::get('/popups', [Admin\PopupController::class, 'edit'])->name('popups.edit');
+    Route::put('/popups', [Admin\PopupController::class, 'update'])->name('popups.update');
+    Route::post('/popups/preview', [Admin\PopupController::class, 'preview'])->name('popups.preview');
+    Route::get('/popups/source/{service}', [Admin\PopupController::class, 'source'])->name('popups.source');
     Route::post('/services/{service}/toggle', [Admin\ServiceController::class, 'toggle'])->name('services.toggle');
 
     Route::resource('suppliers', Admin\SupplierController::class)->except('show');

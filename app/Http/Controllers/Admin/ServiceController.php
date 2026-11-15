@@ -130,7 +130,9 @@ class ServiceController extends Controller
             'supplier_service_id' => $data['processing_mode'] === 'api' ? $data['supplier_service_id'] : null,
             'fallback_to_manual' => $data['fallback_to_manual'],
             'sort' => $data['sort'] ?? 0,
-        ])->save();
+        ]);
+        $service->popup = \App\Support\Popup::fromJson($data['popup'] ?? null);
+        $service->save();
 
         // Fields: replace the set (orders keep their own snapshot of input values)
         $service->fields()->delete();
@@ -171,6 +173,7 @@ class ServiceController extends Controller
             'groups' => UserGroup::orderBy('sort')->get(),
             'suppliers' => Supplier::orderBy('name')->get(['id', 'name', 'status']),
             'groupPrices' => $service->exists ? $service->prices->pluck('price', 'user_group_id') : collect(),
+            'popupSources' => Service::whereNotNull('popup')->whereKeyNot($service->id ?? 0)->orderBy('name')->get(['id', 'name', 'slug']),
         ];
     }
 

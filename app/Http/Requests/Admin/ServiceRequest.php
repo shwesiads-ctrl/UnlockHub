@@ -60,6 +60,7 @@ class ServiceRequest extends FormRequest
             'supplier_service_id' => ['nullable', 'required_if:processing_mode,api', 'string', 'max:100'],
             'fallback_to_manual' => ['boolean'],
             'sort' => ['nullable', 'integer', 'min:0'],
+            'popup' => ['nullable', 'string', 'max:200000'],
 
             'prices' => ['array'],
             'prices.*' => ['nullable', 'numeric', 'min:0', 'max:9999999999'],

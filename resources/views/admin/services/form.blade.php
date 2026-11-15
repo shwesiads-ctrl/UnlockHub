@@ -138,6 +138,17 @@
         </section>
     </div>
 
+    <section id="popup" class="card p-6 flex flex-col gap-4 order-last basis-full scroll-mt-4">
+        <div>
+            <h2 class="m-0 text-lg font-bold">Service popup</h2>
+            <p class="m-0 text-[13px] text-muted">Rules, steps and notes shown in a popup on the service page. Saved with the service.</p>
+        </div>
+        @php
+            $popupState = old('popup') ? \App\Support\Popup::sanitize(json_decode(old('popup'), true) ?: []) : $service->popup;
+        @endphp
+        @include('admin.popups._editor', ['popup' => $popupState, 'kind' => 'service', 'barTitle' => old('name', $service->name), 'copyFrom' => $popupSources])
+    </section>
+
     <aside class="flex-[1_1_340px] min-w-0 flex flex-col gap-5">
         <section class="card p-5 flex flex-col gap-4">
             <h2 class="m-0 text-lg font-bold">Pricing (Ks)</h2>

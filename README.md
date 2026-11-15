@@ -201,6 +201,17 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## Popups (Welcome + Service)
+
+- **Admin › Popups** — ဆိုဒ်ဖွင့်ရင် ပေါ်မယ့် Welcome popup (စည်းကမ်း၊ WhatsApp/Telegram ခလုတ်၊ ငွေဖြည့်နည်း…)
+  - ဘယ်သူမြင်မလဲ (အားလုံး / Guest / Login ဝင်ထားသူ)၊ ဘယ်မှာ (Home / စာမျက်နှာတိုင်း)၊ ဘယ်နှစ်ခါ (တစ်ခါဝင်ရင်တစ်ခါ / တစ်ရက်တစ်ခါ / တစ်ခါတည်း / အမြဲ)၊ ပေါ်မယ့်အချိန် (စက္ကန့်)
+- **Admin › Services › Edit › Service popup** — Service တစ်ခုချင်းစီအတွက် popup (Service page ဖွင့်ရင် ပေါ်မယ် / "Service info & rules" ခလုတ်နှိပ်မှ ပေါ်မယ်)
+- Block တွေနဲ့ တည်ဆောက်တယ်: Section heading, Paragraph, List (• ✅ ❌ 1.), Coloured box (တစ်ဝက်စီ ဘေးချင်းကပ်လို့ရ), Steps, Chips grid (နိုင်ငံ/Model), Info table (checker sample), Buttons
+- Template ၁၀ ခု: Welcome, IMEI service, Tool/software, Guide, Region chips, Clean only, FMI off, Carrier unlock, Code service, Blank — "copy from a service" နဲ့ တခြား service ကနေ ကူးလို့ရ
+- ညာဘက်မှာ Live preview ပေါ်တယ်။ `**စာ**` = Bold, `{name}` = user နာမည်, `{site}` = ဆိုဒ်နာမည်
+- Button URL ကို `#order` ထည့်ရင် popup ပိတ်ပြီး Order form ကို ရောက်သွားမယ်
+- လုံခြုံရေး: စာအားလုံး escape လုပ်တယ် (HTML/JS ထည့်လို့မရ)၊ Link တွေက https / mailto / tel / tg / `/` path ပဲ ခွင့်ပြုတယ်
+
 ## Statement (PDF + Email)
 
 - **Account › Statement** — ရက်အပိုင်းအခြား (ဒီလ / ပြီးခဲ့တဲ့လ / ၃၀ ရက် / ဒီနှစ် / စိတ်ကြိုက်) နဲ့ Type ရွေးပြီး Opening / Money in / Money out / Closing balance ကို ကြည့်လို့ရတယ်
