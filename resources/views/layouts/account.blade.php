@@ -13,13 +13,13 @@
         @php
             $nav = [
                 ['Dashboard', 'grid', 'account.dashboard'],
-                ['My Profile', 'hand', 'account.profile'],
+                ['My Profile', 'user', 'account.profile'],
                 ['Place Order', 'phone', 'services.index'],
-                ['Favourites', 'star', 'account.favorites'],
+                ['Favourites', 'heart', 'account.favorites'],
                 ['Order History', 'list', 'account.orders.index'],
                 ['Add Funds', 'wallet', 'account.funds.index'],
                 ['Statement', 'receipt', 'account.statement'],
-                ['Support', 'bell', 'account.tickets.index'],
+                ['Support', 'chat', 'account.tickets.index'],
                 ['Points', 'star', 'account.points'],
                 ['Notifications', 'bell', 'account.notifications'],
                 ['API Access', 'plug', 'account.api'],
@@ -31,7 +31,8 @@
             @foreach ($nav as [$label, $icon, $route])
                 @continue($route === 'account.points' && ! \App\Services\PointService::systemOn())
                 @continue($route === 'account.earnings' && ! (\App\Services\AffiliateService::enabled() || auth()->user()->isReseller()))
-                <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => request()->routeIs($route) || ($route === 'account.tickets.index' && request()->routeIs('account.tickets.*'))])>
+                @php $isActive = request()->routeIs($route) || ($route === 'account.tickets.index' && request()->routeIs('account.tickets.*')); @endphp
+                <a href="{{ Route::has($route) ? route($route) : '#' }}" @class(['side-link', 'active' => $isActive]) @if ($isActive) aria-current="page" @endif>
                     <x-icon :name="$icon" /><span>{{ __($label) }}</span>
                 </a>
             @endforeach
@@ -51,7 +52,7 @@
     </aside>
 
     <div class="flex-[999_1_560px] min-w-0 flex flex-col">
-        <header class="bg-surface border-b border-line px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3 sticky top-0 z-30">
+        <header class="bg-surface border-b border-line px-4 sm:px-8 py-3 flex flex-wrap items-center gap-3 lg:sticky lg:top-0 z-30">
             <button type="button" class="btn btn-icon lg:hidden" data-nav-toggle aria-controls="side-nav" aria-label="{{ __('Menu') }}"><x-icon name="menu" /></button>
             <div class="flex flex-col">
                 <span class="font-display text-[22px] font-bold">{{ __($title ?? 'Account') }}</span>
@@ -60,7 +61,7 @@
             <div class="ml-auto flex items-center gap-2 flex-wrap">
                 <span class="btn bg-ok-soft text-ok border-transparent font-bold"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</span>
                 @if (\App\Services\PointService::systemOn())
-                    <a href="{{ route('account.points') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
+                    <a href="{{ route('account.points') }}" class="btn hidden sm:inline-flex bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} {{ __('pts') }}</a>
                 @endif
                 <x-notification-bell />
                 <x-locale-switcher />
@@ -70,15 +71,15 @@
         </header>
 
         <main class="px-4 sm:px-8 py-7 pb-28 lg:pb-7 flex flex-col gap-5">
-            @if (session('success')) <div class="badge-success rounded-xl px-4 py-3 text-sm font-medium" role="status">{{ session('success') }}</div> @endif
-            @if (session('error')) <div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium" role="alert">{{ session('error') }}</div> @endif
+            @if (session('success')) <div class="badge-success rounded-xl px-4 py-3 text-sm font-medium" role="status">{{ __(session('success')) }}</div> @endif
+            @if (session('error')) <div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium" role="alert">{{ __(session('error')) }}</div> @endif
             @if (session('info')) <div class="badge-info rounded-xl px-4 py-3 text-sm font-medium" role="status">{{ session('info') }}</div> @endif
             @yield('content')
         </main>
     </div>
 </div>
 <nav class="bottom-bar lg:hidden fixed bottom-0 inset-x-0 z-30 bg-surface border-t border-line grid grid-cols-5" aria-label="{{ __('Quick menu') }}">
-    @foreach ([['Home', 'grid', 'account.dashboard'], ['Order', 'phone', 'services.index'], ['Orders', 'list', 'account.orders.index'], ['Funds', 'wallet', 'account.funds.index'], ['Support', 'bell', 'account.tickets.index']] as [$l, $i, $r])
+    @foreach ([['Home', 'grid', 'account.dashboard'], ['New order', 'phone', 'services.index'], ['My orders', 'list', 'account.orders.index'], ['Funds', 'wallet', 'account.funds.index'], ['Support', 'chat', 'account.tickets.index']] as [$l, $i, $r])
         <a href="{{ route($r) }}" @class(['active' => request()->routeIs($r) || ($r === 'account.orders.index' && request()->routeIs('account.orders.*')) || ($r === 'account.tickets.index' && request()->routeIs('account.tickets.*'))])><x-icon :name="$i" size="20" />{{ __($l) }}</a>
     @endforeach
 </nav>

@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Forgot password'])
 
 @section('content')
-<x-auth-card title="{{ __('Reset your password') }}" subtitle="Enter your account email and we'll send you a reset link.">
+<x-auth-card title="{{ __('Reset your password') }}" subtitle="{{ __('Enter your account email and we\'ll send you a reset link.') }}">
     <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-4" novalidate>
         @csrf
         <div>

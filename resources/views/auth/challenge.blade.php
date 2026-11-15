@@ -2,10 +2,10 @@
 
 @section('content')
 <x-auth-card
-    :title="$method === 'totp' ? 'Authenticator code' : 'Check your email'"
+    :title="$method === 'totp' ? __('Authenticator code') : __('Check your email')"
     :subtitle="$method === 'totp'
-        ? 'Open Google Authenticator and enter the 6-digit code for this site.'
-        : 'We sent a 6-digit code to '.$maskedEmail.'. It expires in '.config('unlockhub.otp.ttl_minutes').' minutes.'">
+        ? __('Open Google Authenticator and enter the 6-digit code for this site.')
+        : __('We sent a 6-digit code to :email. It expires in :minutes minutes.', ['email' => $maskedEmail, 'minutes' => config('unlockhub.otp.ttl_minutes')])">
 
     <form method="POST" action="{{ route('login.challenge') }}" class="flex flex-col gap-4" novalidate>
         @csrf
@@ -18,9 +18,9 @@
         </div>
         <label class="flex items-start gap-2.5 text-sm text-muted leading-normal">
             <input type="checkbox" name="trust_device" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]">
-            <span><strong class="text-ink">{{ __('Trust this device?') }}</strong> Skip this step on this browser for {{ config('unlockhub.otp.trusted_device_days') }} days. Don't tick this on a shared computer.</span>
+            <span><strong class="text-ink">{{ __('Trust this device?') }}</strong> {{ __('Skip this step on this browser for :days days. Don\'t tick this on a shared computer.', ['days' => config('unlockhub.otp.trusted_device_days')]) }}</span>
         </label>
-        <button class="btn btn-primary btn-lg w-full">Verify &amp; continue</button>
+        <button class="btn btn-primary btn-lg w-full">{{ __('Verify & continue') }}</button>
     </form>
 
     @if ($method === 'email')

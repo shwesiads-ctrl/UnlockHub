@@ -1,5 +1,5 @@
 @php $isKb = $type === 'kb'; @endphp
-@extends('layouts.app', ['title' => $isKb ? 'Knowledge Base' : 'Blog'])
+@extends('layouts.app', ['title' => $isKb ? __('Knowledge Base') : __('Blog')])
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
@@ -10,7 +10,7 @@
         </div>
         <form method="GET" role="search" class="flex gap-2">
             <label for="q" class="sr-only">{{ __('Search') }}</label>
-            <input id="q" name="q" type="search" value="{{ $search }}" placeholder="Search {{ $isKb ? 'articles' : 'posts' }}…" class="input h-11 w-72">
+            <input id="q" name="q" type="search" value="{{ $search }}" placeholder="{{ $isKb ? __('Search articles…') : __('Search posts…') }}" class="input h-11 w-full sm:w-72">
             <button class="btn h-11">{{ __('Search') }}</button>
         </form>
     </div>

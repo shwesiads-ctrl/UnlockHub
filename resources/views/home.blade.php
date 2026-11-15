@@ -14,7 +14,7 @@
         </p>
         <form role="search" action="{{ route('services.index') }}" class="flex flex-wrap gap-2 max-w-xl">
             <label for="hsearch" class="sr-only">{{ __('Search services') }}</label>
-            <div class="flex-[1_1_320px] flex items-center gap-2.5 h-[52px] px-4 rounded-xl border border-line bg-surface text-muted">
+            <div class="search-box flex-[1_1_320px] flex items-center gap-2.5 h-[52px] px-4 rounded-xl border border-line bg-surface text-muted">
                 <x-icon name="search" />
                 <input id="hsearch" name="q" type="text" placeholder="{{ __('Search: Samsung NCK, UnlockTool, AT&T…') }}" class="flex-1 bg-transparent outline-none text-ink text-[15px]">
             </div>

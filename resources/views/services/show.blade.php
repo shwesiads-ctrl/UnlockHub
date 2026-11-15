@@ -29,9 +29,9 @@
                         <span class="flex items-center gap-1.5"><x-icon name="clock" size="16" />{{ $service->delivery_time }}</span>
                     @endif
                     @if ($points > 0)
-                        <span class="flex items-center gap-1.5 text-point font-semibold"><x-icon name="star" size="16" />+{{ $points }} points per success</span>
+                        <span class="flex items-center gap-1.5 text-point font-semibold"><x-icon name="star" size="16" />{{ __('+:points points per success', ['points' => $points]) }}</span>
                     @endif
-                    <span>{{ __('Price:') }} <strong class="font-display text-ink text-base">{{ price($price) }}</strong>{{ $service->allow_bulk ? ' / item' : '' }}</span>
+                    <span>{{ __('Price:') }} <strong class="font-display text-ink text-base">{{ price($price) }}</strong>{{ $service->allow_bulk ? ' / '.__('item') : '' }}</span>
                 </div>
                 @if ($delivery && $delivery->reliable())
                     @php $hm = fn ($m) => \App\Services\DeliveryStatsService::human((int) $m); @endphp
@@ -67,7 +67,7 @@
                         <label for="f_{{ $field->name }}" class="label">
                             {{ $field->label }} @if ($field->is_required) <span class="text-danger">*</span> @endif
                             @if ($field->is_bulk_field && $service->allow_bulk)
-                                <span class="font-normal text-muted">— one per line, max {{ $service->max_bulk }}</span>
+                                <span class="font-normal text-muted">— {{ __('one per line, max :n', ['n' => $service->max_bulk]) }}</span>
                             @endif
                         </label>
                         @if ($field->is_bulk_field && $service->allow_bulk)
@@ -154,7 +154,7 @@
                 <h2 class="m-0 text-xl font-bold">{{ __('Summary') }}</h2>
                 <div class="flex justify-between text-sm"><span class="text-muted">{{ __('Unit price') }}</span><span class="font-semibold">{{ price($price) }}</span></div>
                 @if ($points > 0)
-                    <div class="flex justify-between text-sm"><span class="text-muted">{{ __('Points if successful') }}</span><span class="font-semibold text-point">+{{ $points }} pts</span></div>
+                    <div class="flex justify-between text-sm"><span class="text-muted">{{ __('Points if successful') }}</span><span class="font-semibold text-point">+{{ $points }} {{ __('pts') }}</span></div>
                 @endif
                 @auth
                     <div class="flex justify-between text-sm p-3 rounded-[10px] bg-ok-soft text-ok font-semibold"><span>{{ __('Wallet balance') }}</span><span>{{ price(auth()->user()->balance) }}</span></div>

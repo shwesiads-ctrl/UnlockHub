@@ -63,7 +63,7 @@
 
             <div class="flex flex-wrap gap-5 p-5 rounded-xl bg-surface-2 items-center">
                 @if ($selected->qr_path)
-                    <img src="{{ Storage::disk('public')->url($selected->qr_path) }}" alt="{{ $selected->name }} QR code" class="w-36 h-36 rounded-xl bg-white p-2 object-contain">
+                    <img src="{{ Storage::disk('public')->url($selected->qr_path) }}" alt="{{ $selected->name }} {{ __('QR code') }}" class="w-36 h-36 rounded-xl bg-white p-2 object-contain">
                 @endif
                 <div class="flex-[1_1_240px] flex flex-col gap-2.5 text-sm">
                     <div class="flex justify-between gap-3"><span class="text-muted">{{ __('Account name') }}</span><span class="font-semibold">{{ $selected->account_name ?: '—' }}</span></div>
@@ -118,7 +118,7 @@
             <label for="receipt" class="flex flex-col items-center justify-center gap-2.5 py-9 px-5 rounded-2xl border-2 border-dashed border-line bg-bg cursor-pointer text-center" data-dropzone>
                 <span class="w-[52px] h-[52px] rounded-2xl bg-brand-soft text-brand-ink flex items-center justify-center"><x-icon name="upload" size="24" /></span>
                 <span class="font-semibold text-[15px]" data-file-name>{{ __('Upload receipt screenshot') }}</span>
-                <span class="text-[13px] text-muted">JPG, PNG or WEBP, up to {{ (int) (config('unlockhub.receipts.max_kb') / 1024) }} MB</span>
+                <span class="text-[13px] text-muted">{{ __('JPG, PNG or WEBP, up to :mb MB', ['mb' => (int) (config('unlockhub.receipts.max_kb') / 1024)]) }}</span>
                 <input id="receipt" name="receipt" type="file" accept="image/*" class="sr-only" required>
             </label>
             <x-field-error name="receipt" />

@@ -41,7 +41,7 @@
 </section>
 @endif
 
-<div class="grid gap-5 grid-cols-[repeat(auto-fit,minmax(380px,1fr))]">
+<div class="grid gap-5 grid-cols-[repeat(auto-fit,minmax(min(380px,100%),1fr))]">
     <section class="card overflow-hidden">
         <h2 class="m-0 px-5 py-4 text-lg font-bold">Top services</h2>
         <div class="table-wrap"><table class="table">

@@ -1,7 +1,7 @@
 @extends('layouts.account', ['title' => 'API Access'])
 
 @section('content')
-<p class="m-0 text-muted text-[15px] max-w-3xl">Connect your own DHRU Fusion site (or any script) to {{ setting('site.name', config('app.name')) }}. Orders placed through the API use your wallet balance and your group prices, exactly like orders on this site.</p>
+<p class="m-0 text-muted text-[15px] max-w-3xl">{{ __('Connect your own DHRU Fusion site (or any script) to :site. Orders placed through the API use your wallet balance and your group prices, exactly like orders on this site.', ['site' => setting('site.name', config('app.name'))]) }}</p>
 
 @if ($newKey)
     <section class="rounded-2xl p-5 bg-ok-soft flex flex-col gap-2" role="alert">
@@ -49,7 +49,7 @@
                 @endif
             </div>
             @if ($user->api_last_used_at)
-                <p class="m-0 text-xs text-muted">Last used {{ $user->api_last_used_at->diffForHumans() }}.</p>
+                <p class="m-0 text-xs text-muted">{{ __('Last used :time.', ['time' => $user->api_last_used_at->diffForHumans()]) }}</p>
             @endif
         </section>
 
@@ -84,7 +84,7 @@
             <h2 class="m-0 text-lg font-bold">{{ __('Security') }}</h2>
             <label class="flex items-center gap-2.5 text-sm font-semibold">
                 <input type="checkbox" name="api_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked($user->api_enabled) @disabled(! $user->api_key_hash)>
-                API enabled
+                {{ __('API enabled') }}
             </label>
             <div>
                 <label for="api_ips" class="label">{{ __('Allowed IPs') }} <span class="font-normal text-muted">{{ __('(one per line, empty = any)') }}</span></label>

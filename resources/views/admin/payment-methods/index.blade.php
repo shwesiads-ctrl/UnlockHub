@@ -8,7 +8,7 @@
     @endforeach
     <a href="{{ route('admin.payment-methods.index', ['country' => 'all']) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => $country === 'all'])>Every country</a>
 </nav>
-<div class="grid gap-5 grid-cols-[repeat(auto-fit,minmax(420px,1fr))]">
+<div class="grid gap-5 grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))]">
     @foreach ($methods as $m)
         <form method="POST" action="{{ route('admin.payment-methods.update', $m) }}" enctype="multipart/form-data" class="card p-5 flex flex-col gap-4">
             @csrf @method('PUT')

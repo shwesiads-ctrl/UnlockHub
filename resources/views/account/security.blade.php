@@ -70,7 +70,7 @@
                         <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" class="input text-center font-mono text-xl tracking-[0.3em]" required>
                         <x-field-error name="code" />
                     </div>
-                    <button class="btn btn-primary">Confirm &amp; turn on</button>
+                    <button class="btn btn-primary">{{ __('Confirm & turn on') }}</button>
                 </form>
             @else
                 <p class="m-0 text-sm text-muted leading-relaxed">{{ __('Without it, we email you a code when you log in on a new device. The app is faster and works offline.') }}</p>
@@ -113,8 +113,8 @@
             @forelse ($devices as $device)
                 <div class="flex items-center gap-3 p-3 rounded-[10px] bg-surface-2">
                     <div class="flex-1 min-w-0">
-                        <div class="text-sm font-semibold truncate">{{ \Illuminate\Support\Str::limit($device->user_agent ?: 'Unknown browser', 48) }}</div>
-                        <div class="text-xs text-muted">{{ $device->ip_address }} · last used {{ $device->last_used_at?->diffForHumans() ?? '—' }}
+                        <div class="text-sm font-semibold truncate">{{ \Illuminate\Support\Str::limit($device->user_agent ?: __('Unknown browser'), 48) }}</div>
+                        <div class="text-xs text-muted">{{ $device->ip_address }} · {{ __('last used') }} {{ $device->last_used_at?->diffForHumans() ?? '—' }}
                             @if ($device->id === $currentDeviceId) · <strong class="text-ok">{{ __('this device') }}</strong> @endif
                         </div>
                     </div>

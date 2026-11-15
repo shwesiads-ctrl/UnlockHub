@@ -42,7 +42,7 @@
         @csrf
         @foreach ($q as $k => $v) @if ($v) <input type="hidden" name="{{ $k }}" value="{{ $v }}"> @endif @endforeach
         <button class="btn" @disabled(! auth()->user()->email) @unless (auth()->user()->email) title="{{ __('Add your email in My Profile first') }}" @endunless>
-            <x-icon name="bell" size="16" />Email PDF to {{ auth()->user()->email ? \Illuminate\Support\Str::mask(auth()->user()->email, '•', 2, max(1, strpos(auth()->user()->email, '@') - 2)) : 'me' }}
+            <x-icon name="bell" size="16" />{{ __('Email PDF to') }} {{ auth()->user()->email ? \Illuminate\Support\Str::mask(auth()->user()->email, '•', 2, max(1, strpos(auth()->user()->email, '@') - 2)) : __('me') }}
         </button>
     </form>
     @if (setting('statements.monthly', '1') === '1' && auth()->user()->notify_email && auth()->user()->email)
@@ -67,13 +67,13 @@
                     @elseif ($t->reference instanceof \App\Models\PaymentRequest && $t->reference->user_id === auth()->id())
                         <a href="{{ route('account.funds.show', $t->reference) }}" class="block hover:underline">
                             {{ $t->description }}
-                            <span class="block text-xs text-brand-ink mt-1">View payment details &amp; receipt →</span>
+                            <span class="block text-xs text-brand-ink mt-1">{{ __('View payment details & receipt →') }}</span>
                         </a>
                     @else
                         {{ $t->description }}
                     @endif
                     <div class="flex flex-wrap gap-2 mt-2" aria-label="{{ __('Statement receipt') }}">
-                        <a href="{{ route('account.statement.receipt', $t) }}" data-receipt-preview data-download="{{ route('account.statement.receipt.download', $t) }}" data-title="Receipt #{{ $t->id }}" class="btn h-8 text-xs">{{ __('View Receipt Image') }}</a>
+                        <a href="{{ route('account.statement.receipt', $t) }}" data-receipt-preview data-download="{{ route('account.statement.receipt.download', $t) }}" data-title="{{ __('Receipt') }} #{{ $t->id }}" class="btn h-8 text-xs">{{ __('View Receipt Image') }}</a>
                         <a href="{{ route('account.statement.receipt.download', $t) }}" class="btn h-8 text-xs">{{ __('Save Receipt Image') }}</a>
                     </div>
                 </td>
@@ -100,7 +100,7 @@
     <div class="p-4 overflow-y-auto min-h-0">
         <p data-receipt-loading role="status" class="text-center text-muted">{{ __('Loading receipt…') }}</p>
         <p data-receipt-error role="alert" hidden>{{ __('Could not load this receipt. Close and try again.') }}</p>
-        <img data-receipt-image alt="Statement receipt" class="block w-full h-auto rounded-xl" hidden>
+        <img data-receipt-image alt="{{ __('Statement receipt') }}" class="block w-full h-auto rounded-xl" hidden>
     </div>
 </dialog>
 @endsection

@@ -5,24 +5,24 @@
     <div class="rounded-2xl p-5 flex flex-col gap-2 bg-point-soft">
         <span class="text-[13px] font-semibold text-point">{{ __('Your points') }}</span>
         <span class="font-display text-[32px] font-bold text-point">{{ number_format($user->points) }}</span>
-        <span class="text-[13px] text-point">= {{ money($user->points * $rules['redeem_rate']) }} credit</span>
+        <span class="text-[13px] text-point">= {{ money($user->points * $rules['redeem_rate']) }} {{ __('credit') }}</span>
     </div>
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">{{ __('Earned all time') }}</span>
         <span class="font-display text-[32px] font-bold">{{ number_format($lifetime) }}</span>
-        <span class="text-[13px] text-muted">Group: {{ $user->group?->name ?? '—' }}</span>
+        <span class="text-[13px] text-muted">{{ __('Group') }}: {{ $user->group?->name ?? '—' }}</span>
     </div>
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">{{ __('Friends referred') }}</span>
         <span class="font-display text-[32px] font-bold">{{ $referrals->total() }}</span>
-        <span class="text-[13px] text-muted">{{ $referrals->where('success_orders', '>', 0)->count() }} have ordered</span>
+        <span class="text-[13px] text-muted">{{ __(':count have ordered', ['count' => $referrals->where('success_orders', '>', 0)->count()]) }}</span>
     </div>
     @if ($nextGroup)
         @php $pct = min(100, (int) round($lifetime / max(1, $nextGroup->min_points_for_auto_upgrade) * 100)); @endphp
         <div class="card p-5 flex flex-col gap-2">
-            <span class="text-[13px] font-semibold text-muted">Next: {{ $nextGroup->name }} prices</span>
-            <span class="font-display text-[22px] font-bold">{{ number_format($nextGroup->min_points_for_auto_upgrade - $lifetime) }} pts to go</span>
-            <div class="h-2 rounded-full bg-surface-2 overflow-hidden" role="progressbar" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="Progress to {{ $nextGroup->name }}">
+            <span class="text-[13px] font-semibold text-muted">{{ __('Next: :group prices', ['group' => $nextGroup->name]) }}</span>
+            <span class="font-display text-[22px] font-bold">{{ __(':points pts to go', ['points' => number_format($nextGroup->min_points_for_auto_upgrade - $lifetime)]) }}</span>
+            <div class="h-2 rounded-full bg-surface-2 overflow-hidden" role="progressbar" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ __('Progress to :group', ['group' => $nextGroup->name]) }}">
                 <div class="h-full bg-brand" style="width: {{ $pct }}%"></div>
             </div>
         </div>
@@ -59,7 +59,7 @@
                 <div class="flex justify-between items-center">
                     <h2 class="m-0 text-lg font-bold">{{ __('Daily check-in') }}</h2>
                     @if ($user->checkin_streak > 0 && $user->last_checkin_on?->gte(today()->subDay()))
-                        <span class="badge badge-pending">{{ $user->checkin_streak }}-day streak</span>
+                        <span class="badge badge-pending">{{ __(':days-day streak', ['days' => $user->checkin_streak]) }}</span>
                     @endif
                 </div>
                 @php
@@ -69,11 +69,11 @@
                 <div class="flex gap-1.5" aria-label="{{ __('Streak progress') }}">
                     @for ($d = 1; $d <= max(1, $rules['checkin_streak_max']); $d++)
                         @php $done = $canCheckIn ? $d < $nextStreak : $d <= $user->checkin_streak; @endphp
-                        <span @class(['flex-1 h-9 rounded-lg flex items-center justify-center text-xs font-bold', 'bg-point text-white' => $done, 'bg-surface-2 text-muted' => ! $done]) title="Day {{ $d }}">{{ $d }}</span>
+                        <span @class(['flex-1 h-9 rounded-lg flex items-center justify-center text-xs font-bold', 'bg-point text-white' => $done, 'bg-surface-2 text-muted' => ! $done]) title="{{ __('Day :n', ['n' => $d]) }}">{{ $d }}</span>
                     @endfor
                 </div>
                 @if ($canCheckIn)
-                    <form method="POST" action="{{ route('account.points.checkin') }}">@csrf<button class="btn btn-primary w-full">Check in · +{{ $nextPoints }} pts</button></form>
+                    <form method="POST" action="{{ route('account.points.checkin') }}">@csrf<button class="btn btn-primary w-full">{{ __('Check in') }} · +{{ $nextPoints }} {{ __('pts') }}</button></form>
                 @else
                     <p class="m-0 text-sm text-muted text-center">{{ __('Checked in today. Come back tomorrow to keep your streak.') }}</p>
                 @endif
@@ -83,7 +83,7 @@
         <form method="POST" action="{{ route('account.points.redeem') }}" class="card p-5 flex flex-col gap-3.5" data-redeem data-rate="{{ $rules['redeem_rate'] }}">
             @csrf
             <h2 class="m-0 text-lg font-bold flex items-center gap-2"><x-icon name="star" class="text-point" />{{ __('Redeem points') }}</h2>
-            <p class="m-0 text-sm text-muted">1 point = {{ money($rules['redeem_rate']) }}. Minimum {{ number_format($rules['redeem_min']) }} points.</p>
+            <p class="m-0 text-sm text-muted">{{ __('1 point = :value. Minimum :min points.', ['value' => money($rules['redeem_rate']), 'min' => number_format($rules['redeem_min'])]) }}</p>
             @if ($rules['redeem_rate'] > 0 && $user->points >= $rules['redeem_min'])
                 <div>
                     <label for="points" class="label">{{ __('Points to redeem') }}</label>
@@ -96,20 +96,20 @@
                 <div class="rounded-[10px] px-3 py-2.5 bg-surface-2 text-sm text-muted">{{ __('Redeeming points is turned off right now. Your points are kept.') }}</div>
             @else
                 <div class="rounded-[10px] px-3 py-2.5 bg-surface-2 text-sm text-muted">
-                    You need {{ number_format(max(0, $rules['redeem_min'] - $user->points)) }} more points to redeem.
+                    {{ __('You need :points more points to redeem.', ['points' => number_format(max(0, $rules['redeem_min'] - $user->points))]) }}
                 </div>
             @endif
         </form>
 
         <section class="card p-5 flex flex-col gap-3">
             <h2 class="m-0 text-lg font-bold">{{ __('Invite friends') }}</h2>
-            <p class="m-0 text-sm text-muted">{{ __('You get') }} <strong class="text-point">{{ number_format($rules['referral_bonus']) }} points</strong> {{ __('when a friend you invite completes their first order.') }}</p>
+            <p class="m-0 text-sm text-muted">{{ __('You get') }} <strong class="text-point">{{ number_format($rules['referral_bonus']) }} {{ __('points') }}</strong> {{ __('when a friend you invite completes their first order.') }}</p>
             @php $refLink = route('register', ['ref' => $user->referral_code]); @endphp
             <label for="reflink" class="sr-only">{{ __('Your referral link') }}</label>
             <input id="reflink" type="text" readonly value="{{ $refLink }}" class="input h-11 font-mono text-sm">
             <div class="flex gap-2">
                 <button type="button" class="btn flex-1" data-copy="{{ $refLink }}">{{ __('Copy link') }}</button>
-                <button type="button" class="btn flex-1" data-copy="{{ $user->referral_code }}">Copy code: {{ $user->referral_code }}</button>
+                <button type="button" class="btn flex-1" data-copy="{{ $user->referral_code }}">{{ __('Copy code') }}: {{ $user->referral_code }}</button>
             </div>
             @if ($referrals->isNotEmpty())
                 <ul class="m-0 p-0 list-none flex flex-col gap-1.5 mt-1">
@@ -119,7 +119,7 @@
                             @if ($r->success_orders > 0)
                                 <span class="text-ok font-semibold">{{ __('ordered ✓') }}</span>
                             @else
-                                <span class="text-muted">joined {{ $r->created_at->format('d M') }}</span>
+                                <span class="text-muted">{{ __('joined :date', ['date' => $r->created_at->format('d M')]) }}</span>
                             @endif
                         </li>
                     @endforeach
@@ -145,7 +145,7 @@
             @if ($rules['profile_bonus'] > 0 && ! $user->profile_bonus_awarded)
                 <a href="{{ route('account.profile') }}" class="text-[13px]">{{ __('Complete your profile →') }}</a>
             @endif
-            <span class="text-xs text-muted">Rejected or cancelled orders earn nothing.@if ($nextGroup) Earn enough and you move up to cheaper group prices automatically.@endif</span>
+            <span class="text-xs text-muted">{{ __('Rejected or cancelled orders earn nothing.') }}@if ($nextGroup) {{ __('Earn enough and you move up to cheaper group prices automatically.') }}@endif</span>
         </section>
     </aside>
 </div>

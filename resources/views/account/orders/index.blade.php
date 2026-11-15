@@ -3,10 +3,10 @@
 @section('content')
 <div class="flex flex-wrap gap-2 items-center">
     <nav aria-label="{{ __('Status') }}" class="flex flex-wrap gap-2">
-        <a href="{{ route('account.orders.index') }}" @class(['btn h-9 text-[13px]', 'btn-primary' => ! $status && ! request('batch')])>All ({{ $counts->sum() }})</a>
+        <a href="{{ route('account.orders.index') }}" @class(['btn h-9 text-[13px]', 'btn-primary' => ! $status && ! request('batch')])>{{ __('All') }} ({{ $counts->sum() }})</a>
         @foreach (\App\Models\Order::STATUS_LABELS as $k => $label)
             @if (($counts[$k] ?? 0) > 0 || $status === $k)
-                <a href="{{ route('account.orders.index', ['status' => $k]) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => $status === $k])>{{ $label }} ({{ $counts[$k] ?? 0 }})</a>
+                <a href="{{ route('account.orders.index', ['status' => $k]) }}" @class(['btn h-9 text-[13px]', 'btn-primary' => $status === $k])>{{ __($label) }} ({{ $counts[$k] ?? 0 }})</a>
             @endif
         @endforeach
     </nav>
@@ -20,7 +20,7 @@
 
 @if (request('batch'))
     <div class="rounded-xl px-4 py-3 text-sm bg-brand-soft text-brand-ink flex flex-wrap gap-3 items-center">
-        <span class="flex-1">Showing one bulk order ({{ $orders->total() }} items).</span>
+        <span class="flex-1">{{ __('Showing one bulk order (:count items).', ['count' => $orders->total()]) }}</span>
         <a href="{{ route('account.orders.export', ['batch' => request('batch')]) }}" class="btn h-9 text-[13px]">{{ __('Download CSV') }}</a>
         @if ($orders->first()) <a href="{{ route('account.orders.reorder', $orders->first()) }}" class="btn h-9 text-[13px]">{{ __('Order this bulk again') }}</a> @endif
         <a href="{{ route('account.orders.index') }}" class="btn h-9 text-[13px]">{{ __('Show all orders') }}</a>

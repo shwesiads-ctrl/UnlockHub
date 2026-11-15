@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Login'])
 
 @section('content')
-<x-auth-card title="{{ __('Welcome back') }}" subtitle="Log in with your username or email.">
+<x-auth-card title="{{ __('Welcome back') }}" subtitle="{{ __('Log in with your username or email.') }}">
     <form method="POST" action="{{ route('login') }}" class="flex flex-col gap-4" novalidate>
         @csrf
         <div>
@@ -19,7 +19,7 @@
         </div>
         <label class="flex items-center gap-2.5 text-sm text-muted">
             <input type="checkbox" name="remember" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('remember'))>
-            Keep me signed in
+            {{ __('Keep me signed in') }}
         </label>
         <x-captcha form="login" />
         <button class="btn btn-primary btn-lg w-full">{{ __('Log in') }}</button>

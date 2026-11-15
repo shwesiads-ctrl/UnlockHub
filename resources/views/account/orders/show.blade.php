@@ -1,4 +1,4 @@
-@extends('layouts.account', ['title' => 'Order #'.$order->order_no])
+@extends('layouts.account', ['title' => __('Order').' #'.$order->order_no])
 
 @section('content')
 <a href="{{ route('account.orders.index') }}" class="text-sm self-start">{{ __('← All orders') }}</a>
@@ -19,14 +19,14 @@
                 </div>
             @elseif ($order->status === 'rejected')
                 <div class="rounded-xl p-4 bg-danger-soft text-danger text-sm leading-relaxed">
-                    <strong>{{ __('Rejected:') }}</strong> {{ $order->result ?: 'No reason given.' }}
-                    @if ($order->refunded) <br>{{ money($order->price) }} was refunded to your wallet. @endif
+                    <strong>{{ __('Rejected:') }}</strong> {{ $order->result ?: __('No reason given.') }}
+                    @if ($order->refunded) <br>{{ __(':amount was refunded to your wallet.', ['amount' => money($order->price)]) }} @endif
                 </div>
             @elseif ($order->status === 'cancelled')
-                <div class="rounded-xl p-4 bg-surface-2 text-sm">Cancelled. {{ money($order->price) }} was refunded to your wallet.</div>
+                <div class="rounded-xl p-4 bg-surface-2 text-sm">{{ __('Cancelled.') }} {{ __(':amount was refunded to your wallet.', ['amount' => money($order->price)]) }}</div>
             @else
                 <div class="rounded-xl p-4 bg-brand-soft text-brand-ink text-sm leading-relaxed">
-                    We're working on it. Estimated delivery: <strong>{{ $order->service?->delivery_time ?: '—' }}</strong>. This page shows the result as soon as it's ready.
+                    {{ __('We\'re working on it. Estimated delivery:') }} <strong>{{ $order->service?->delivery_time ?: '—' }}</strong>. {{ __('This page shows the result as soon as it\'s ready.') }}
                 </div>
             @endif
 
@@ -59,11 +59,11 @@
         @if ($order->status === 'pending' && $order->service?->allow_cancel_pending && ! $order->supplier_order_id)
             <form method="POST" action="{{ route('account.orders.cancel', $order) }}" onsubmit="return confirm('Cancel this order and refund {{ money($order->price) }}?')">
                 @csrf
-                <button class="btn btn-danger w-full">Cancel order &amp; refund</button>
+                <button class="btn btn-danger w-full">{{ __('Cancel order & refund') }}</button>
             </form>
         @endif
 
-        <a href="{{ route('account.tickets.create', ['order' => $order->order_no]) }}" class="btn w-full"><x-icon name="bell" size="16" />{{ __('Get help with this order') }}</a>
+        <a href="{{ route('account.tickets.create', ['order' => $order->order_no]) }}" class="btn w-full"><x-icon name="chat" size="16" />{{ __('Get help with this order') }}</a>
 
         @if ($order->service?->status === 'active')
             <a href="{{ route('account.orders.reorder', $order) }}" class="btn w-full">{{ $order->batch_id ? __('Order this bulk again') : __('Order again') }}</a>

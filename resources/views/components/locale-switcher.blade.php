@@ -5,9 +5,10 @@
 <details class="relative" data-locale-switcher>
     <summary class="btn text-[13px] list-none cursor-pointer" aria-label="{{ __('Language') }}">
         <x-icon name="globe" size="16" />
-        <span lang="{{ $current }}">{{ $locales[$current] ?? strtoupper($current) }}</span>
+        <span lang="{{ $current }}" class="hidden sm:inline">{{ $locales[$current] ?? strtoupper($current) }}</span>
+        <span class="sm:hidden uppercase">{{ $current }}</span>
     </summary>
-    <ul class="absolute right-0 z-50 mt-1 min-w-40 rounded-xl border border-line bg-surface p-1 shadow-lg list-none m-0">
+    <ul class="absolute right-0 z-50 mt-1 min-w-40 max-w-[calc(100vw-24px)] rounded-xl border border-line bg-surface p-1 shadow-lg list-none m-0">
         @foreach ($locales as $code => $label)
             <li>
                 <a href="{{ route('locale', $code) }}" lang="{{ $code }}" hreflang="{{ $code }}"

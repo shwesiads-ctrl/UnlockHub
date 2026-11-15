@@ -4,7 +4,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
     <div class="flex flex-col gap-1.5">
         <h1 class="m-0 text-[34px] font-bold">{{ __('What resellers say') }}</h1>
-        <p class="m-0 text-muted text-[15px]">Reviews from shops and resellers using {{ setting('site.name', config('app.name')) }}.</p>
+        <p class="m-0 text-muted text-[15px]">{{ __('Reviews from shops and resellers using :site.', ['site' => setting('site.name', config('app.name'))]) }}</p>
     </div>
 
     <div class="flex flex-wrap gap-6 items-start">
@@ -15,7 +15,7 @@
                 <div class="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
                     @foreach ($testimonials as $t)
                         <figure class="card m-0 p-5 flex flex-col gap-3">
-                            <div class="flex gap-0.5 text-point" role="img" aria-label="{{ $t->rating }} out of 5 stars">
+                            <div class="flex gap-0.5 text-point" role="img" aria-label="{{ __(':n out of 5 stars', ['n' => $t->rating]) }}">
                                 @for ($i = 1; $i <= 5; $i++)
                                     <x-icon name="star" size="16" @class(['fill-current' => $i <= $t->rating, 'opacity-30' => $i > $t->rating]) />
                                 @endfor

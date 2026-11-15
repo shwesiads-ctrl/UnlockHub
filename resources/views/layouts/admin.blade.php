@@ -67,7 +67,7 @@
                 @isset($subtitle) <span class="text-[13px] text-muted">{{ $subtitle }}</span> @endisset
             </div>
             <div class="ml-auto flex items-center gap-2">
-                <form role="search" action="{{ route('admin.orders.index') }}" class="hidden md:flex items-center gap-2 h-11 px-3 rounded-[10px] border border-line bg-bg text-muted min-w-60">
+                <form role="search" action="{{ route('admin.orders.index') }}" class="search-box hidden md:flex items-center gap-2 h-11 px-3 rounded-[10px] border border-line bg-bg text-muted min-w-60">
                     <x-icon name="search" size="16" />
                     <label for="admin-search" class="sr-only">{{ __('Search') }}</label>
                     <input id="admin-search" name="q" type="text" placeholder="{{ __('Order ID, IMEI, user…') }}" class="flex-1 bg-transparent outline-none text-ink text-sm">

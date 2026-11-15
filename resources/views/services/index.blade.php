@@ -7,11 +7,11 @@
         <h1 class="m-0 text-[34px] font-bold">{{ __('Services & Reseller Pricing') }}</h1>
         <p class="m-0 text-muted text-[15px]">
             @auth
-                Prices shown for your group: <strong class="text-ink">{{ auth()->user()->group?->name ?? 'Customer' }}</strong>.
+                {{ __('Prices shown for your group:') }} <strong class="text-ink">{{ auth()->user()->group?->name ?? __('Customer') }}</strong>.
             @else
-                Showing standard prices. <a href="{{ route('login') }}">{{ __('Log in') }}</a> to see your reseller price.
+                {{ __('Showing standard prices.') }} <a href="{{ route('login') }}">{{ __('Log in') }}</a> {{ __('to see your reseller price.') }}
             @endauth
-            Delivery times are estimates.
+            {{ __('Delivery times are estimates.') }}
         </p>
     </div>
 
@@ -26,7 +26,7 @@
 
     <form method="GET" action="{{ route('services.index') }}" class="card p-3.5 flex flex-wrap gap-3 items-center">
         <input type="hidden" name="type" value="{{ $type }}">
-        <div class="flex-[1_1_300px] flex items-center gap-2.5 h-11 px-3.5 rounded-[10px] border border-line bg-bg text-muted">
+        <div class="search-box flex-[1_1_300px] flex items-center gap-2.5 h-11 px-3.5 rounded-[10px] border border-line bg-bg text-muted">
             <x-icon name="search" />
             <label for="q" class="sr-only">{{ __('Search services') }}</label>
             <input id="q" name="q" type="search" value="{{ $search }}" placeholder="{{ __('Search services…') }}" class="flex-1 bg-transparent outline-none text-ink text-sm">
@@ -50,7 +50,7 @@
             <span class="font-semibold">{{ __('No services found.') }}</span>
             @if ($otherTabHits)
                 <span class="text-sm text-muted">
-                    Found in:
+                    {{ __('Found in:') }}
                     @foreach ($otherTabHits as $t => $n)
                         <a href="{{ route('services.index', ['type' => $t, 'q' => $search]) }}">{{ \App\Models\Service::TYPES[$t] }} ({{ $n }})</a>@if (! $loop->last), @endif
                     @endforeach
@@ -91,7 +91,7 @@
                                     @if ($service->is_hot) <span class="badge badge-hot text-[11px]">HOT</span> @endif
                                 </div>
                                 @if ($service->fields->isNotEmpty())
-                                    <div class="text-xs text-muted mt-1">Requires: {{ $service->fields->pluck('label')->join(' · ') }}</div>
+                                    <div class="text-xs text-muted mt-1">{{ __('Requires:') }} {{ $service->fields->pluck('label')->join(' · ') }}</div>
                                 @endif
                             </td>
                             <td class="text-muted whitespace-nowrap">{{ $service->delivery_time ?: '—' }}</td>

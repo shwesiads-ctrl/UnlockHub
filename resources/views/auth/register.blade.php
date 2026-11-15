@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Register'])
 
 @section('content')
-<x-auth-card title="{{ __('Create your account') }}" subtitle="Reseller pricing, wallet top-ups and order tracking in one place.">
+<x-auth-card title="{{ __('Create your account') }}" subtitle="{{ __('Reseller pricing, wallet top-ups and order tracking in one place.') }}">
     <form method="POST" action="{{ route('register') }}" class="flex flex-col gap-4" novalidate>
         @csrf
         <div>

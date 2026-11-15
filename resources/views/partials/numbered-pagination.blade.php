@@ -21,9 +21,9 @@
         @else
             @foreach ($element as $page => $url)
                 @if ($page === $paginator->currentPage())
-                    <span class="btn btn-primary h-9 min-w-9 px-3" aria-current="page" aria-label="Page {{ $page }}">{{ $page }}</span>
+                    <span class="btn btn-primary h-9 min-w-9 px-3" aria-current="page" aria-label="{{ __('Page :n', ['n' => $page]) }}">{{ $page }}</span>
                 @else
-                    <a class="btn h-9 min-w-9 px-3" href="{{ $url }}" aria-label="Page {{ $page }}">{{ $page }}</a>
+                    <a class="btn h-9 min-w-9 px-3" href="{{ $url }}" aria-label="{{ __('Page :n', ['n' => $page]) }}">{{ $page }}</a>
                 @endif
             @endforeach
         @endif

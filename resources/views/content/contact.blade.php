@@ -4,7 +4,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
     <div class="flex flex-col gap-1.5">
         <h1 class="m-0 text-[34px] font-bold">{{ __('Contact us') }}</h1>
-        <p class="m-0 text-muted text-[15px]">Support hours: {{ setting('site.support_hours', '9 AM – 10 PM') }}. For order problems, include your order number.</p>
+        <p class="m-0 text-muted text-[15px]">{{ __('Support hours: :hours. For order problems, include your order number.', ['hours' => setting('site.support_hours', '9 AM – 10 PM')]) }}</p>
     </div>
 
     <div class="flex flex-wrap gap-6 items-start">

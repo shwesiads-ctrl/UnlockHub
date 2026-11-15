@@ -16,12 +16,13 @@
   --uh-surface: #FFFFFF;
   --uh-surface-2: #EEF2F7;
   --uh-line: #E2E8F0;
+  --uh-line-strong: #848FA0; /* form-control borders: 3:1 against the page */
   --uh-ink: #0F172A;
   --uh-muted: #556070;
   --uh-brand: #2459E8;
   --uh-brand-ink: #2459E8;
   --uh-brand-soft: #E8EEFF;
-  --uh-ok: #15803D;
+  --uh-ok: #12703A; /* 4.5:1 on ok-soft badges */
   --uh-ok-soft: #E3F6EA;
   --uh-warn: #A15C07;
   --uh-warn-soft: #FDF1DC;
@@ -37,6 +38,7 @@
   --uh-surface: #151C2D;
   --uh-surface-2: #1C2539;
   --uh-line: #273149;
+  --uh-line-strong: #5F6E8F;
   --uh-ink: #E8EDF6;
   --uh-muted: #9AA5BA;
   --uh-brand: #3563F0;
@@ -62,6 +64,7 @@
   --color-surface: var(--uh-surface);
   --color-surface-2: var(--uh-surface-2);
   --color-line: var(--uh-line);
+  --color-line-strong: var(--uh-line-strong);
   --color-ink: var(--uh-ink);
   --color-muted: var(--uh-muted);
   --color-brand: var(--uh-brand);
@@ -84,6 +87,15 @@
   a { color: var(--uh-brand-ink); }
   a:hover { color: var(--uh-ink); }
   :focus-visible { outline: 2px solid var(--uh-brand); outline-offset: 2px; }
+  summary { list-style: none; }
+
+  /* Myanmar, Thai and Lao have tall stacked marks: tight Latin line-heights clip them,
+     and letter-spacing breaks how the letters join. */
+  html:is([lang="my"], [lang="th"], [lang="lo"]) body { line-height: 1.65; }
+  html:is([lang="my"], [lang="th"], [lang="lo"]) :is(h1, h2, h3, .font-display) { line-height: 1.45 !important; letter-spacing: normal !important; }
+  html:is([lang="my"], [lang="th"], [lang="lo"]) :is(.btn, .badge, .nav-link, .side-link, .label) { line-height: 1.5; letter-spacing: normal; }
+  html:is([lang="my"], [lang="th"], [lang="lo"], [lang="zh"]) .table th { letter-spacing: normal; text-transform: none; }
+  summary::-webkit-details-marker { display: none; }
 }
 
 .settings-page { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; align-items: start; }
@@ -164,18 +176,23 @@
            cursor-pointer transition-colors;
   }
   .btn:hover { @apply bg-surface-2 text-ink; }
+  .btn:disabled, .btn[aria-disabled="true"] { @apply opacity-50 cursor-not-allowed pointer-events-none; }
   .btn-primary { @apply bg-brand border-brand text-white; }
   .btn-primary:hover { @apply bg-brand text-white opacity-90; }
-  .btn-success { background: #15803D; border-color: #15803D; color: #fff; }
+  .btn-success { background: #12703A; border-color: #12703A; color: #fff; }
   .btn-success:hover { color: #fff; opacity: .9; }
   .btn-danger { @apply bg-danger-soft border-danger text-danger; }
   .btn-icon { @apply w-11 px-0; }
   .btn-lg { @apply h-[52px] px-6 text-base rounded-xl; }
 
   .input {
-    @apply w-full h-12 px-3.5 rounded-[10px] border border-line bg-bg text-ink text-[15px]
+    @apply w-full h-12 px-3.5 rounded-[10px] border border-line-strong bg-bg text-ink text-[15px]
            placeholder:text-muted;
   }
+  .input:focus { border-color: var(--uh-brand); }
+  .input:disabled { cursor: not-allowed; }
+  /* Search fields drawn as a box around an unstyled input: show focus on the box */
+  .search-box:focus-within { outline: 2px solid var(--uh-brand); outline-offset: 2px; }
   textarea.input { @apply h-auto py-3 leading-relaxed; }
   @media (max-width: 640px) { .input { font-size: 16px; } }
   .label { @apply block font-semibold text-sm mb-1.5; }
@@ -235,5 +252,5 @@
 }
 @media (prefers-reduced-motion: reduce) { .side-nav { transition: none; } }
 .bottom-bar { padding-bottom: env(safe-area-inset-bottom); }
-.bottom-bar a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 6px; font-size: 11px; font-weight: 600; color: var(--uh-muted); text-decoration: none; min-height: 52px; justify-content: center; }
+.bottom-bar a { text-align: center; line-height: 1.25; overflow-wrap: anywhere; padding-inline: 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 6px; font-size: 11px; font-weight: 600; color: var(--uh-muted); text-decoration: none; min-height: 52px; justify-content: center; }
 .bottom-bar a.active { color: var(--uh-brand-ink); }

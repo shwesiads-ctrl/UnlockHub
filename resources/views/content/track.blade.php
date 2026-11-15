@@ -4,7 +4,7 @@
 <section class="max-w-2xl mx-auto px-4 py-14 flex flex-col gap-5">
     <div class="flex flex-col gap-1.5">
         <h1 class="m-0 text-[34px] font-bold">{{ __('Track an order') }}</h1>
-        <p class="m-0 text-muted text-[15px]">Enter the order number (e.g. UH2611151234567). Logged-in owners also see the result.</p>
+        <p class="m-0 text-muted text-[15px]">{{ __('Enter the order number (e.g. UH2611151234567). Logged-in owners also see the result.') }}</p>
     </div>
 
     <form method="GET" class="card p-4 flex flex-wrap gap-2">

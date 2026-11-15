@@ -22,7 +22,7 @@
                 @if ($user->hasTwoFactor()) <span class="badge badge-success">2FA</span> @endif
             </div>
             <span class="text-sm text-muted">{{ '@'.$user->username }}@if ($user->shop_name) · {{ $user->shop_name }}@endif @if ($user->city) · {{ $user->city }}@endif</span>
-            <span class="text-xs text-muted">Member since {{ $user->created_at->format('M Y') }}</span>
+            <span class="text-xs text-muted">{{ __('Member since :date', ['date' => $user->created_at->format('M Y')]) }}</span>
         </div>
         @if ($user->avatar_path)
             <form method="POST" action="{{ route('account.profile.avatar.remove') }}" class="pb-1">@csrf @method('DELETE')<button class="btn h-9 text-xs">{{ __('Remove photo') }}</button></form>
@@ -58,7 +58,7 @@
             </div>
             <div>
                 <label for="shop_name" class="label">{{ __('Shop name') }}</label>
-                <input id="shop_name" name="shop_name" value="{{ old('shop_name', $user->shop_name) }}" class="input" placeholder="e.g. Golden Mobile Repair">
+                <input id="shop_name" name="shop_name" value="{{ old('shop_name', $user->shop_name) }}" class="input" placeholder="{{ __('e.g. Golden Mobile Repair') }}">
                 <x-field-error name="shop_name" />
             </div>
             <div>
@@ -72,7 +72,7 @@
                 <x-field-error name="city" />
             </div>
             <div>
-                <label for="email" class="label">Email @unless ($user->email) <span class="text-danger">*</span> @endunless</label>
+                <label for="email" class="label">{{ __('Email') }} @unless ($user->email) <span class="text-danger">*</span> @endunless</label>
                 @if ($user->email)
                     <input id="email" type="email" value="{{ $user->email }}" class="input opacity-70" disabled>
                     <p class="m-0 mt-1 text-xs text-muted">{{ __('Contact support to change your email.') }}</p>
@@ -83,8 +83,8 @@
                 <x-field-error name="email" />
             </div>
             <div>
-                <label class="label">{{ __('Username') }}</label>
-                <input type="text" value="{{ $user->username }}" class="input opacity-70" disabled>
+                <label for="username_ro" class="label">{{ __('Username') }}</label>
+                <input id="username_ro" type="text" value="{{ $user->username }}" class="input opacity-70" disabled>
             </div>
             <div>
                 <label for="preferred_locale" class="label">{{ __('Language') }}</label>
@@ -123,7 +123,7 @@
     <aside class="flex-[1_1_320px] min-w-0 flex flex-col gap-5">
         <section class="card p-5 flex flex-col gap-3">
             <div class="flex justify-between items-center">
-                <h2 class="m-0 text-lg font-bold">Profile {{ $user->profilePercent() }}%</h2>
+                <h2 class="m-0 text-lg font-bold">{{ __('Profile completion') }} {{ $user->profilePercent() }}%</h2>
                 @if ($bonus > 0)
                     <span @class(['badge', 'badge-success' => $user->profile_bonus_awarded, 'badge-pending' => ! $user->profile_bonus_awarded])>{{ $user->profile_bonus_awarded ? 'Bonus received' : '+'.$bonus.' pts' }}</span>
                 @endif
@@ -139,7 +139,7 @@
                 @endforeach
             </ul>
             @if ($bonus > 0 && ! $user->profile_bonus_awarded)
-                <p class="m-0 text-xs text-muted">Fill everything to get {{ $bonus }} points.</p>
+                <p class="m-0 text-xs text-muted">{{ __('Fill everything to get :points points.', ['points' => $bonus]) }}</p>
             @endif
         </section>
 
@@ -148,7 +148,7 @@
             <div class="flex justify-between"><span class="text-muted">{{ __('Referral code') }}</span><span class="font-mono font-semibold">{{ $user->referral_code }}</span></div>
             <div class="flex justify-between"><span class="text-muted">{{ __('Connected logins') }}</span><span>{{ $user->socialAccounts->count() ?: '—' }}</span></div>
             <div class="flex justify-between"><span class="text-muted">{{ __('Last login') }}</span><span>{{ $user->last_login_at?->diffForHumans() ?? '—' }}</span></div>
-            <a href="{{ route('account.security') }}" class="btn mt-2">Password, 2FA &amp; logins</a>
+            <a href="{{ route('account.security') }}" class="btn mt-2">{{ __('Password, 2FA & logins') }}</a>
         </section>
     </aside>
 </div>

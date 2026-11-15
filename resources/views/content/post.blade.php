@@ -18,7 +18,7 @@
     <aside class="flex-[1_1_280px] min-w-0 flex flex-col gap-4">
         @if ($related->isNotEmpty())
             <section class="card p-5 flex flex-col gap-3">
-                <h2 class="m-0 text-lg font-bold">More {{ $isKb ? 'articles' : 'posts' }}</h2>
+                <h2 class="m-0 text-lg font-bold">{{ $isKb ? __('More articles') : __('More posts') }}</h2>
                 @foreach ($related as $r)
                     <a href="{{ $isKb ? route('kb.show', $r->slug) : route('blog.show', $r->slug) }}" class="text-sm font-medium">{{ $r->title }}</a>
                 @endforeach
@@ -26,7 +26,7 @@
         @endif
         <section class="card p-5 flex flex-col gap-2 text-sm">
             <h2 class="m-0 text-lg font-bold">{{ __('Still need help?') }}</h2>
-            <span class="text-muted">Our team replies {{ setting('site.support_hours', '9 AM – 10 PM') }}.</span>
+            <span class="text-muted">{{ __('Our team replies :hours.', ['hours' => setting('site.support_hours', '9 AM – 10 PM')]) }}</span>
             <a href="{{ route('contact') }}" class="btn btn-primary mt-1">{{ __('Contact support') }}</a>
         </section>
     </aside>

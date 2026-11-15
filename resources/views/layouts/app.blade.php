@@ -22,12 +22,12 @@
 
             <button type="button" class="btn btn-icon md:hidden order-2" data-toggle-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="{{ __('Menu') }}"><x-icon name="menu" /></button>
             <nav id="main-nav" aria-label="{{ __('Main') }}" class="hidden md:flex order-3 md:order-none basis-full md:basis-auto flex-col md:flex-row md:flex-wrap gap-1 md:ml-3">
-                <a href="{{ route('home') }}" @class(['nav-link', 'active' => request()->routeIs('home')])>{{ __('Home') }}</a>
-                <a href="{{ route('services.index') }}" @class(['nav-link', 'active' => request()->routeIs('services.*')])>{{ __('Services & Pricing') }}</a>
-                <a href="{{ route('track') }}" @class(['nav-link', 'active' => request()->routeIs('track')])>{{ __('Track Order') }}</a>
-                <a href="{{ route('kb.index') }}" @class(['nav-link', 'active' => request()->routeIs('kb.*')])>{{ __('Knowledge Base') }}</a>
-                <a href="{{ route('blog.index') }}" @class(['nav-link', 'active' => request()->routeIs('blog.*')])>{{ __('Blog') }}</a>
-                <a href="{{ route('contact') }}" @class(['nav-link', 'active' => request()->routeIs('contact')])>{{ __('Contact') }}</a>
+                <a href="{{ route('home') }}" @class(['nav-link', 'active' => request()->routeIs('home')]) @if (request()->routeIs('home')) aria-current=\"page\" @endif>{{ __('Home') }}</a>
+                <a href="{{ route('services.index') }}" @class(['nav-link', 'active' => request()->routeIs('services.*')]) @if (request()->routeIs('services.*')) aria-current=\"page\" @endif>{{ __('Services & Pricing') }}</a>
+                <a href="{{ route('track') }}" @class(['nav-link', 'active' => request()->routeIs('track')]) @if (request()->routeIs('track')) aria-current=\"page\" @endif>{{ __('Track Order') }}</a>
+                <a href="{{ route('kb.index') }}" @class(['nav-link', 'active' => request()->routeIs('kb.*')]) @if (request()->routeIs('kb.*')) aria-current=\"page\" @endif>{{ __('Knowledge Base') }}</a>
+                <a href="{{ route('blog.index') }}" @class(['nav-link', 'active' => request()->routeIs('blog.*')]) @if (request()->routeIs('blog.*')) aria-current=\"page\" @endif>{{ __('Blog') }}</a>
+                <a href="{{ route('contact') }}" @class(['nav-link', 'active' => request()->routeIs('contact')]) @if (request()->routeIs('contact')) aria-current=\"page\" @endif>{{ __('Contact') }}</a>
             </nav>
 
             <div class="ml-auto order-1 md:order-none flex flex-wrap items-center gap-2">
@@ -37,7 +37,7 @@
                 @auth
                     <a href="{{ route('account.dashboard') }}" class="btn bg-ok-soft text-ok border-transparent font-bold hover:text-ok"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</a>
                     @if (\App\Services\PointService::systemOn())
-                        <a href="{{ route('account.points') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
+                        <a href="{{ route('account.points') }}" class="btn hidden sm:inline-flex bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} {{ __('pts') }}</a>
                     @endif
                     <a href="{{ route('account.profile') }}" class="no-underline" aria-label="{{ __('My profile') }}"><x-avatar :user="auth()->user()" :size="44" /></a>
                 @else
@@ -50,10 +50,10 @@
 
     <main id="main" class="flex-1">
         @if (session('success'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-6"><div class="badge-success rounded-xl px-4 py-3 text-sm font-medium">{{ session('success') }}</div></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-6"><div class="badge-success rounded-xl px-4 py-3 text-sm font-medium">{{ __(session('success')) }}</div></div>
         @endif
         @if (session('error'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-6"><div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium">{{ session('error') }}</div></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-6"><div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium">{{ __(session('error')) }}</div></div>
         @endif
 
         @if (isset($shop) && $shop->about && request()->routeIs('home'))

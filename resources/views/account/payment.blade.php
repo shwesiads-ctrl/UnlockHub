@@ -5,7 +5,7 @@
 <div class="flex flex-wrap gap-5 items-start">
     <section class="card p-6 flex-[1_1_360px] min-w-0 flex flex-col gap-4">
         <div class="flex justify-between items-center gap-3">
-            <h2 class="m-0 text-xl font-bold">Top-up #{{ $payment->id }}</h2>
+            <h2 class="m-0 text-xl font-bold">{{ __('Top-up') }} #{{ $payment->id }}</h2>
             <x-status-badge :status="$payment->status" />
         </div>
         <dl class="m-0 grid gap-4 text-sm">
@@ -28,7 +28,7 @@
         <h2 class="m-0 text-xl font-bold">{{ __('Payment receipt') }}</h2>
         @if ($payment->receipt_path)
             <a href="{{ route('account.funds.receipt', $payment) }}" target="_blank" rel="noopener" class="self-start">{{ __('Open full-size receipt ↗') }}</a>
-            <img src="{{ route('account.funds.receipt', $payment) }}" alt="Receipt for top-up #{{ $payment->id }}" class="block max-w-full max-h-[800px] object-contain rounded-xl">
+            <img src="{{ route('account.funds.receipt', $payment) }}" alt="{{ __('Payment receipt') }} #{{ $payment->id }}" class="block max-w-full max-h-[800px] object-contain rounded-xl">
         @else
             <p class="m-0 text-muted">{{ __('No receipt attached.') }}</p>
         @endif

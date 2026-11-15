@@ -34,7 +34,7 @@
         <x-field-error name="message" />
     </div>
     <div>
-        <label for="files" class="label">{{ __('Screenshots / files') }} <span class="font-normal text-muted">(max {{ \App\Services\TicketService::MAX_FILES }} · JPG, PNG, WebP, PDF, TXT · 5 MB each)</span></label>
+        <label for="files" class="label">{{ __('Screenshots / files') }} <span class="font-normal text-muted">({{ __('max') }} {{ \App\Services\TicketService::MAX_FILES }} · JPG, PNG, WebP, PDF, TXT · {{ __('5 MB each') }})</span></label>
         <input id="files" name="files[]" type="file" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="input py-2">
         <x-field-error name="files" /><x-field-error name="files.0" /><x-field-error name="files.1" /><x-field-error name="files.2" />
     </div>

@@ -1,4 +1,4 @@
-@extends('layouts.account', ['title' => 'Mingalaba, '.auth()->user()->name])
+@extends('layouts.account', ['title' => __('Hello, :name', ['name' => auth()->user()->name])])
 
 @section('content')
 @if (! $user->hasTwoFactor())
@@ -11,7 +11,7 @@
 @if (app(\App\Services\PointService::class)->canCheckInToday($user))
     <form method="POST" action="{{ route('account.points.checkin') }}" class="rounded-xl px-4 py-3 text-sm bg-point-soft text-point flex flex-wrap gap-3 items-center">
         @csrf
-        <span class="flex-1 font-medium">Daily check-in is ready{{ $user->checkin_streak > 0 && $user->last_checkin_on?->isSameDay(today()->subDay()) ? ' — keep your '.$user->checkin_streak.'-day streak!' : '.' }}</span>
+        <span class="flex-1 font-medium">{{ $user->checkin_streak > 0 && $user->last_checkin_on?->isSameDay(today()->subDay()) ? __('Daily check-in is ready — keep your :days-day streak!', ['days' => $user->checkin_streak]) : __('Daily check-in is ready.') }}</span>
         <button class="btn btn-primary h-9">{{ __('Check in') }}</button>
     </form>
 @endif
@@ -25,8 +25,8 @@
     @if (\App\Services\PointService::systemOn())
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">{{ __('Points') }}</span>
-        <span class="font-display text-[30px] font-bold text-point">{{ number_format($user->points) }} pts</span>
-        <span class="text-[13px] text-muted">= {{ money($pointsValue) }} credit · <a href="{{ route('account.points') }}">{{ __('Redeem') }}</a></span>
+        <span class="font-display text-[30px] font-bold text-point">{{ number_format($user->points) }} {{ __('pts') }}</span>
+        <span class="text-[13px] text-muted">= {{ money($pointsValue) }} {{ __('credit') }} · <a href="{{ route('account.points') }}">{{ __('Redeem') }}</a></span>
     </div>
     @endif
     <div class="card p-5 flex flex-col gap-2">
@@ -36,7 +36,7 @@
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">{{ __('Completed this month') }}</span>
         <span class="font-display text-[30px] font-bold text-ok">{{ $stats['success_month'] }}</span>
-        <span class="text-[13px] text-muted">{{ $stats['rejected_month'] }} rejected · refunded</span>
+        <span class="text-[13px] text-muted">{{ __(':count rejected · refunded', ['count' => $stats['rejected_month']]) }}</span>
     </div>
 </div>
 
@@ -92,7 +92,7 @@
 
 <section class="card p-5 flex flex-col gap-2">
     <h2 class="m-0 text-lg font-bold">{{ __('Invite friends') }}</h2>
-    <p class="m-0 text-sm text-muted">Share your link — you earn {{ setting('points.referral_bonus', 50) }} points when they complete their first order.</p>
+    <p class="m-0 text-sm text-muted">{{ __('Share your link — you earn :points points when they complete their first order.', ['points' => setting('points.referral_bonus', 50)]) }}</p>
     @php $refLink = route('register', ['ref' => $user->referral_code]); @endphp
     <div class="flex flex-wrap gap-2">
         <label for="reflink" class="sr-only">{{ __('Your referral link') }}</label>

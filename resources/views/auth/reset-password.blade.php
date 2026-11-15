@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'New password'])
 
 @section('content')
-<x-auth-card title="{{ __('Choose a new password') }}" subtitle="Trusted devices will be signed out.">
+<x-auth-card title="{{ __('Choose a new password') }}" subtitle="{{ __('Trusted devices will be signed out.') }}">
     <form method="POST" action="{{ route('password.update') }}" class="flex flex-col gap-4" novalidate>
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
