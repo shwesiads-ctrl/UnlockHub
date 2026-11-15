@@ -3,7 +3,7 @@
 
 Hello {{ $user->name }},
 
-Your statement for **{{ $from->format('d M Y') }} – {{ $to->format('d M Y') }}** is attached as a PDF.
+Your statement for **{{ $periodFrom->format('d M Y') }} – {{ $periodTo->format('d M Y') }}** is attached as a PDF.
 
 <x-mail::table>
 | | |

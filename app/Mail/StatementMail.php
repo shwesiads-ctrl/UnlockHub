@@ -17,8 +17,8 @@ class StatementMail extends Mailable
 
     public function __construct(
         public User $user,
-        public Carbon $from,
-        public Carbon $to,
+        public Carbon $periodFrom,
+        public Carbon $periodTo,
         public float $opening,
         public float $closing,
         public float $credits,
@@ -31,7 +31,7 @@ class StatementMail extends Mailable
     {
         $site = (string) setting('site.name', config('app.name'));
 
-        return new Envelope(subject: "{$site} statement · {$this->from->format('d M Y')} – {$this->to->format('d M Y')}");
+        return new Envelope(subject: "{$site} statement · {$this->periodFrom->format('d M Y')} – {$this->periodTo->format('d M Y')}");
     }
 
     public function content(): Content

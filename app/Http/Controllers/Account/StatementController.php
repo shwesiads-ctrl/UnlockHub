@@ -26,6 +26,7 @@ class StatementController extends Controller
         $summary = $this->statements->build($request->user(), $from, $to);
 
         $transactions = $request->user()->walletTransactions()
+            ->with('reference')
             ->whereBetween('created_at', [$from, $to])
             ->when($type, fn ($q) => $q->where('type', $type))
             ->latest('id')

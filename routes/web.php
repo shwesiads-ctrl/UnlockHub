@@ -89,6 +89,7 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::get('/funds', [FundsController::class, 'index'])->name('funds.index');
     Route::post('/funds', [FundsController::class, 'store'])->name('funds.store')->middleware('throttle:10,1');
     Route::get('/funds/{paymentRequest}/receipt', [FundsController::class, 'receipt'])->name('funds.receipt');
+    Route::get('/funds/{paymentRequest}', [FundsController::class, 'show'])->name('funds.show');
     Route::get('/statement', StatementController::class)->name('statement');
     Route::get('/statement/pdf', [StatementController::class, 'pdf'])->name('statement.pdf')->middleware('throttle:20,1');
     Route::post('/statement/email', [StatementController::class, 'email'])->name('statement.email')->middleware('throttle:5,10');

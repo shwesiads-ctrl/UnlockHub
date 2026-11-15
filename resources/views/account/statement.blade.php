@@ -58,7 +58,21 @@
             <tr>
                 <td class="whitespace-nowrap text-muted">{{ $t->created_at->format('d M Y H:i') }}</td>
                 <td><span @class(['badge', 'badge-success' => $t->amount > 0, 'badge-rejected' => $t->amount < 0])>{{ $types[$t->type] ?? $t->type }}</span></td>
-                <td>{{ $t->description }}</td>
+                <td>
+                    @if ($t->reference instanceof \App\Models\Order && $t->reference->user_id === auth()->id())
+                        <a href="{{ route('account.orders.show', $t->reference) }}" class="block hover:underline">
+                            {{ $t->description }}
+                            <span class="block text-xs text-brand-ink mt-1">View order details →</span>
+                        </a>
+                    @elseif ($t->reference instanceof \App\Models\PaymentRequest && $t->reference->user_id === auth()->id())
+                        <a href="{{ route('account.funds.show', $t->reference) }}" class="block hover:underline">
+                            {{ $t->description }}
+                            <span class="block text-xs text-brand-ink mt-1">View payment details &amp; receipt →</span>
+                        </a>
+                    @else
+                        {{ $t->description }}
+                    @endif
+                </td>
                 <td @class(['text-right font-semibold whitespace-nowrap', 'text-ok' => $t->amount > 0, 'text-danger' => $t->amount < 0])>{{ $t->amount > 0 ? '+' : '−' }}{{ money(abs($t->amount)) }}</td>
                 <td class="text-right whitespace-nowrap">{{ money($t->balance_after) }}</td>
             </tr>

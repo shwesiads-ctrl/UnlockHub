@@ -92,6 +92,13 @@ class FundsController extends Controller
             ->with('success', 'Receipt received. Your wallet will be credited after approval ('.setting('site.support_hours', '9 AM – 10 PM').').');
     }
 
+    public function show(Request $request, PaymentRequest $paymentRequest): View
+    {
+        abort_unless($paymentRequest->user_id === $request->user()->id, 404);
+
+        return view('account.payment', ['payment' => $paymentRequest->load('method')]);
+    }
+
     /** Owner can view their own receipt image (private disk). */
     public function receipt(Request $request, PaymentRequest $paymentRequest): StreamedResponse
     {
