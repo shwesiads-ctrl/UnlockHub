@@ -39,6 +39,7 @@ class PwaTest extends TestCase
     public function test_push_subscription_rules(): void
     {
         WebPush::generateKeys();
+        Setting::put('push.enabled', '1');
         $user = $this->customer();
 
         $this->actingAs($user)->postJson('/account/push', ['endpoint' => 'https://evil.example.com/x'])->assertStatus(422);

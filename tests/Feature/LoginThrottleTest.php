@@ -84,6 +84,7 @@ class LoginThrottleTest extends TestCase
     {
         $owner = User::factory()->create();
         $owner->forceFill(['role' => 'admin', 'staff_role' => 'owner'])->save();
+        $owner = $owner->fresh();
 
         $this->actingAs($owner)->put(route('admin.settings.security'), [
             'provider' => 'none', 'min_score' => '0.5', 'login_max' => 3, 'login_wait' => 30, 'login_ip_max' => 50, 'login_progressive' => '0',

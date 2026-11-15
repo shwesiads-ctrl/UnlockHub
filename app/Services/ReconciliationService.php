@@ -73,12 +73,12 @@ class ReconciliationService
     private function checks(): \Generator
     {
         // 1. users.balance vs SUM(transactions)
+        $ledger = DB::table('wallet_transactions')->selectRaw('user_id, SUM(amount) AS ledger')->groupBy('user_id');
         $rows = DB::table('users')
-            ->leftJoin('wallet_transactions as t', 't.user_id', '=', 'users.id')
-            ->groupBy('users.id', 'users.balance')
-            ->havingRaw('ABS(users.balance - COALESCE(SUM(t.amount), 0)) > ?', [self::EPS])
+            ->leftJoinSub($ledger, 'l', 'l.user_id', '=', 'users.id')
+            ->whereRaw('ABS(COALESCE(users.balance, 0) - COALESCE(l.ledger, 0)) > ?', [self::EPS])
             ->limit(self::LIMIT)
-            ->get(['users.id', 'users.balance', DB::raw('COALESCE(SUM(t.amount), 0) AS ledger')]);
+            ->get(['users.id', 'users.balance', DB::raw('COALESCE(l.ledger, 0) AS ledger')]);
         foreach ($rows as $r) {
             yield $this->issue('balance_mismatch', "user:{$r->id}", 'high', $r->id, null, (float) $r->ledger, (float) $r->balance,
                 'Balance is '.money($r->balance).' but transactions add up to '.money($r->ledger).'.');

@@ -51,13 +51,21 @@ class LicenseTest extends TestCase
 
     private function fakeServer(string $status, array $extra = []): void
     {
+        Http::swap(new \Illuminate\Http\Client\Factory); // a later fake must replace the earlier one
         Http::fake(['owner.myominaung.xyz/*' => Http::response($this->answer($status, $extra), $status === 'active' ? 200 : 403)]);
+    }
+
+    private function serverDown(): void
+    {
+        Http::swap(new \Illuminate\Http\Client\Factory);
+        Http::fake(fn () => throw new ConnectionException('down'));
     }
 
     private function owner(): User
     {
         $u = User::factory()->create();
         $u->forceFill(['role' => 'admin', 'staff_role' => 'owner'])->save();
+        $u = $u->fresh(); // reload DB defaults (status = active)
 
         return $u->fresh();
     }
@@ -142,13 +150,13 @@ class LicenseTest extends TestCase
         // Last good answer 10 days ago, valid 7 days → still inside the 7-day grace
         $this->fakeServer('active', ['issued_at' => time() - 10 * 86400, 'valid_until' => time() - 3 * 86400]);
         LicenseService::refresh();
-        Http::fake(fn () => throw new ConnectionException('down'));
+        $this->serverDown();
         $this->assertTrue(LicenseService::valid());
 
         // 20 days ago → grace is over
         $this->fakeServer('active', ['issued_at' => time() - 20 * 86400, 'valid_until' => time() - 13 * 86400]);
         LicenseService::refresh();
-        Http::fake(fn () => throw new ConnectionException('down'));
+        $this->serverDown();
         $this->assertSame('offline', LicenseService::status()['reason']);
         $this->get(self::SITE.'/')->assertStatus(503);
     }
@@ -157,6 +165,7 @@ class LicenseTest extends TestCase
     {
         $u = User::factory()->create();
         $u->forceFill(['role' => 'admin', 'staff_role' => 'support'])->save();
+        $u = $u->fresh();
         Setting::put('license.key', 'UHUB-AAAA-BBBB-CCCC-DDDD');
         $this->fakeServer('active');
         LicenseService::refresh();

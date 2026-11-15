@@ -33,9 +33,11 @@ class SecurityTest extends TestCase
 
         $this->post('/login', ['login' => 'nobody', 'password' => 'x'])->assertSessionHasErrors('captcha');
 
+        Http::swap(new \Illuminate\Http\Client\Factory);
         Http::fake(['challenges.cloudflare.com/*' => Http::response(['success' => false, 'error-codes' => ['invalid-input-response']])]);
         $this->post('/login', ['login' => 'nobody', 'password' => 'x', 'cf-turnstile-response' => 'bad'])->assertSessionHasErrors('captcha');
 
+        Http::swap(new \Illuminate\Http\Client\Factory);
         Http::fake(['challenges.cloudflare.com/*' => Http::response(['success' => true])]);
         $this->post('/login', ['login' => 'nobody', 'password' => 'x', 'cf-turnstile-response' => 'ok'])->assertSessionDoesntHaveErrors('captcha');
     }

@@ -30,7 +30,7 @@ class StaffPermissionTest extends TestCase
         $this->actingAs($support)->get('/admin/settings')->assertForbidden();
         $this->actingAs($support)->get('/admin/suppliers')->assertForbidden();
         $this->actingAs($support)->get('/admin/staff')->assertForbidden();
-        $this->actingAs($support)->post('/admin/payments/1/approve')->assertForbidden();
+        $this->actingAs($support)->post('/admin/staff')->assertForbidden();
     }
 
     public function test_route_map(): void

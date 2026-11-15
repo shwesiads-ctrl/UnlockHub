@@ -104,6 +104,7 @@ class ResolveResellerShop
 
         $known = in_array($host, array_filter([$base, 'www.'.$base, $shopBase, 'www.'.$shopBase, 'localhost', '127.0.0.1']), true);
         if (! $known && $base !== '') {
+            \Illuminate\Support\Facades\URL::forceScheme((string) (parse_url($appUrl, PHP_URL_SCHEME) ?: 'https'));
             \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
         }
     }
