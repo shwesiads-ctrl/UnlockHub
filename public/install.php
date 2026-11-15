@@ -167,6 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step > 0) {
             'username' => strtolower(trim((string) ($_POST['username'] ?? ''))),
             'email' => trim((string) ($_POST['email'] ?? '')),
             'demo' => ! empty($_POST['demo']),
+            'license' => strtoupper(preg_replace('/[^A-Za-z0-9-]/', '', (string) ($_POST['license'] ?? ''))),
         ];
         $pass = (string) ($_POST['password'] ?? '');
         if ($site['site_name'] === '' || $site['name'] === '') {
@@ -223,6 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step > 0) {
                 'CACHE_STORE' => 'database',
                 'QUEUE_IN_SCHEDULER' => 'true',
                 'LOG_LEVEL' => 'error',
+                'LICENSE_KEY' => $site['license'] ?? '',
                 'ADMIN_EMAIL' => '',
                 'ADMIN_PASSWORD' => '',
             ];
@@ -410,6 +412,8 @@ $token = h($_SESSION['csrf']);
         <div><label for="password">Password</label><input id="password" name="password" type="password" required minlength="10" autocomplete="new-password"></div>
         <div><label for="password_confirmation">Repeat password</label><input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password"></div>
       </div>
+      <label for="license">Serial key <span class="muted" style="font-weight:400">(from the seller — you can also enter it later in Admin › License)</span></label>
+      <input id="license" name="license" type="text" value="<?= h($s['license'] ?? '') ?>" placeholder="UHUB-XXXX-XXXX-XXXX-XXXX" autocomplete="off" style="font-family:ui-monospace,monospace;text-transform:uppercase">
       <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="demo" value="1" <?= $s['demo'] ? 'checked' : '' ?>> Add demo services (you can delete them later)</label>
       <div class="row"><a class="btn" href="?step=2">← Back</a><button class="btn btn-primary">Next →</button></div>
     </form>

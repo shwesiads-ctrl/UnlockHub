@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'version' => '1.0.0',
+
 
     // Run queued jobs from the scheduler cron (shared hosting without a worker)
     'queue_in_scheduler' => (bool) env('QUEUE_IN_SCHEDULER', false),

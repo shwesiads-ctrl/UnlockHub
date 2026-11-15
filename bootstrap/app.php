@@ -34,7 +34,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\CaptureReferral::class,
             \App\Http\Middleware\SetLocale::class,
+            // Domain lock / serial key (after the language is known, so the locked page is translated)
+            \App\Http\Middleware\EnforceLicense::class,
         ]);
+        $middleware->api(append: [\App\Http\Middleware\EnforceLicense::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

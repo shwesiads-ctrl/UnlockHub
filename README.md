@@ -250,6 +250,18 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 - **Cloudflare proxy** — "My domain goes through Cloudflare" ဖွင့်ရင် Cloudflare IP range ကလာမှ `CF-Connecting-IP` ကို visitor IP အဖြစ်ယူ (rate limit, log, trusted device မှန်) — တခြားက လိမ်ထည့်တဲ့ header ကို မယုံ
   - "Block direct access" — Server IP ကို တိုက်ရိုက်ဖွင့်တာ ပိတ် (Cloudflare ကနေ ဝင်နေမှပဲ ဖွင့်လို့ရ — ကိုယ့်ကိုယ်ကို မပိတ်မိအောင်)
 
+## License (Serial key + Domain lock)
+
+Script ကို ရောင်းတဲ့အခါ ဝယ်သူတစ်ဦးစီကို serial key ပေးပြီး domain တစ်ခုတည်းမှာပဲ သုံးခွင့်ပေးတဲ့ စနစ်။ Key ထုတ်/ပိတ်တဲ့ **Owner dashboard** က သီးခြား app (`unlockhub-license.zip`, `owner.myominaung.xyz`) ဖြစ်ပြီး ဒီ repo ထဲ မပါပါ။
+
+1. License server ကို install လုပ်ပြီး Settings › **Public key** ကို `config/license.php` → `'public_key'` ထဲ ထည့်ပါ။ (ဗလာဆိုရင် lock ပိတ်ထားတယ်)
+2. ဝယ်သူက installer မှာ ဒါမှမဟုတ် **Admin › License** မှာ serial key ထည့်ပြီး Activate လုပ်တယ် → `APP_URL` domain နဲ့ ချိတ်သွားတယ် (`www.` + subdomain ပါ)။
+3. Site က တစ်ရက်တစ်ခါ (`license:check`, 04:20) server ကို ပြန်စစ်တယ်။ Suspend / revoke / expire / တခြား domain → site ကို "Site not available" နဲ့ ပိတ်ပြီး owner တွေ login ဝင်ပြီး Admin › License မှာ ပြင်လို့ရတယ်။ Server ကို မဆက်သွယ်နိုင်ရင် ၁၄ ရက်ထိ ဆက်အလုပ်လုပ်တယ်။
+4. `localhost`, `127.0.0.1`, `*.test` (XAMPP စမ်းသပ်) မှာ key မလိုပါ။
+5. Domain ပြောင်းရင် Admin › License › **Release key** → domain အသစ်မှာ Activate။
+
+> ⚠️ PHP code က ဖွင့်ဖတ်/ပြင်လို့ရတဲ့ အတွက် ကျွမ်းကျင်သူက lock ကို ဖြုတ်နိုင်ပါတယ်။ ပိုခိုင်မာချင်ရင် ရောင်းမယ့် copy မှာ `app/Services/LicenseService.php`, `app/Http/Middleware/EnforceLicense.php`, `config/license.php`, `bootstrap/app.php` ကို **ionCube / SourceGuardian** နဲ့ encode လုပ်ပါ။
+
 ## Security hardening (QA စစ်ပြီး)
 
 - Browser header များ: `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `frame-ancestors`, HTTPS မှာ HSTS (`SecurityHeaders` middleware)

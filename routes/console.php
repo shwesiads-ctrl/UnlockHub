@@ -16,6 +16,7 @@ Schedule::command('services:delivery-stats')->hourlyAt(40)->withoutOverlapping()
 Schedule::command('services:delivery-stats --overdue')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('wallet:reconcile')->dailyAt('02:30')->withoutOverlapping();
 Schedule::command('tickets:close-resolved')->dailyAt('03:10');
+Schedule::command('license:check')->dailyAt('04:20')->withoutOverlapping();
 Schedule::command('statements:monthly')->monthlyOn(1, '08:00')->withoutOverlapping();
 
 // Shared hosting (cPanel / XAMPP) has no queue worker: process queued jobs from the

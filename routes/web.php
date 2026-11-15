@@ -284,6 +284,11 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     });
 
     Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
+    // Serial key / domain lock (owner only: not in Permissions::ROUTES)
+    Route::get('/license', [Admin\LicenseController::class, 'show'])->name('license');
+    Route::post('/license', [Admin\LicenseController::class, 'activate'])->name('license.activate')->middleware('throttle:10,1');
+    Route::post('/license/check', [Admin\LicenseController::class, 'check'])->name('license.check')->middleware('throttle:10,1');
+    Route::post('/license/deactivate', [Admin\LicenseController::class, 'deactivate'])->name('license.deactivate')->middleware('throttle:5,1');
     Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
     Route::put('/settings/payments', [Admin\OnlinePaymentAdminController::class, 'settings'])->name('settings.payments');
     Route::post('/settings/payments/{gateway}/test', [Admin\OnlinePaymentAdminController::class, 'test'])->whereIn('gateway', ['stripe', 'paypal'])->name('settings.payments.test')->middleware('throttle:10,1');

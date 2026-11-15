@@ -37,6 +37,7 @@
                 ['Activity Log', 'clock', 'admin.activity.index', null, ['admin.activity.*']],
                 ['Staff', 'lock', 'admin.staff.index', null, ['admin.staff.*']],
                 ['Settings', 'sliders', 'admin.settings.index', null, ['admin.settings.*']],
+                ['License', 'shield', 'admin.license', null, ['admin.license', 'admin.license.*']],
             ];
             // Only show what this staff member may open
             $nav = array_values(array_filter($nav, fn ($item) => \App\Support\Permissions::allowsRoute(auth()->user(), $item[2])));
