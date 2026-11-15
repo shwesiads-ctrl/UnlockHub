@@ -7,6 +7,7 @@
             @php $n = $k === 'all' ? $counts->sum() : ($counts[$k] ?? 0); @endphp
             <a href="{{ route('admin.payments.index', ['status' => $k]) }}" @class(['btn h-10', 'btn-primary' => $status === $k])>{{ $label }} ({{ $n }})</a>
         @endforeach
+        <a href="{{ route('admin.payments.online') }}" class="btn h-10">Card &amp; PayPal</a>
     </nav>
     <form method="GET" class="ml-auto flex gap-2">
         <input type="hidden" name="status" value="{{ $status }}">

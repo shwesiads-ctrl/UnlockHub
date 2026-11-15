@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::defaultView('partials.numbered-pagination');
+        \App\Support\MailSettings::apply(); // SMTP saved in Admin › Settings
 
         // @can('orders.process') etc. → staff permissions
         \Illuminate\Support\Facades\Gate::before(function ($user, string $ability) {
@@ -36,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
             'payment_request' => PaymentRequest::class,
             'wallet_adjustment' => \App\Models\WalletAdjustment::class,
             'wallet_transaction' => \App\Models\WalletTransaction::class,
+            'online_payment' => \App\Models\OnlinePayment::class,
             'reconciliation_issue' => \App\Models\ReconciliationIssue::class,
             'point_transaction' => \App\Models\PointTransaction::class,
             'service' => \App\Models\Service::class,

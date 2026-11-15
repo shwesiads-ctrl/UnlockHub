@@ -205,6 +205,16 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## PayPal / Stripe, SMTP, Social login စစ်ဆေးခြင်း
+
+- **Admin › Settings › PayPal & Stripe** — Stripe (Card) နဲ့ PayPal key ထည့် → **Test keys** (✓ Tested ပြ)။ ငွေကြေး (USD), 1 USD = ? Ks, Min/Max, Fee %
+  - Customer **Add Funds › Pay online** → Card/PayPal နဲ့ပေး → ပြန်လာတာနဲ့ Gateway API ကို ပြန်မေးပြီး ငွေဝင်မှ Wallet ထဲ အလိုအလျောက်ထည့် (Browser URL ကို မယုံ)
+  - Stripe webhook (signature စစ်) + PayPal webhook + ၅ မိနစ်တိုင်း sweep (`payments:sync-online`) — Webhook က "ဘယ် payment" ကိုပဲ ပြော၊ ရလဒ်ကို API ကနေ ပြန်ဖတ်
+  - ပမာဏ/ငွေကြေး မကိုက်ရင် မထည့် (Failed + Admin alert)၊ ဘယ်နှစ်ခါ confirm လာလာ တစ်ခါပဲ ထည့်၊ Reconciliation ကလည်း စစ်
+  - **Admin › Payments › Card & PayPal** — စာရင်း, Check now
+- **Admin › Settings › Email (SMTP)** — Host/Port/TLS/User/Password (encrypted)/From → **Send test email** (✓ Tested)
+- **Social login › Test login** — Google/Facebook/Discord/TikTok ကို တကယ် sign-in လုပ်ကြည့်ပြီး ပြန်ရလာတဲ့ နာမည်/email ပြ (ဘယ်သူ့ကိုမှ login မဝင်/account မဖန်တီး)၊ Telegram က Bot token ↔ username စစ်။ ID/Secret ပြောင်းရင် "Not tested" ပြန်ဖြစ်
+
 ## ဖုန်း / PWA
 
 - **App အဖြစ် ထည့်လို့ရ** — Android: Browser menu › *Install app* (Dashboard/Notifications မှာ **Install app** ခလုတ်ပေါ်)၊ iPhone: Share › *Add to Home Screen*

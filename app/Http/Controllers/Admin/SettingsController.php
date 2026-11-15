@@ -95,6 +95,12 @@ class SettingsController extends Controller
 
         foreach ($providers as $p) {
             Setting::put("social_login.{$p}.enabled", $request->boolean("{$p}_enabled") ? '1' : '0');
+            $changed = $p === 'telegram'
+                ? (($data['telegram_bot_username'] ?? null) !== setting('social_login.telegram.bot_username') || filled($data['telegram_bot_token'] ?? null))
+                : (($data["{$p}_client_id"] ?? null) !== setting("social_login.{$p}.client_id") || filled($data["{$p}_client_secret"] ?? null));
+            if ($changed) {
+                Setting::put("social_login.{$p}.verified_at", null); // new credentials → test again
+            }
             if ($p !== 'telegram') {
                 Setting::put("social_login.{$p}.client_id", $data["{$p}_client_id"] ?? null);
                 if (filled($data["{$p}_client_secret"] ?? null)) {
@@ -110,6 +116,66 @@ class SettingsController extends Controller
         ActivityLog::record('settings.social_updated');
 
         return back()->with('success', 'Social login settings saved.');
+    }
+
+    public function updateMail(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'host' => ['nullable', 'string', 'max:190'],
+            'port' => ['required', 'integer', 'between:1,65535'],
+            'encryption' => ['required', 'in:tls,ssl,none'],
+            'username' => ['nullable', 'string', 'max:190'],
+            'password' => ['nullable', 'string', 'max:255'],
+            'from_address' => ['required', 'email', 'max:190'],
+            'from_name' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $changed = false;
+        foreach (['host', 'port', 'encryption', 'username', 'from_address', 'from_name'] as $k) {
+            $changed = $changed || (string) setting('mail.'.$k) !== (string) ($data[$k] ?? '');
+            Setting::put('mail.'.$k, $data[$k] ?? null);
+        }
+        if (filled($data['password'] ?? null)) {
+            Setting::put('mail.password', encrypt($data['password']));
+            $changed = true;
+        }
+        if ($request->boolean('remove_password')) {
+            Setting::put('mail.password', null);
+            $changed = true;
+        }
+        if ($changed) {
+            Setting::put('mail.verified_at', null);
+        }
+        ActivityLog::record('settings.mail', null, ['host' => $data['host'] ?? null]);
+
+        return redirect()->to(route('admin.settings.index').'#smtp')->with('success', 'Email settings saved. Send a test email to confirm they work.');
+    }
+
+    public function testMail(Request $request): RedirectResponse
+    {
+        $data = $request->validate(['to' => ['required', 'email']]);
+        \App\Support\MailSettings::apply();
+        $back = redirect()->to(route('admin.settings.index').'#smtp');
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw(
+                'This is a test email from '.setting('site.name', config('app.name')).'. If you can read this, SMTP works.',
+                fn ($m) => $m->to($data['to'])->subject('SMTP test ✓ — '.setting('site.name', config('app.name')))
+            );
+        } catch (\Throwable $e) {
+            Setting::put('mail.verified_at', null);
+
+            return $back->with('error', 'Sending failed: '.\Illuminate\Support\Str::limit($e->getMessage(), 300));
+        }
+
+        if (config('mail.default') !== 'smtp') {
+            return $back->with('error', 'No SMTP host saved — the message only went to the log ('.config('mail.default').').');
+        }
+
+        Setting::put('mail.verified_at', now()->toDateTimeString());
+        ActivityLog::record('settings.mail_tested', null, ['to' => $data['to']]);
+
+        return $back->with('success', "Test email sent to {$data['to']} ✓ — check the inbox (and spam).");
     }
 
     /** App (PWA): name on the home screen, colour, icon, push notifications. */

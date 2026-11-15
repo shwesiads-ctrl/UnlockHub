@@ -77,6 +77,7 @@ class Permissions
         'admin.orders.retry' => 'orders.process',
         'admin.orders.*' => 'orders.view',
         'admin.payments.approve' => 'payments.approve',
+        'admin.payments.online.sync' => 'payments.approve',
         'admin.payments.reject' => 'payments.approve',
         'admin.payments.*' => 'payments.view',
         'admin.payment-methods.*' => 'payments.methods',

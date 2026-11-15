@@ -188,11 +188,17 @@ class PointService
     /** Points for an approved top-up (e.g. 1 point per 10,000 Ks). */
     public function awardTopup(\App\Models\PaymentRequest $request): int
     {
+        return $this->awardTopupFor($request->user, (float) $request->credited_amount, $request);
+    }
+
+    /** Top-up bonus for any kind of top-up (receipt, card, PayPal). */
+    public function awardTopupFor(User $user, float $creditedKs, \Illuminate\Database\Eloquent\Model $reference): int
+    {
         $perKs = self::rules()['topup_per_ks'];
-        $points = $perKs > 0 ? intdiv((int) $request->credited_amount, $perKs) : 0;
+        $points = $perKs > 0 ? intdiv((int) $creditedKs, $perKs) : 0;
 
         if ($points > 0) {
-            $this->add($request->user, $points, 'topup', $request, 'Top-up bonus · '.money($request->credited_amount));
+            $this->add($user, $points, 'topup', $reference, 'Top-up bonus · '.money($creditedKs));
         }
 
         return $points;

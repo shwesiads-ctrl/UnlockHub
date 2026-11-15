@@ -6,6 +6,8 @@
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
     <a href="#site-settings">Site &amp; branding</a>
     <a href="#social-login">Social login</a>
+    <a href="#smtp">Email (SMTP)</a>
+    <a href="#online-payments">PayPal &amp; Stripe</a>
     <a href="#telegram-alerts">Telegram alerts</a>
     <a href="#monthly-statements">Monthly statements</a>
     <a href="#mobile-app">Mobile app (PWA)</a>
@@ -114,12 +116,60 @@
                     <div><label for="{{ $key }}_secret" class="label text-xs">{{ $key === 'facebook' ? 'App secret' : 'Client secret' }}</label><input id="{{ $key }}_secret" name="{{ $key }}_client_secret" type="password" class="input h-10 font-mono text-sm" autocomplete="new-password" placeholder="{{ $hasSecret ? 'Saved — leave empty to keep' : '' }}"></div>
                     <div class="text-xs text-muted">Redirect URL: <code class="text-ink break-all select-all">{{ route('social.callback', $key) }}</code> <button type="button" class="btn h-7 px-2 text-[11px]" data-copy="{{ route('social.callback', $key) }}">Copy</button></div>
                 @endif
-                <a href="{{ $p['console'] }}" target="_blank" rel="noopener" class="text-xs">Open {{ $p['label'] }} developer console →</a>
+                <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-line">
+                    @if ($v = setting("social_login.{$key}.verified_at"))
+                        <span class="badge badge-success">Tested ✓ {{ \Illuminate\Support\Carbon::parse($v)->diffForHumans() }}</span>
+                    @else
+                        <span class="badge badge-pending">Not tested</span>
+                    @endif
+                    <a href="{{ route('admin.settings.social.test', $key) }}" class="btn h-8 text-xs">Test {{ $key === 'telegram' ? 'bot' : 'login' }}</a>
+                    <a href="{{ $p['console'] }}" target="_blank" rel="noopener" class="text-xs ml-auto">Developer console →</a>
+                </div>
             </fieldset>
         @endforeach
     </div>
+    <p class="m-0 text-xs text-muted">Save first, then <strong>Test</strong>: you go through the real sign-in and come back here with the result — nobody is signed in or created.</p>
     <button class="btn btn-primary self-start">Save social login</button>
 </form>
+
+<section id="smtp" class="card p-6 flex flex-col gap-4">
+    <div class="flex justify-between items-center gap-3 flex-wrap">
+        <div>
+            <h2 class="m-0 text-lg font-bold">Email (SMTP)</h2>
+            <p class="m-0 text-sm text-muted">Order results, receipts, statements and password resets are sent with this. cPanel: Email Accounts › Connect Devices shows the values.</p>
+        </div>
+        @if (setting('mail.verified_at'))
+            <span class="badge badge-success">Tested ✓ {{ \Illuminate\Support\Carbon::parse(setting('mail.verified_at'))->diffForHumans() }}</span>
+        @elseif (setting('mail.host'))
+            <span class="badge badge-pending">Not tested</span>
+        @else
+            <span class="badge badge-pending">Using .env ({{ config('mail.default') }})</span>
+        @endif
+    </div>
+    <form method="POST" action="{{ route('admin.settings.mail') }}" class="flex flex-col gap-3" autocomplete="off">
+        @csrf @method('PUT')
+        <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+            <div class="col-span-2 min-w-0"><label for="m_host" class="label text-xs">SMTP host</label><input id="m_host" name="host" value="{{ setting('mail.host') }}" class="input h-10" placeholder="mail.yourdomain.com / smtp.gmail.com"></div>
+            <div><label for="m_port" class="label text-xs">Port</label><input id="m_port" name="port" type="number" value="{{ setting('mail.port', 587) }}" class="input h-10"></div>
+            <div><label for="m_enc" class="label text-xs">Security</label>
+                <select id="m_enc" name="encryption" class="input h-10">@foreach (['tls' => 'TLS / STARTTLS (587)', 'ssl' => 'SSL (465)', 'none' => 'None (25)'] as $k => $l)<option value="{{ $k }}" @selected(setting('mail.encryption', 'tls') === $k)>{{ $l }}</option>@endforeach</select></div>
+            <div><label for="m_user" class="label text-xs">Username</label><input id="m_user" name="username" value="{{ setting('mail.username') }}" class="input h-10" autocomplete="off"></div>
+            <div><label for="m_pass" class="label text-xs">Password</label><input id="m_pass" name="password" type="password" class="input h-10" autocomplete="new-password" placeholder="{{ setting('mail.password') ? 'Saved — leave empty to keep' : '' }}"></div>
+            <div><label for="m_from" class="label text-xs">From address</label><input id="m_from" name="from_address" type="email" value="{{ setting('mail.from_address', config('mail.from.address')) }}" class="input h-10" required></div>
+            <div><label for="m_fname" class="label text-xs">From name</label><input id="m_fname" name="from_name" value="{{ setting('mail.from_name', setting('site.name')) }}" class="input h-10"></div>
+        </div>
+        @if (setting('mail.password')) <label class="flex items-center gap-2 text-xs text-muted"><input type="checkbox" name="remove_password" value="1">Remove saved password</label> @endif
+        <p class="m-0 text-xs text-muted">Gmail: use an <strong>App password</strong> (Google account › Security › 2-Step Verification › App passwords), host smtp.gmail.com, port 587 TLS.</p>
+        <button class="btn btn-primary self-start">Save email settings</button>
+    </form>
+    <form method="POST" action="{{ route('admin.settings.mail.test') }}" class="flex flex-wrap gap-2 items-end pt-3 border-t border-line">
+        @csrf
+        <div class="flex-1 min-w-56"><label for="m_to" class="label text-xs">Send a test email to</label><input id="m_to" name="to" type="email" value="{{ auth()->user()->email }}" class="input h-10" required></div>
+        <button class="btn h-10">Send test email</button>
+    </form>
+</section>
+
+@include('admin.settings._payments')
 
 <div class="flex flex-wrap gap-5 items-start">
     <form id="telegram-alerts" method="POST" action="{{ route('admin.settings.telegram') }}" class="flex-[999_1_520px] min-w-0 card p-6 flex flex-col gap-4" autocomplete="off">

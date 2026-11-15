@@ -8,6 +8,32 @@
 @else
 <div class="flex flex-wrap gap-6 items-start">
     <section class="flex-[999_1_560px] min-w-0 flex flex-col gap-5">
+        @php $gateways = \App\Services\Payments\OnlinePaymentService::gateways(); $oc = \App\Services\Payments\OnlinePaymentService::config(); @endphp
+        @if ($gateways)
+            <form method="POST" action="{{ route('account.online.store') }}" class="card p-6 flex flex-col gap-4" data-submit-once data-online-topup data-rate="{{ $oc['rate'] }}" data-fee="{{ $oc['fee_percent'] }}">
+                @csrf
+                <div>
+                    <h2 class="m-0 text-xl font-bold">{{ __('Pay online — instant') }}</h2>
+                    <p class="m-0 text-sm text-muted">{{ __('Card or PayPal. Your wallet is credited automatically as soon as the payment is confirmed.') }}</p>
+                </div>
+                <div role="radiogroup" aria-label="{{ __('Pay with') }}" class="grid gap-3 grid-cols-2">
+                    @foreach ($gateways as $i => $g)
+                        <label class="cursor-pointer rounded-xl border p-4 flex items-center gap-2 font-bold has-[:checked]:border-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft border-line">
+                            <input type="radio" name="gateway" value="{{ $g }}" class="accent-[var(--uh-brand)]" @checked($i === 0)>{{ $g === 'stripe' ? '💳 '.__('Card') : 'PayPal' }}
+                        </label>
+                    @endforeach
+                </div>
+                <div>
+                    <label for="op_amount" class="label">{{ __('Amount') }} ({{ $oc['currency'] }})</label>
+                    <input id="op_amount" name="amount" type="number" step="0.01" min="{{ $oc['min'] }}" max="{{ $oc['max'] }}" value="{{ old('amount') }}" class="input" required inputmode="decimal">
+                    <p class="m-0 mt-1.5 text-sm">{{ __('You get') }}: <strong data-online-ks>—</strong>
+                        @if ($oc['fee_percent'] > 0) <span class="text-muted">· {{ __('fee') }} {{ $oc['fee_percent'] }}% · {{ __('you pay') }} <span data-online-total>—</span> {{ $oc['currency'] }}</span> @endif</p>
+                    <p class="m-0 text-xs text-muted">1 {{ $oc['currency'] }} = {{ number_format($oc['rate'], 2) }} Ks · {{ $oc['min'] }}–{{ $oc['max'] }} {{ $oc['currency'] }}</p>
+                </div>
+                <button class="btn btn-primary btn-lg">{{ __('Continue to payment') }}</button>
+            </form>
+            <p class="m-0 text-center text-sm text-muted">{{ __('— or pay by mobile wallet and upload the receipt —') }}</p>
+        @endif
         {{-- 1. Choose method --}}
         <div class="card p-6 flex flex-col gap-4">
             <h2 class="m-0 text-xl font-bold">1 · Choose payment method</h2>

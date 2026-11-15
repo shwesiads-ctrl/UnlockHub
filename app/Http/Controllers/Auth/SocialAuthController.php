@@ -28,6 +28,50 @@ class SocialAuthController extends Controller
 
     public function __construct(private SocialProviders $providers, private PointService $points) {}
 
+    /** Admin › Settings › Social login › Test: run a real sign-in, show what came back, sign nobody in. */
+    public function test(Request $request, string $provider): RedirectResponse
+    {
+        abort_unless($request->user()?->canDo('settings.manage'), 403);
+
+        if ($provider === 'telegram') {
+            return $this->testTelegram();
+        }
+        if (! SocialProviders::clientId($provider) || ! SocialProviders::clientSecret($provider)) {
+            return redirect()->to(route('admin.settings.index').'#social-login')->with('error', 'Save the ID and secret first, then test.');
+        }
+
+        $state = Str::random(40);
+        $request->session()->put('social.state', $state);
+        $request->session()->put('social.intent', 'test');
+
+        return redirect()->away($this->providers->authorizeUrl($provider, $state));
+    }
+
+    private function testTelegram(): RedirectResponse
+    {
+        $back = redirect()->to(route('admin.settings.index').'#social-login');
+        $token = SocialProviders::telegramBotToken();
+        $username = SocialProviders::telegramBotUsername();
+        if (! $token || ! $username) {
+            return $back->with('error', 'Telegram: save the bot username (and token) first.');
+        }
+
+        try {
+            $me = \Illuminate\Support\Facades\Http::timeout(10)->get("https://api.telegram.org/bot{$token}/getMe")->json('result');
+        } catch (Throwable $e) {
+            return $back->with('error', 'Telegram: could not reach Telegram ('.$e->getMessage().').');
+        }
+
+        if (! $me || strcasecmp($me['username'] ?? '', $username) !== 0) {
+            return $back->with('error', 'Telegram: the token does not belong to @'.$username.'.');
+        }
+
+        \App\Models\Setting::put('social_login.telegram.verified_at', now()->toDateTimeString());
+        $host = parse_url(url('/'), PHP_URL_HOST);
+
+        return $back->with('success', "Telegram bot @{$me['username']} works ✓. Make sure /setdomain in @BotFather is {$host}.");
+    }
+
     public function redirect(Request $request, string $provider): RedirectResponse
     {
         abort_unless($provider !== 'telegram' && SocialProviders::isEnabled($provider), 404);
@@ -41,7 +85,8 @@ class SocialAuthController extends Controller
 
     public function callback(Request $request, string $provider): RedirectResponse
     {
-        abort_unless($provider !== 'telegram' && SocialProviders::isEnabled($provider), 404);
+        $testing = $request->session()->get('social.intent') === 'test' && $request->user()?->canDo('settings.manage');
+        abort_unless($provider !== 'telegram' && ($testing || SocialProviders::isEnabled($provider)), 404);
 
         $state = $request->session()->pull('social.state');
         if (! $state || ! hash_equals($state, (string) $request->query('state'))) {
@@ -57,7 +102,24 @@ class SocialAuthController extends Controller
         } catch (Throwable $e) {
             report($e);
 
+            if ($testing) {
+                $request->session()->forget('social.intent');
+
+                return redirect()->to(route('admin.settings.index').'#social-login')
+                    ->with('error', SocialProviders::PROVIDERS[$provider]['label'].' test failed: '.\Illuminate\Support\Str::limit($e->getMessage(), 200).' — check the ID, secret and Redirect URL.');
+            }
+
             return $this->fail($request, SocialProviders::PROVIDERS[$provider]['label'].' login failed. Please try again.');
+        }
+
+        if ($testing) {
+            $request->session()->forget('social.intent');
+            \App\Models\Setting::put("social_login.{$provider}.verified_at", now()->toDateTimeString());
+            \App\Models\ActivityLog::record('settings.social_tested', null, ['provider' => $provider]);
+            $who = trim(($profile['name'] ?? '').' '.(($profile['email'] ?? null) ? '<'.$profile['email'].'>' : ''));
+
+            return redirect()->to(route('admin.settings.index').'#social-login')
+                ->with('success', SocialProviders::PROVIDERS[$provider]['label']." login works ✓ (returned: {$who}). Nobody was signed in. Tick Enabled and save to show the button to customers.");
         }
 
         return $this->complete($request, $provider, $profile);

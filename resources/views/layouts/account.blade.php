@@ -64,6 +64,7 @@
         <main class="px-4 sm:px-8 py-7 pb-28 lg:pb-7 flex flex-col gap-5">
             @if (session('success')) <div class="badge-success rounded-xl px-4 py-3 text-sm font-medium" role="status">{{ session('success') }}</div> @endif
             @if (session('error')) <div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium" role="alert">{{ session('error') }}</div> @endif
+            @if (session('info')) <div class="badge-info rounded-xl px-4 py-3 text-sm font-medium" role="status">{{ session('info') }}</div> @endif
             @yield('content')
         </main>
     </div>

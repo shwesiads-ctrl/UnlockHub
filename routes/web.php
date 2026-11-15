@@ -75,6 +75,8 @@ Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'
     ->whereIn('provider', ['google', 'facebook', 'discord', 'tiktok'])->middleware('throttle:20,1')->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
     ->whereIn('provider', ['google', 'facebook', 'discord', 'tiktok'])->middleware('throttle:20,1')->name('social.callback');
+Route::get('/admin/settings/social/{provider}/test', [SocialAuthController::class, 'test'])
+    ->whereIn('provider', ['google', 'facebook', 'discord', 'tiktok', 'telegram'])->middleware(['auth', 'active', 'admin', 'throttle:10,1'])->name('admin.settings.social.test');
 Route::delete('/account/social/{provider}', [SocialAuthController::class, 'unlink'])->middleware(['auth', 'active'])->name('social.unlink');
 
 /* ---------------- Signed-in user ---------------- */
@@ -114,6 +116,10 @@ Route::middleware(['auth', 'active', 'nostore'])->prefix('account')->name('accou
     Route::get('/points', [PointsController::class, 'index'])->name('points');
     Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
     Route::post('/points/check-in', [PointsController::class, 'checkIn'])->name('points.checkin')->middleware('throttle:10,1');
+
+    Route::post('/funds/online', [\App\Http\Controllers\Account\OnlinePaymentController::class, 'store'])->name('online.store')->middleware('throttle:10,1');
+    Route::get('/funds/online/return', [\App\Http\Controllers\Account\OnlinePaymentController::class, 'return'])->name('online.return');
+    Route::get('/funds/online/cancel', [\App\Http\Controllers\Account\OnlinePaymentController::class, 'cancel'])->name('online.cancel');
 
     Route::get('/bulk/{service}', [\App\Http\Controllers\Account\BulkOrderController::class, 'create'])->name('bulk.create');
     Route::get('/bulk/{service}/template.{format}', [\App\Http\Controllers\Account\BulkOrderController::class, 'template'])->name('bulk.template');
@@ -250,6 +256,12 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
 
     Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
+    Route::put('/settings/payments', [Admin\OnlinePaymentAdminController::class, 'settings'])->name('settings.payments');
+    Route::post('/settings/payments/{gateway}/test', [Admin\OnlinePaymentAdminController::class, 'test'])->whereIn('gateway', ['stripe', 'paypal'])->name('settings.payments.test')->middleware('throttle:10,1');
+    Route::get('/payments-online', [Admin\OnlinePaymentAdminController::class, 'index'])->name('payments.online');
+    Route::post('/payments-online/{payment}/sync', [Admin\OnlinePaymentAdminController::class, 'sync'])->name('payments.online.sync')->middleware('throttle:30,1');
+    Route::put('/settings/mail', [Admin\SettingsController::class, 'updateMail'])->name('settings.mail');
+    Route::post('/settings/mail/test', [Admin\SettingsController::class, 'testMail'])->name('settings.mail.test')->middleware('throttle:6,1');
     Route::put('/settings/pwa', [Admin\SettingsController::class, 'updatePwa'])->name('settings.pwa');
     Route::post('/settings/push-keys', [Admin\SettingsController::class, 'pushKeys'])->name('settings.push-keys');
     Route::put('/settings/statements', [Admin\SettingsController::class, 'updateStatements'])->name('settings.statements');

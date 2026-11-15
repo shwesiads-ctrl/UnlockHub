@@ -113,3 +113,15 @@ document.addEventListener('click', (e) => {
     tr.hidden = status !== 'all' && tr.dataset.status !== status;
   });
 });
+
+// Online top-up: live "You get … Ks"
+document.addEventListener('input', (e) => {
+  const form = e.target.closest('form[data-online-topup]');
+  if (!form || e.target.name !== 'amount') return;
+  const amount = Math.max(0, Number(e.target.value || 0));
+  const ks = amount * Number(form.dataset.rate || 0);
+  const total = amount * (1 + Number(form.dataset.fee || 0) / 100);
+  form.querySelector('[data-online-ks]').textContent = ks ? Math.round(ks).toLocaleString('en-US') + ' Ks' : '—';
+  const t = form.querySelector('[data-online-total]');
+  if (t) t.textContent = amount ? total.toFixed(2) : '—';
+});

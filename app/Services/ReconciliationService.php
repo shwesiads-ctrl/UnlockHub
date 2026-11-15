@@ -148,6 +148,19 @@ class ReconciliationService
                 "Top-up {$p->transaction_id}: approved ".money($p->credited_amount).', credited '.money($p->total ?? 0).($p->n > 1 ? " in {$p->n} transactions" : '').'.');
         }
 
+        // 8b. Card / PayPal payments marked paid: credited exactly once
+        $online = DB::table('online_payments as p')
+            ->leftJoinSub(DB::table('wallet_transactions')->where('type', 'deposit')->where('reference_type', 'online_payment')
+                ->groupBy('reference_id')->select('reference_id', DB::raw('COUNT(*) AS n'), DB::raw('SUM(amount) AS total')), 'd', 'd.reference_id', '=', 'p.id')
+            ->where('p.status', 'paid')
+            ->where(fn ($q) => $q->whereNull('d.n')->orWhere('d.n', '>', 1)->orWhereRaw('ABS(d.total - p.credit_ks) > ?', [self::EPS]))
+            ->limit(self::LIMIT)->get(['p.id', 'p.user_id', 'p.credit_ks', 'p.gateway', 'd.n', 'd.total']);
+        foreach ($online as $p) {
+            $type = $p->n === null ? 'missing_deposit' : ($p->n > 1 ? 'duplicate_deposit' : 'deposit_amount');
+            yield $this->issue($type, "op:{$p->id}:{$type}", 'high', $p->user_id, ['online_payment', $p->id], (float) $p->credit_ks, (float) ($p->total ?? 0),
+                ucfirst($p->gateway)." payment #{$p->id}: should credit ".money($p->credit_ks).', credited '.money($p->total ?? 0).'.');
+        }
+
         // 9. Money-moving transactions that point at nothing
         $orphans = DB::table('wallet_transactions')->whereIn('type', ['order', 'refund', 'deposit'])->whereNull('reference_id')
             ->limit(self::LIMIT)->get(['id', 'user_id', 'type', 'amount']);

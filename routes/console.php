@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schedule;
 | API orders are sent by the queue worker: `php artisan queue:work`.
 */
 
+Schedule::command('payments:sync-online')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('orders:check-api')->everyMinute()->withoutOverlapping(10);
 Schedule::command('suppliers:sync')->hourly()->withoutOverlapping();
 Schedule::command('suppliers:sync-costs')->hourlyAt(17)->withoutOverlapping();
