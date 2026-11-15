@@ -33,11 +33,12 @@
                 <button type="button" class="btn text-[13px]">MM / EN</button>
                 <x-theme-toggle />
                 @auth
-                    <a href="#" class="btn bg-ok-soft text-ok border-transparent font-bold"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</a>
-                    <a href="#" class="btn bg-point-soft text-point border-transparent font-bold"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
+                    <a href="{{ route('account.dashboard') }}" class="btn bg-ok-soft text-ok border-transparent font-bold hover:text-ok"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</a>
+                    <a href="{{ route('account.dashboard') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
+                    <a href="{{ route('account.dashboard') }}" class="w-11 h-11 rounded-full bg-brand text-white hover:text-white font-bold no-underline flex items-center justify-center" aria-label="My account">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</a>
                 @else
-                    <a href="#" class="btn">Login</a>
-                    <a href="#" class="btn btn-primary">Register</a>
+                    <a href="{{ route('login') }}" class="btn">Login</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
                 @endauth
             </div>
         </div>

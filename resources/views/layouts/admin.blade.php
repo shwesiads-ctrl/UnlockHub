@@ -39,6 +39,11 @@
                     @endif
                 </a>
             @endforeach
+            <a href="{{ route('account.dashboard') }}" class="side-link mt-3"><x-icon name="hand" /><span>My account</span></a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="side-link w-full bg-transparent border-0 cursor-pointer text-left"><x-icon name="logout" /><span>Log out</span></button>
+            </form>
         </nav>
     </aside>
 

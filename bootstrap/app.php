@@ -16,6 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
+
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(fn () => route('account.dashboard'));
+
+        // Remember ?ref=CODE so the register form can prefill it
+        $middleware->web(append: [
+            \App\Http\Middleware\CaptureReferral::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

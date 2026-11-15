@@ -43,6 +43,16 @@ Seeder က ထည့်ပေးတာတွေ:
 - နမူနာ service တွေ — **Hidden** လုပ်ထားတယ်၊ ဈေးသတ်မှတ်ပြီးမှ Active လုပ်ပါ
 - Point setting: 1,000 Ks သုံးတိုင်း 1 point ရ၊ 1 point = 10 Ks၊ အနည်းဆုံး 100 point မှ ပြောင်းလို့ရ
 
+## Login လုပ်ပုံ
+
+1. Username (သို့) email + password ရိုက်ထည့်တယ်
+2. ဒီ browser ကို "Trust this device" လုပ်ထားပြီးသားဆိုရင် → ချက်ချင်း ဝင်လို့ရတယ်
+3. မဟုတ်ရင် → Google Authenticator ဖွင့်ထားရင် app ထဲက code ကို ထည့်ရမယ်၊ မဖွင့်ထားရင် email ကို ပို့တဲ့ ၆ လုံး code ကို ထည့်ရမယ်
+4. "Trust this device?" ကို အမှန်ခြစ်ထားရင် ရက် ၃၀ ကြာအောင် ဒီအဆင့်ကို ကျော်လို့ရမယ်
+
+> **Local မှာ စမ်းရင်:** `.env` ထဲမှာ `MAIL_MAILER=log` ဖြစ်နေတဲ့အတွက် email code က `storage/logs/laravel.log` ထဲကို ရောက်ပါတယ်။ အဲဒီဖိုင်ရဲ့ အောက်ဆုံးမှာ ရှာကြည့်ပါ။
+> Production မှာ email တကယ်ပို့ဖို့ `MAIL_*` တန်ဖိုးတွေကို SMTP (Gmail, Mailgun, Brevo …) နဲ့ ပြောင်းပါ။
+
 ## Project ဖွဲ့စည်းပုံ
 
 | နေရာ | ဘာရှိလဲ |
@@ -68,7 +78,7 @@ Seeder က ထည့်ပေးတာတွေ:
 ## လုပ်ငန်းအဆင့်များ
 
 - [x] **အဆင့် ၁** — Project setup, Database schema, Design system (Day/Night), Seeder
-- [ ] အဆင့် ၂ — Register / Login / Email OTP / Trust device / Google 2FA
+- [x] **အဆင့် ၂** — Register / Login / Email OTP / Trust device / Google 2FA / Password reset / Account settings
 - [ ] အဆင့် ၃ — Service catalog နဲ့ Reseller pricing စာမျက်နှာ
 - [ ] အဆင့် ၄ — Wallet နဲ့ Myanmar payment (ပြေစာ upload → Admin approve)
 - [ ] အဆင့် ၅ — Order system (API / Manual, bulk, auto refund)
