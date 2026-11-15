@@ -8,6 +8,7 @@ use App\Models\WalletTransaction;
 use App\Services\OrderService;
 use App\Services\ReconciliationService;
 use App\Services\WalletService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use RuntimeException;
 use Tests\TestCase;
@@ -65,6 +66,16 @@ class ReconciliationTest extends TestCase
     {
         $u = $this->fundedCustomer();
         $u->forceFill(['balance' => 1])->save();
+
+        // TEMP DIAGNOSTIC
+        $probe = [
+            'stored' => DB::table('users')->where('id', $u->id)->value('balance'),
+            'ledger' => DB::table('wallet_transactions')->where('user_id', $u->id)->sum('amount'),
+            'txs' => DB::table('wallet_transactions')->select('id', 'user_id', 'type', 'amount')->get()->toArray(),
+            'check' => DB::table('users')->leftJoin('wallet_transactions as t', 't.user_id', '=', 'users.id')
+                ->groupBy('users.id', 'users.balance')->selectRaw('users.id, users.balance, COALESCE(SUM(t.amount),0) AS ledger')->get()->toArray(),
+        ];
+        $this->assertSame('', json_encode($probe, JSON_PRETTY_PRINT), 'PROBE');
 
         app(ReconciliationService::class)->run();
         app(ReconciliationService::class)->run();
