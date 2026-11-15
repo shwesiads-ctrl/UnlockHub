@@ -9,7 +9,7 @@ class Supplier extends Model
 {
     protected $fillable = [
         'name', 'driver', 'api_url', 'api_username', 'api_key',
-        'currency', 'exchange_rate', 'balance', 'status', 'last_error', 'last_synced_at',
+        'currency', 'exchange_rate', 'exchange_rate_updated_at', 'balance', 'status', 'last_error', 'last_synced_at',
     ];
 
     protected $hidden = ['api_key'];
@@ -21,6 +21,7 @@ class Supplier extends Model
             'exchange_rate' => 'decimal:4',
             'balance' => 'decimal:4',
             'last_synced_at' => 'datetime',
+            'exchange_rate_updated_at' => 'datetime',
         ];
     }
 

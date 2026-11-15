@@ -66,7 +66,7 @@ class ServiceController extends Controller
 
     public function edit(Service $service): View
     {
-        $service->load(['fields', 'prices']);
+        $service->load(['fields', 'prices', 'supplier']);
 
         return view('admin.services.form', $this->formData($service));
     }
@@ -110,6 +110,15 @@ class ServiceController extends Controller
     {
         $data = $request->validated();
         $category = ServiceCategory::findOrFail($data['service_category_id']);
+        $pricing = app(\App\Services\PricingService::class);
+        $auto = ($data['pricing_mode'] ?? 'manual') === 'auto';
+
+        // Existing service: log a cost change (old → new) before saving the rest
+        if ($service->exists && abs((float) $service->cost_price - (float) $data['cost_price']) >= 0.01) {
+            $service->loadMissing('supplier');
+            $pricing->setCost($service, (float) $data['cost_price'], null, 'manual', $request->user());
+            $service->refresh();
+        }
 
         $service->fill([
             'service_category_id' => $category->id,
@@ -118,7 +127,8 @@ class ServiceController extends Controller
             'description' => $data['description'] ?? null,
             'delivery_time' => $data['delivery_time'] ?? null,
             'cost_price' => $data['cost_price'],
-            'default_price' => $data['default_price'],
+            'default_price' => $auto && $service->exists ? $service->default_price : $data['default_price'],
+            'pricing_mode' => $data['pricing_mode'] ?? 'manual',
             'points' => $data['points'] ?? null,
             'is_hot' => $data['is_hot'],
             'allow_bulk' => $data['allow_bulk'],
@@ -154,6 +164,14 @@ class ServiceController extends Controller
             ]);
         }
 
+        if ($auto) {
+            // Prices come from the group rules; doing it by hand here counts as approval
+            $pricing->reprice($service->fresh(), null, approvedBy: $request->user());
+            $pricing->guardLoss($service->fresh());
+
+            return;
+        }
+
         // Group prices: empty = use default price
         foreach (UserGroup::pluck('id') as $groupId) {
             $value = $data['prices'][$groupId] ?? null;
@@ -164,6 +182,8 @@ class ServiceController extends Controller
                 $service->prices()->updateOrCreate(['user_group_id' => $groupId], ['price' => $value]);
             }
         }
+
+        $pricing->guardLoss($service->fresh());
     }
 
     private function formData(Service $service): array
@@ -174,6 +194,9 @@ class ServiceController extends Controller
             'groups' => UserGroup::orderBy('sort')->get(),
             'suppliers' => Supplier::orderBy('name')->get(['id', 'name', 'status']),
             'groupPrices' => $service->exists ? $service->prices->pluck('price', 'user_group_id') : collect(),
+            'costChanges' => $service->exists ? \App\Models\ServiceCostChange::where('service_id', $service->id)->with('changer:id,username')->latest('id')->limit(8)->get() : collect(),
+            'pendingPrice' => $service->exists ? \App\Models\PriceChangeRequest::where('service_id', $service->id)->where('status', 'pending')->latest('id')->first() : null,
+            'rulePrices' => $service->exists ? app(\App\Services\PricingService::class)->compute($service) : null,
             'popupSources' => Service::whereNotNull('popup')->whereKeyNot($service->id ?? 0)->orderBy('name')->get(['id', 'name', 'slug']),
         ];
     }

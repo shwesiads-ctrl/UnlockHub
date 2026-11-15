@@ -181,6 +181,12 @@ Route::middleware(['auth', 'active', 'admin', 'staff'])->prefix('admin')->name('
     Route::put('/groups/{group}', [Admin\GroupController::class, 'update'])->name('groups.update');
     Route::post('/groups/{group}/default', [Admin\GroupController::class, 'makeDefault'])->name('groups.default');
     Route::delete('/groups/{group}', [Admin\GroupController::class, 'destroy'])->name('groups.destroy');
+    Route::put('/groups-pricing', [Admin\GroupController::class, 'pricingSettings'])->name('groups.pricing-settings');
+    Route::post('/groups-pricing/reprice', [Admin\GroupController::class, 'repriceAll'])->name('groups.reprice');
+    Route::get('/pricing', [Admin\PricingController::class, 'index'])->name('pricing.index');
+    Route::post('/pricing/requests/{priceChange}/approve', [Admin\PricingController::class, 'approve'])->name('pricing.approve');
+    Route::post('/pricing/requests/{priceChange}/reject', [Admin\PricingController::class, 'reject'])->name('pricing.reject');
+    Route::post('/pricing/sync', [Admin\PricingController::class, 'sync'])->name('pricing.sync')->middleware('throttle:4,1');
 
     Route::get('/reports', [Admin\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [Admin\ReportController::class, 'export'])->name('reports.export');

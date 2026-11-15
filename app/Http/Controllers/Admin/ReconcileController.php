@@ -27,7 +27,7 @@ class ReconcileController extends Controller
         $to = $request->query('to');
 
         return view('admin.reconcile.index', [
-            'lastRun' => ReconciliationRun::latest('id')->first(),
+            'lastRun' => ReconciliationRun::with('trigger:id,username')->latest('id')->first(),
             'issues' => ReconciliationIssue::with('user:id,username')
                 ->when($status === 'open', fn ($q) => $q->whereIn('status', ['open', 'proposed']))
                 ->when($status !== 'open' && $status !== 'all', fn ($q) => $q->where('status', $status))

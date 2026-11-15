@@ -54,10 +54,20 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier): RedirectResponse
     {
+        $oldRate = (float) $supplier->exchange_rate;
         $this->fillFromRequest($supplier, $request, false);
+        $rateChanged = abs($oldRate - (float) $supplier->exchange_rate) > 0.00001;
+        if ($rateChanged) {
+            $supplier->exchange_rate_updated_at = now();
+        }
         $supplier->save();
 
-        ActivityLog::record('supplier.updated', $supplier);
+        ActivityLog::record('supplier.updated', $supplier, $rateChanged ? ['exchange_rate' => ['from' => $oldRate, 'to' => (float) $supplier->exchange_rate]] : []);
+
+        if ($rateChanged) {
+            $n = app(\App\Services\PricingService::class)->rateChanged($supplier, $request->user());
+            session()->flash('info', "Exchange rate changed: costs of {$n} services recalculated.");
+        }
 
         return $this->testAndRedirect($supplier, 'Supplier saved.');
     }
@@ -149,7 +159,8 @@ class SupplierController extends Controller
                 $service = Service::where('supplier_id', $supplier->id)->where('supplier_service_id', $id)->first();
 
                 if ($service) {
-                    $service->cost_price = $cost;
+                    app(\App\Services\PricingService::class)->setCost($service, $cost, (float) $s['credit'], 'import', request()->user());
+                    $service->refresh();
                     if (! empty($data['update_existing_price'])) {
                         $service->default_price = $price;
                     }
@@ -172,6 +183,8 @@ class SupplierController extends Controller
                     'description' => $s['info'],
                     'delivery_time' => $s['time'] ? Str::limit($s['time'], 60, '') : null,
                     'cost_price' => $cost,
+                    'supplier_cost' => $s['credit'],
+                    'cost_updated_at' => now(),
                     'default_price' => $price,
                     'processing_mode' => 'api',
                     'supplier_id' => $supplier->id,
@@ -200,22 +213,8 @@ class SupplierController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
-        $changed = 0;
-        $missing = 0;
-        $rate = (float) $supplier->exchange_rate;
-
-        foreach (Service::where('supplier_id', $supplier->id)->get() as $service) {
-            $s = $list->get($service->supplier_service_id);
-            if (! $s) {
-                $missing++;
-                continue;
-            }
-            $cost = round($s['credit'] * $rate, 2);
-            if ((float) $service->cost_price !== $cost) {
-                $service->update(['cost_price' => $cost]);
-                $changed++;
-            }
-        }
+        ['changed' => $changed, 'missing' => $missing] = app(\App\Services\PricingService::class)
+            ->syncSupplierCosts($supplier, $list->values()->all(), request()->user());
 
         $msg = "Costs updated on {$changed} services.";
         if ($missing) {

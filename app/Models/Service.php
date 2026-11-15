@@ -19,7 +19,7 @@ class Service extends Model
         'service_category_id', 'type', 'name', 'slug', 'description', 'delivery_time',
         'cost_price', 'default_price', 'points', 'is_hot', 'allow_bulk', 'max_bulk',
         'allow_cancel_pending', 'duplicate_policy', 'status', 'processing_mode', 'supplier_id',
-        'supplier_service_id', 'fallback_to_manual', 'sort',
+        'supplier_service_id', 'fallback_to_manual', 'sort', 'pricing_mode', 'supplier_cost', 'cost_updated_at', 'sales_paused', 'paused_reason',
     ];
 
     protected function casts(): array
@@ -33,6 +33,9 @@ class Service extends Model
             'allow_cancel_pending' => 'boolean',
             'fallback_to_manual' => 'boolean',
             'popup' => 'array',
+            'supplier_cost' => 'decimal:4',
+            'cost_updated_at' => 'datetime',
+            'sales_paused' => 'boolean',
         ];
     }
 

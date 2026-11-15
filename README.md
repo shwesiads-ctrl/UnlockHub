@@ -201,6 +201,15 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 
 > **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
+## ဈေးနှုန်းနဲ့ အမြတ်ကာကွယ်မှု (Profit guard)
+
+- **Groups & Pricing** — Group တစ်ခုချင်းစီမှာ Markup (`%` သို့ `Ks` ပုံသေ) + အနည်းဆုံးအမြတ်၊ ဈေးအဝိုင်း (10/50/100/500/1000 Ks)၊ Cost ≥ ရောင်းဈေး ဖြစ်ရင် **Pause new orders** / Warn only၊ Auto ဈေးပြောင်းမှု X% ထက်ကြီးရင် Admin အတည်ပြုမှ
+- **Service › Pricing** — **Manual** (ကိုယ်တိုင်ဈေး) / **Auto** (Group rule + cost လိုက်ပြောင်း)၊ Rule ဈေး preview၊ Supplier ဈေး × exchange rate နဲ့ နောက်ဆုံးပြင်ချိန်၊ Cost history
+- Supplier cost ကို နာရီတိုင်း (`suppliers:sync-costs`) စစ်ပြီး ပြောင်းတိုင်း **မူလ cost → အသစ် cost, supplier ဈေး, rate, ဘယ်ကပြောင်းလဲ (sync/import/rate/manual), ဘယ်သူ** မှတ်တယ်။ Exchange rate ပြင်ရင် ချိတ်ထားတဲ့ service cost တွေ ပြန်တွက်တယ်
+- **Admin › Profit guard** — အရှုံး/အမြတ်နည်း service စာရင်း၊ Pause ထားတဲ့ service၊ အတည်ပြုစောင့်နေတဲ့ ဈေးပြောင်းမှု (Apply / Keep old)၊ Cost change log
+- Pause ဖြစ်နေတဲ့ service ကို Website/API နှစ်ခုလုံးက order မလက်ခံ၊ ဈေးပြန်မြင့်/cost ပြန်ကျရင် အလိုအလျောက် ပြန်ဖွင့်
+- တင်ပြီးသား order ရဲ့ ဝယ်ဈေးနဲ့ cost မှတ်တမ်း ဘယ်တော့မှ မပြောင်း
+
 ## Wallet စာရင်းညှိစစ်ခြင်း (Reconciliation)
 
 - **Admin › Reconciliation** — နေ့စဉ် 02:30 (`wallet:reconcile`) နဲ့ "Run check now"

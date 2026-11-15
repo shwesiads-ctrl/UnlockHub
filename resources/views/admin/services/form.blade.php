@@ -16,6 +16,14 @@
 @endphp
 
 @section('content')
+@if ($service->sales_paused)
+    <div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium" role="alert">
+        ⛔ New orders are paused: {{ \Illuminate\Support\Str::after($service->paused_reason, ':') }}. Raise the price (or wait for the cost to drop) — it reopens automatically.
+    </div>
+@endif
+@if ($pendingPrice)
+    <div class="badge-pending rounded-xl px-4 py-3 text-sm font-medium">A price change of {{ number_format((float) $pendingPrice->change_percent, 1) }}% is waiting for approval in <a href="{{ route('admin.pricing.index') }}">Profit guard</a>.</div>
+@endif
 @if ($errors->any())
     <div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium" role="alert">Please fix the highlighted fields ({{ $errors->count() }}).</div>
 @endif
@@ -161,6 +169,27 @@
     <aside class="flex-[1_1_340px] min-w-0 flex flex-col gap-5">
         <section class="card p-5 flex flex-col gap-4">
             <h2 class="m-0 text-lg font-bold">Pricing (Ks)</h2>
+            @php $pmode = old('pricing_mode', $service->pricing_mode ?? 'manual'); @endphp
+            <div role="radiogroup" aria-label="Pricing mode" class="grid grid-cols-2 gap-2 text-sm">
+                <label class="cursor-pointer rounded-xl border p-3 flex flex-col gap-1 has-[:checked]:border-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft border-line">
+                    <span class="flex items-center gap-2 font-bold"><input type="radio" name="pricing_mode" value="manual" class="accent-[var(--uh-brand)]" @checked($pmode === 'manual')>Manual</span>
+                    <span class="text-xs text-muted">You set the prices below.</span>
+                </label>
+                <label class="cursor-pointer rounded-xl border p-3 flex flex-col gap-1 has-[:checked]:border-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft border-line">
+                    <span class="flex items-center gap-2 font-bold"><input type="radio" name="pricing_mode" value="auto" class="accent-[var(--uh-brand)]" @checked($pmode === 'auto')>Auto</span>
+                    <span class="text-xs text-muted">From <a href="{{ route('admin.groups.index') }}">group rules</a>; follows cost.</span>
+                </label>
+            </div>
+            @if ($rulePrices)
+                <div class="rounded-[10px] bg-surface-2 p-3 text-xs flex flex-col gap-1">
+                    <span class="font-semibold">Rule prices for cost {{ money($service->cost_price) }}{{ $pmode === 'auto' ? ' (in use)' : ' (if you switch to Auto)' }}</span>
+                    <span>Default: {{ money($rulePrices['default']) }}</span>
+                    @foreach ($groups as $g) @isset($rulePrices['groups'][$g->id]) <span>{{ $g->name }}: {{ money($rulePrices['groups'][$g->id]) }}</span> @endisset @endforeach
+                </div>
+            @endif
+            @if ($service->supplier_cost !== null && $service->supplier)
+                <p class="m-0 text-xs text-muted">Supplier price {{ rtrim(rtrim(number_format((float) $service->supplier_cost, 4), '0'), '.') }} {{ $service->supplier->currency }} × {{ (float) $service->supplier->exchange_rate }} (rate updated {{ $service->supplier->exchange_rate_updated_at?->diffForHumans() ?? 'never' }}) · cost updated {{ $service->cost_updated_at?->diffForHumans() ?? 'never' }}</p>
+            @endif
             <div>
                 <label for="cost_price" class="label">Cost price</label>
                 <input id="cost_price" name="cost_price" type="number" min="0" step="1" value="{{ old('cost_price', (float) ($service->cost_price ?? 0)) }}" class="input" data-cost>
@@ -188,6 +217,19 @@
                 <button type="button" class="btn h-9 text-xs ml-auto" data-autofill-prices>Fill prices from cost</button>
             </div>
         </section>
+
+        @if ($costChanges->isNotEmpty())
+        <section class="card p-5 flex flex-col gap-2 text-[13px]">
+            <h2 class="m-0 text-lg font-bold">Cost history</h2>
+            @foreach ($costChanges as $c)
+                <div class="flex justify-between gap-2">
+                    <span class="text-muted whitespace-nowrap">{{ $c->created_at->format('d M H:i') }}</span>
+                    <span>{{ $c->old_cost !== null ? money($c->old_cost) : '—' }} → <strong>{{ money($c->new_cost) }}</strong></span>
+                    <span class="text-muted">{{ $c->source }}{{ $c->changer ? ' · '.$c->changer->username : '' }}</span>
+                </div>
+            @endforeach
+        </section>
+        @endif
 
         <section class="card p-5 flex flex-col gap-3">
             <h2 class="m-0 text-lg font-bold flex items-center gap-2"><x-icon name="star" class="text-point" />Points</h2>

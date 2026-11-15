@@ -51,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
                 'manual' => Order::manualQueue()->count(),
                 'payments' => PaymentRequest::where('status', PaymentRequest::PENDING)->count(),
                 'approvals' => \App\Models\WalletAdjustment::where('status', 'pending')->count(),
+                'pricing' => \App\Models\PriceChangeRequest::where('status', 'pending')->count() + \App\Models\Service::where('sales_paused', true)->count(),
                 'reconcile' => \App\Models\ReconciliationIssue::whereIn('status', ['open', 'proposed'])->count(),
                 'tickets' => \App\Models\Ticket::where('awaiting_staff', true)->whereNotIn('status', ['resolved', 'closed'])->count(),
             ], ['manual' => 0, 'payments' => 0, 'approvals' => 0, 'tickets' => 0], false));

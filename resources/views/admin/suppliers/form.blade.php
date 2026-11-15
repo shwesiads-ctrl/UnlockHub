@@ -49,7 +49,8 @@
             <div>
                 <label for="exchange_rate" class="label">1 unit = ? Ks</label>
                 <input id="exchange_rate" name="exchange_rate" type="number" step="0.0001" min="0" value="{{ old('exchange_rate', (float) $supplier->exchange_rate) }}" class="input" required>
-                <p class="m-0 mt-1.5 text-xs text-muted">Used to turn supplier credit into your Ks cost price.</p>
+                <p class="m-0 mt-1.5 text-xs text-muted">Used to turn supplier credit into your Ks cost price.
+                    @if ($supplier->exists) Last changed {{ $supplier->exchange_rate_updated_at?->format('d M Y H:i') ?? 'never' }}. Changing it recalculates the cost of every linked service (and logs it). @endif</p>
                 <x-field-error name="exchange_rate" />
             </div>
             <div>

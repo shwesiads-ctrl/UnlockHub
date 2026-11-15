@@ -96,6 +96,10 @@
                     </div>
                 @endif
 
+                @if ($service->sales_paused)
+                    <div class="badge-pending rounded-xl px-4 py-3 text-sm font-medium" role="status">{{ __('This service is temporarily unavailable. Please check back later.') }}</div>
+                    <button class="btn btn-primary btn-lg opacity-60" disabled>{{ __('Temporarily unavailable') }}</button>
+                @else
                 @guest
                     <a href="{{ route('login') }}" class="btn btn-primary btn-lg">{{ __('Log in to order') }}</a>
                 @else
@@ -105,6 +109,7 @@
                         <button class="btn btn-primary btn-lg opacity-60" disabled>Ordering opens soon</button>
                     @endif
                 @endguest
+                @endif
             </form>
         </section>
 

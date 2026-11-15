@@ -258,6 +258,8 @@ class DhruApiController extends Controller
             return $this->error(collect($e->errors())->flatten()->first() ?: 'Invalid parameters', $echo);
         } catch (InsufficientBalanceException) {
             return $this->error('Not enough credit', $echo);
+        } catch (\RuntimeException $e) {
+            return $this->error($e->getMessage(), $echo);
         }
 
         return $this->success(['MESSAGE' => 'Order received', 'REFERENCEID' => $order->id], $echo);

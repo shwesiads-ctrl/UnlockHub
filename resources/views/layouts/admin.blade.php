@@ -26,6 +26,7 @@
                 ['Suppliers & API', 'plug', 'admin.suppliers.index', null, ['admin.suppliers.*']],
                 ['Users', 'users', 'admin.users.index', null, ['admin.users.*']],
                 ['Groups & Pricing', 'sliders', 'admin.groups.index', null, ['admin.groups.*']],
+                ['Profit guard', 'chart', 'admin.pricing.index', 'pricing', ['admin.pricing.*']],
                 ['Points', 'star', 'admin.points.index', null, ['admin.points.*']],
                 ['Popups', 'bell', 'admin.popups.edit', null, ['admin.popups.*']],
                 ['Content', 'file', 'admin.posts.index', null, ['admin.posts.*', 'admin.testimonials.*', 'admin.downloads.*', 'admin.announcements.*']],
@@ -74,6 +75,7 @@
 
         <main class="px-4 sm:px-8 py-7 flex flex-col gap-5">
             @if (session('success')) <div class="badge-success rounded-xl px-4 py-3 text-sm font-medium">{{ session('success') }}</div> @endif
+            @if (session('info')) <div class="badge-info rounded-xl px-4 py-3 text-sm font-medium">{{ session('info') }}</div> @endif
             @if (session('error')) <div class="badge-rejected rounded-xl px-4 py-3 text-sm font-medium">{{ session('error') }}</div> @endif
             @yield('content')
         </main>

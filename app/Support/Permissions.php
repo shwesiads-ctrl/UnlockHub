@@ -102,6 +102,7 @@ class Permissions
         'admin.categories.*' => 'services.manage',
         'admin.popups.*' => 'services.manage',
         'admin.groups.*' => 'pricing.manage',
+        'admin.pricing.*' => 'pricing.manage',
         'admin.points.*' => 'points.manage',
         'admin.suppliers.*' => 'suppliers.manage',
         'admin.settings.*' => 'settings.manage',

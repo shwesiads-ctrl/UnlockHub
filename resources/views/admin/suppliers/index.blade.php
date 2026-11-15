@@ -33,6 +33,7 @@
 
                 <div class="text-xs text-muted">
                     1 {{ $s->currency }} = {{ number_format((float) $s->exchange_rate, 2) }} Ks
+                    @if ($s->currency !== 'MMK') (rate updated {{ $s->exchange_rate_updated_at?->diffForHumans() ?? 'never' }}) @endif
                     · checked {{ $s->last_synced_at?->diffForHumans() ?? 'never' }}
                 </div>
 

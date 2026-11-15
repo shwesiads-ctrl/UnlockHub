@@ -47,6 +47,10 @@ class OrderService
             throw new RuntimeException('Nothing to order.');
         }
 
+        if ($service->sales_paused) {
+            throw new RuntimeException('This service is temporarily unavailable. Please try again later or contact support.');
+        }
+
         $key = filled($options['key'] ?? null) ? mb_substr((string) $options['key'], 0, 100) : null;
 
         try {

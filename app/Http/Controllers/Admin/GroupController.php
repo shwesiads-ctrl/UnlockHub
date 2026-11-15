@@ -48,11 +48,48 @@ class GroupController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:60', 'unique:user_groups,name,'.$group->id],
             'sort' => ['required', 'integer', 'min:0'],
+            'markup_type' => ['required', 'in:percent,fixed'],
+            'markup_value' => ['required', 'numeric', 'min:0', 'max:9999999'],
+            'min_profit' => ['required', 'numeric', 'min:0', 'max:9999999'],
         ]);
 
+        $before = $group->only(['markup_type', 'markup_value', 'min_profit']);
         $group->update($data);
+        if ($before != $group->only(['markup_type', 'markup_value', 'min_profit'])) {
+            ActivityLog::record('group.pricing_rule', $group, ['from' => $before, 'to' => $group->only(['markup_type', 'markup_value', 'min_profit'])]);
+        }
 
-        return back()->with('success', 'Group saved.');
+        return back()->with('success', 'Group saved. Use "Reprice auto services" to apply new rules.');
+    }
+
+    public function pricingSettings(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'rounding' => ['required', 'in:1,10,50,100,500,1000'],
+            'loss_action' => ['required', 'in:warn,pause'],
+            'approval_percent' => ['required', 'numeric', 'min:0', 'max:1000'],
+            'global_min_profit' => ['required', 'numeric', 'min:0', 'max:9999999'],
+        ]);
+
+        foreach ($data as $k => $v) {
+            \App\Models\Setting::put('pricing.'.$k, (string) $v);
+        }
+        ActivityLog::record('pricing.settings', null, $data);
+
+        return back()->with('success', 'Pricing settings saved.');
+    }
+
+    /** Recompute prices of every auto-priced service from the current rules (admin = approval). */
+    public function repriceAll(Request $request, \App\Services\PricingService $pricing): RedirectResponse
+    {
+        $n = 0;
+        foreach (\App\Models\Service::where('pricing_mode', 'auto')->get() as $service) {
+            $pricing->reprice($service, null, approvedBy: $request->user());
+            $pricing->guardLoss($service->fresh());
+            $n++;
+        }
+
+        return back()->with('success', "Recalculated prices of {$n} auto-priced services.");
     }
 
     public function makeDefault(UserGroup $group): RedirectResponse
