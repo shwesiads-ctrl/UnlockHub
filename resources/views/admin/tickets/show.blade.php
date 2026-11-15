@@ -63,6 +63,7 @@
         <div class="card p-5 flex flex-col gap-2 text-sm">
             <span class="font-bold">Customer</span>
             <span>{{ $ticket->user->name }} · <span class="text-muted">{{ $ticket->user->username }}</span></span>
+            <x-user-badges :user="$ticket->user" size="sm" />
             @can('users.view') <a href="{{ route('admin.users.show', $ticket->user) }}" class="text-[13px]">Open customer</a> @endcan
             @if ($ticket->order)
                 <div class="mt-2 p-3 rounded-lg bg-surface-2">

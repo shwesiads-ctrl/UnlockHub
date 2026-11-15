@@ -1,6 +1,7 @@
 @extends('layouts.admin', ['title' => $user->username, 'subtitle' => 'Users / '.$user->name.' · joined '.$user->created_at->format('d M Y')])
 
 @section('content')
+<div class="flex flex-wrap items-center gap-2"><span class="font-semibold">{{ $user->name }}</span><x-user-badges :user="$user" :staff="true" />@if ($user->parent_id) <span class="text-xs text-muted">· customer of <a href="{{ route('admin.users.show', $user->parent_id) }}">reseller #{{ $user->parent_id }}</a></span> @endif</div>
 <a href="{{ route('admin.users.index') }}" class="text-sm self-start">← All users</a>
 
 <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">

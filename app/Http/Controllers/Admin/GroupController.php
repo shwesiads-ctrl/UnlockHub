@@ -51,6 +51,8 @@ class GroupController extends Controller
             'markup_type' => ['required', 'in:percent,fixed'],
             'markup_value' => ['required', 'numeric', 'min:0', 'max:9999999'],
             'min_profit' => ['required', 'numeric', 'min:0', 'max:9999999'],
+            'badge_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'badge_icon' => ['nullable', 'in:user,star,crown,gem,shield,bolt'],
         ]);
 
         $before = $group->only(['markup_type', 'markup_value', 'min_profit']);

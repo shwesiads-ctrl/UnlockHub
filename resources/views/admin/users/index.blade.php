@@ -43,7 +43,7 @@
                     @if ($u->hasTwoFactor()) <span class="badge badge-success text-[11px] ml-1">2FA</span> @endif
                     <div class="text-xs text-muted">{{ $u->name }} · {{ $u->email }}</div>
                 </td>
-                <td>{{ $u->group?->name ?? '—' }}</td>
+                <td><x-user-badges :user="$u" size="sm" :staff="true" /></td>
                 <td class="text-right whitespace-nowrap font-semibold">{{ money($u->balance) }}</td>
                 <td class="text-right text-point">{{ number_format($u->points) }}</td>
                 <td>{{ $u->orders_count }}</td>

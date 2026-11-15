@@ -10,9 +10,9 @@ class UserGroupSeeder extends Seeder
     public function run(): void
     {
         $groups = [
-            ['name' => 'Customer', 'slug' => 'customer', 'is_default' => true, 'sort' => 1],
-            ['name' => 'Reseller', 'slug' => 'reseller', 'is_default' => false, 'sort' => 2],
-            ['name' => 'VIP', 'slug' => 'vip', 'is_default' => false, 'sort' => 3],
+            ['name' => 'Customer', 'slug' => 'customer', 'is_default' => true, 'sort' => 1, 'badge_color' => '#64748B', 'badge_icon' => 'user'],
+            ['name' => 'Reseller', 'slug' => 'reseller', 'is_default' => false, 'sort' => 2, 'badge_color' => '#2459E8', 'badge_icon' => 'shield'],
+            ['name' => 'VIP', 'slug' => 'vip', 'is_default' => false, 'sort' => 3, 'badge_color' => '#D4A017', 'badge_icon' => 'crown'],
         ];
 
         foreach ($groups as $g) {

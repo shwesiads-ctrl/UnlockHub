@@ -4,16 +4,20 @@
 <div class="flex flex-wrap gap-5 items-start">
     <section class="flex-[999_1_560px] min-w-0 card table-wrap">
         <table class="table min-w-[680px]">
-            <thead><tr><th>Name</th><th class="w-24">Rank</th><th>Pricing rule (auto services)</th><th>Users</th><th>Custom prices</th><th>Auto-upgrade</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <thead><tr><th>Name &amp; badge</th><th class="w-24">Rank</th><th>Pricing rule (auto services)</th><th>Users</th><th>Custom prices</th><th>Auto-upgrade</th><th><span class="sr-only">Actions</span></th></tr></thead>
             <tbody>
             @foreach ($groups as $g)
                 <tr>
                     <td colspan="3" class="p-0">
                         <form id="g{{ $g->id }}" method="POST" action="{{ route('admin.groups.update', $g) }}" class="grid grid-cols-[1fr_6rem_17rem] items-center">
                             @csrf @method('PUT')
-                            <div class="px-4 py-2.5 flex items-center gap-2">
+                            <div class="px-4 py-2.5 flex items-center gap-2 flex-wrap">
                                 <label for="gn{{ $g->id }}" class="sr-only">Name</label>
-                                <input id="gn{{ $g->id }}" name="name" value="{{ $g->name }}" class="input h-10">
+                                <input id="gn{{ $g->id }}" name="name" value="{{ $g->name }}" class="input h-10 min-w-0">
+                                <label for="gc{{ $g->id }}" class="sr-only">Badge colour</label>
+                                <input id="gc{{ $g->id }}" name="badge_color" type="color" value="{{ $g->badge_color ?: '#64748B' }}" class="h-10 w-10 shrink-0 rounded-lg border border-line bg-bg p-1" title="Badge colour">
+                                <label for="gi{{ $g->id }}" class="sr-only">Badge icon</label>
+                                <select id="gi{{ $g->id }}" name="badge_icon" class="input h-10 w-24 px-1 shrink-0" title="Badge icon">@foreach (['user' => '👤 User', 'star' => '⭐ Star', 'crown' => '👑 Crown', 'gem' => '💎 Gem', 'shield' => '🛡 Shield', 'bolt' => '⚡ Bolt'] as $k => $l)<option value="{{ $k }}" @selected(($g->badge_icon ?: 'user') === $k)>{{ $l }}</option>@endforeach</select>
                                 @if ($g->is_default) <span class="badge badge-info text-[11px]">Default</span> @endif
                             </div>
                             <div class="px-4 py-2.5"><label for="gs{{ $g->id }}" class="sr-only">Rank</label><input id="gs{{ $g->id }}" name="sort" type="number" min="0" value="{{ $g->sort }}" class="input h-10"></div>
@@ -27,7 +31,8 @@
                             </div>
                         </form>
                     </td>
-                    <td><a href="{{ route('admin.users.index', ['group' => $g->id]) }}">{{ $g->users_count }}</a></td>
+                    <td><a href="{{ route('admin.users.index', ['group' => $g->id]) }}">{{ $g->users_count }}</a>
+                        <div class="mt-1"><span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold whitespace-nowrap" style="color: {{ $g->badge_color ?: '#64748B' }}; background: color-mix(in srgb, {{ $g->badge_color ?: '#64748B' }} 14%, transparent)"><x-icon :name="$g->badge_icon ?: 'user'" size="12" />{{ $g->name }}</span></div></td>
                     <td>{{ $g->prices_count }}</td>
                     <td class="text-[13px] text-muted">{{ $g->min_points_for_auto_upgrade ? number_format($g->min_points_for_auto_upgrade).' pts' : '—' }}</td>
                     <td class="whitespace-nowrap text-right">

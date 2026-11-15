@@ -18,7 +18,7 @@
         <div class="flex-1 min-w-[220px] flex flex-col gap-1 pb-1">
             <div class="flex flex-wrap items-center gap-2">
                 <h2 class="m-0 text-2xl font-bold">{{ $user->name }}</h2>
-                <span class="badge badge-info">{{ $user->group?->name ?? 'Customer' }}</span>
+                <x-user-badges :user="$user" />
                 @if ($user->hasTwoFactor()) <span class="badge badge-success">2FA</span> @endif
             </div>
             <span class="text-sm text-muted">{{ '@'.$user->username }}@if ($user->shop_name) · {{ $user->shop_name }}@endif @if ($user->city) · {{ $user->city }}@endif</span>

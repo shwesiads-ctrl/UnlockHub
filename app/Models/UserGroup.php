@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UserGroup extends Model
 {
-    protected $fillable = ['name', 'slug', 'min_points_for_auto_upgrade', 'is_default', 'sort', 'markup_type', 'markup_value', 'min_profit'];
+    protected $fillable = ['name', 'slug', 'min_points_for_auto_upgrade', 'is_default', 'sort', 'markup_type', 'markup_value', 'min_profit', 'badge_color', 'badge_icon'];
 
     protected function casts(): array
     {

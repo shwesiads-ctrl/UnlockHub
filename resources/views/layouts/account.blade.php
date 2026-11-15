@@ -55,7 +55,7 @@
             <button type="button" class="btn btn-icon lg:hidden" data-nav-toggle aria-controls="side-nav" aria-label="{{ __('Menu') }}"><x-icon name="menu" /></button>
             <div class="flex flex-col">
                 <span class="font-display text-[22px] font-bold">{{ __($title ?? 'Account') }}</span>
-                <span class="text-[13px] text-muted">{{ __('Group') }}: {{ auth()->user()->group?->name ?? '—' }}</span>
+                <x-user-badges :user="auth()->user()" size="sm" />
             </div>
             <div class="ml-auto flex items-center gap-2 flex-wrap">
                 <span class="btn bg-ok-soft text-ok border-transparent font-bold"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</span>

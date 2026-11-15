@@ -23,7 +23,7 @@ class UserController extends Controller
         $sort = in_array($request->query('sort'), ['latest', 'balance', 'points', 'last_login'], true) ? $request->query('sort') : 'latest';
 
         $users = User::query()
-            ->with('group:id,name')
+            ->with(['group:id,name,badge_color,badge_icon', 'resellerProfile:id,user_id,status'])
             ->withCount('orders')
             ->when($request->query('q'), fn ($q, $s) => $q->where(fn ($w) => $w
                 ->where('username', 'like', "%{$s}%")
