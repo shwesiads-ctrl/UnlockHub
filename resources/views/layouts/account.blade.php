@@ -37,7 +37,7 @@
                     <x-icon :name="$icon" /><span>{{ __($label) }}</span>
                 </a>
             @endforeach
-            @if (auth()->user()->isReseller())
+            @if (auth()->user()->canAccessResellerPanel())
                 <a href="{{ route('reseller.dashboard') }}" @class(['side-link mt-3', 'active' => request()->routeIs('reseller.*')])><x-icon name="users" /><span>{{ __('Reseller panel') }}</span></a>
             @elseif (! auth()->user()->parent_id && \App\Services\ResellerService::enabled())
                 <a href="{{ route('account.reseller.apply') }}" @class(['side-link mt-3', 'active' => request()->routeIs('account.reseller.*')])><x-icon name="users" /><span>{{ __('Become a reseller') }}</span></a>

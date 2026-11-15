@@ -86,6 +86,30 @@ class User extends Authenticatable
         return (bool) $this->resellerProfile?->isApproved() && $this->isActive();
     }
 
+    /** User group "Reseller" is an admin-controlled path into the reseller program. */
+    public function isResellerGroup(): bool
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        return $this->relationLoaded('group')
+            ? $this->group?->slug === 'reseller'
+            : $this->group()->where('slug', 'reseller')->exists();
+    }
+
+    /** Show the panel for approved profiles or a reseller-group user awaiting first-time setup. */
+    public function canAccessResellerPanel(): bool
+    {
+        if (! $this->isActive() || $this->parent_id) {
+            return false;
+        }
+
+        $profile = $this->relationLoaded('resellerProfile') ? $this->resellerProfile : $this->resellerProfile()->first();
+
+        return $profile ? $profile->isApproved() : $this->isResellerGroup();
+    }
+
     /** The reseller this customer buys through (null for normal customers, or if the reseller is not active). */
     public function activeReseller(): ?User
     {

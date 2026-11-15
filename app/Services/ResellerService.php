@@ -27,6 +27,24 @@ class ResellerService
         return setting('reseller.enabled', '1') === '1';
     }
 
+    /** Create the initial approved profile when an admin assigns the Reseller price group. */
+    public function provisionFromResellerGroup(User $user): ?ResellerProfile
+    {
+        if (! $user->isActive() || $user->parent_id || ! $user->isResellerGroup()) {
+            return null;
+        }
+
+        return ResellerProfile::firstOrCreate(['user_id' => $user->id], [
+            'status' => 'approved',
+            'shop_name' => mb_substr(trim((string) ($user->shop_name ?: $user->name)).' Shop', 0, 80),
+            'contact_phone' => $user->phone,
+            'contact_email' => $user->email,
+            'markup_type' => 'percent',
+            'markup_value' => (float) setting('reseller.default_markup', 10),
+            'approved_at' => now(),
+        ]);
+    }
+
     /** What the reseller pays the site (their own group price). */
     public static function costFor(Service $service, User $reseller): float
     {

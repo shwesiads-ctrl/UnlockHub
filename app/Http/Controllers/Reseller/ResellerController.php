@@ -31,6 +31,10 @@ class ResellerController extends Controller
     public function apply(Request $request): View|RedirectResponse
     {
         $user = $request->user()->load('resellerProfile');
+        if (! $user->resellerProfile && $user->isResellerGroup()) {
+            $this->resellers->provisionFromResellerGroup($user);
+            $user->load('resellerProfile');
+        }
         if ($user->isReseller()) {
             return redirect()->route('reseller.dashboard');
         }
