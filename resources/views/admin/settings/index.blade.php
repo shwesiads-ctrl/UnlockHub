@@ -5,6 +5,7 @@
 <nav class="settings-nav" aria-label="Settings sections" role="tablist" aria-orientation="vertical">
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
     <a id="tab-site-settings" href="#site-settings" role="tab" aria-controls="site-settings">Site &amp; branding</a>
+    <a id="tab-home-page" href="#home-page" role="tab" aria-controls="home-page">Home page</a>
     <a id="tab-social-login" href="#social-login" role="tab" aria-controls="social-login">Social login</a>
     <a id="tab-security" href="#security" role="tab" aria-controls="security">Security (CAPTCHA / Cloudflare)</a>
     <a id="tab-smtp" href="#smtp" role="tab" aria-controls="smtp">Email (SMTP)</a>
@@ -98,17 +99,6 @@
         @endforeach
     </div>
     </section>
-    <section class="settings-section">
-    <h3>Homepage</h3>
-    <p class="m-0 text-sm text-muted">Choose whether the public homepage invites visitors to join the reseller program.</p>
-    <div class="settings-fields">
-        <div class="flex flex-col gap-3">
-            <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="home_reseller_cta_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('home.reseller_cta_enabled', '1') === '1')>Show Become Reseller button on the homepage</label>
-            <div><label for="home_reseller_cta_label" class="label">Button text</label><input id="home_reseller_cta_label" name="home_reseller_cta_label" value="{{ $f('home.reseller_cta_label') ?: 'Become a reseller' }}" maxlength="40" class="input h-11" placeholder="Become a reseller"><x-field-error name="home_reseller_cta_label" /></div>
-            <p class="m-0 text-xs text-muted">Visible to visitors and regular users; hidden from reseller accounts and administrators.</p>
-        </div>
-    </div>
-    </section>
     <div class="settings-actions">
         <span>Save to apply your site and branding changes.</span>
         <button class="btn btn-primary">Save site settings</button>
@@ -122,6 +112,103 @@
         <label class="flex items-center gap-2.5 text-sm font-semibold"><input type="checkbox" name="show_points" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('account.show_points', '1') === '1')>Show points</label>
     </div>
     <button class="btn btn-primary self-start">Save header display</button>
+</form>
+</div>
+
+<div id="home-page" class="settings-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-home-page">
+<form method="POST" action="{{ route('admin.settings.home-page') }}" class="card p-6 flex flex-col gap-5">
+    @csrf @method('PUT')
+    @php
+        $hf = fn ($key, $default = '') => old($key, setting('home.'.$key, $default));
+        $homeTextFields = [
+            ['hero_badge', 'Small hero badge', 'For repair shops & resellers in Myanmar', 1],
+            ['hero_title', 'Main headline', 'Unlock codes, tool credits & activations — in one wallet.', 2],
+            ['hero_description', 'Hero description', 'Top up with :methods, place IMEI and server orders, track every result, and earn points on each successful order.', 3],
+            ['browse_label', 'Browse button text', 'Browse services', 1],
+            ['trust_1', 'Trust point 1', 'Auto refund on rejected orders', 1],
+            ['trust_2', 'Trust point 2', 'Reseller group pricing', 1],
+            ['trust_3', 'Trust point 3', '2FA secured accounts', 1],
+        ];
+        $categoryFields = [
+            ['category_imei_title', 'IMEI / serial card title', 'IMEI / Serial Services'],
+            ['category_imei_description', 'IMEI / serial card description', 'Carrier unlocks, NCK/MCK codes, IMEI & GSX checks. Submit IMEI, SN or ECID.'],
+            ['category_server_title', 'Server / tool card title', 'Server · Box · Tool Credits'],
+            ['category_server_description', 'Server / tool card description', 'UnlockTool, Chimera, TFM, dongle renewals, game credits and gift cards.'],
+            ['category_remote_title', 'Remote / files card title', 'Remote · Rent · Files'],
+            ['category_remote_description', 'Remote / files card description', 'Live remote sessions, hourly tool rental and paid firmware files.'],
+        ];
+        $stepFields = [
+            ['step_1_title', 'Step 1 title', 'Register & verify'], ['step_1_description', 'Step 1 description', 'Email OTP and optional Google Authenticator.'],
+            ['step_2_title', 'Step 2 title', 'Add funds'], ['step_2_description', 'Step 2 description', 'Transfer by mobile pay, upload the receipt, admin approves.'],
+            ['step_3_title', 'Step 3 title', 'Place orders'], ['step_3_description', 'Step 3 description', 'Single or bulk IMEI. Credit is held until the result arrives.'],
+            ['step_4_title', 'Step 4 title', 'Get result & points'], ['step_4_description', 'Step 4 description', 'Code delivered to your orders page; points added on success.'],
+        ];
+    @endphp
+    <div class="settings-heading">
+        <span class="badge badge-info">Homepage</span>
+        <h2>Home page content</h2>
+        <p>Edit the public homepage copy and choose which sections visitors see.</p>
+    </div>
+    <section class="settings-section">
+        <h3>Hero</h3>
+        <div class="settings-fields">
+            @foreach ($homeTextFields as [$key, $label, $default, $rows])
+                <div>
+                    <label for="{{ $key }}" class="label">{{ $label }}</label>
+                    @if ($rows > 1)
+                        <textarea id="{{ $key }}" name="{{ $key }}" rows="{{ $rows }}" class="input">{{ $hf($key, $default) }}</textarea>
+                    @else
+                        <input id="{{ $key }}" name="{{ $key }}" value="{{ $hf($key, $default) }}" class="input h-11">
+                    @endif
+                    <x-field-error :name="$key" />
+                </div>
+            @endforeach
+        </div>
+        <div class="flex flex-col gap-3 mt-4">
+            <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="show_reseller_cta" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_reseller_cta', setting('home.reseller_cta_enabled', '1')) === '1')>Show Become Reseller button</label>
+            <div class="max-w-xl"><label for="reseller_cta_label" class="label">Become Reseller button text</label><input id="reseller_cta_label" name="reseller_cta_label" value="{{ $hf('reseller_cta_label', 'Become a reseller') }}" class="input h-11"><x-field-error name="reseller_cta_label" /><p class="m-0 mt-1 text-xs text-muted">Visible to visitors and regular users; hidden from reseller accounts and administrators.</p></div>
+        </div>
+    </section>
+    <section class="settings-section">
+        <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="m-0">Service categories</h3><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="show_categories" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_categories', setting('home.show_categories', '1')) === '1')>Show section</label></div>
+        <div class="settings-fields mt-4">
+            <div><label for="categories_title" class="label">Section heading</label><input id="categories_title" name="categories_title" value="{{ $hf('categories_title', 'Service categories') }}" class="input h-11"><x-field-error name="categories_title" /></div>
+            @foreach ($categoryFields as [$key, $label, $default])
+                <div>
+                    <label for="{{ $key }}" class="label">{{ $label }}</label>
+                    @if (str_ends_with($key, '_description')) <textarea id="{{ $key }}" name="{{ $key }}" rows="2" class="input">{{ $hf($key, $default) }}</textarea>
+                    @else <input id="{{ $key }}" name="{{ $key }}" value="{{ $hf($key, $default) }}" class="input h-11"> @endif
+                    <x-field-error :name="$key" />
+                </div>
+            @endforeach
+        </div>
+    </section>
+    <section class="settings-section">
+        <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="m-0">Hot services</h3><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="show_hot_services" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_hot_services', setting('home.show_hot_services', '1')) === '1')>Show section</label></div>
+        <div class="max-w-xl mt-4"><label for="hot_title" class="label">Section heading</label><input id="hot_title" name="hot_title" value="{{ $hf('hot_title', 'Hot services') }}" class="input h-11"><x-field-error name="hot_title" /></div>
+    </section>
+    <section class="settings-section">
+        <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="m-0">How it works</h3><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="show_how_it_works" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_how_it_works', setting('home.show_how_it_works', '1')) === '1')>Show section</label></div>
+        <div class="settings-fields mt-4">
+            <div><label for="how_title" class="label">Section heading</label><input id="how_title" name="how_title" value="{{ $hf('how_title', 'How it works') }}" class="input h-11"><x-field-error name="how_title" /></div>
+            @foreach ($stepFields as [$key, $label, $default])
+                <div>
+                    <label for="{{ $key }}" class="label">{{ $label }}</label>
+                    @if (str_ends_with($key, '_description')) <textarea id="{{ $key }}" name="{{ $key }}" rows="2" class="input">{{ $hf($key, $default) }}</textarea>
+                    @else <input id="{{ $key }}" name="{{ $key }}" value="{{ $hf($key, $default) }}" class="input h-11"> @endif
+                    <x-field-error :name="$key" />
+                </div>
+            @endforeach
+        </div>
+    </section>
+    <section class="settings-section">
+        <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="m-0">Payment banner</h3><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="show_payment_banner" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(old('show_payment_banner', setting('home.show_payment_banner', '1')) === '1')>Show section</label></div>
+        <div class="settings-fields mt-4">
+            <div><label for="payment_title" class="label">Custom heading <span class="font-normal text-muted">(leave blank for country-based heading)</span></label><input id="payment_title" name="payment_title" value="{{ $hf('payment_title') }}" class="input h-11"><x-field-error name="payment_title" /></div>
+            <div><label for="payment_description" class="label">Description</label><textarea id="payment_description" name="payment_description" rows="2" class="input">{{ $hf('payment_description', 'Transfer, upload your receipt and your wallet is credited after approval.') }}</textarea><x-field-error name="payment_description" /></div>
+        </div>
+    </section>
+    <div class="settings-actions"><span>Changes apply to the public homepage.</span><button class="btn btn-primary">Save home page</button></div>
 </form>
 </div>
 
@@ -324,8 +411,8 @@
 </div>
 <div class="settings-page-nav" aria-label="Settings page navigation">
     <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings section">‹ Previous</a>
-    <span class="settings-page-count" aria-live="polite">Section 1 of 8</span>
-    <a class="btn btn-primary" data-settings-next href="#social-login" aria-label="Next settings section">Next ›</a>
+    <span class="settings-page-count" aria-live="polite">Section 1 of 9</span>
+    <a class="btn btn-primary" data-settings-next href="#home-page" aria-label="Next settings section">Next ›</a>
 </div>
 </div>
 </div>

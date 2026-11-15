@@ -42,7 +42,6 @@ class SettingsController extends Controller
         'social.youtube' => ['nullable', 'url:http,https', 'max:255'],
         'currency.usd_rate' => ['nullable', 'numeric', 'min:0'],
         'pages.terms_slug' => ['nullable', 'string', 'exists:posts,slug'],
-        'home.reseller_cta_label' => ['nullable', 'string', 'max:40'],
     ];
 
     public function updateGeneral(Request $request): RedirectResponse
@@ -54,15 +53,12 @@ class SettingsController extends Controller
         }
         $rules['logo'] = ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024']; // no SVG: it can carry scripts
         $rules['favicon'] = ['nullable', 'file', 'mimes:png,ico', 'max:256'];
-        $rules['home_reseller_cta_enabled'] = ['boolean'];
         $data = $request->validate($rules);
 
         foreach (array_keys(self::GENERAL) as $key) {
             $value = $data[str_replace('.', '_', $key)] ?? null;
             Setting::put($key, $value === null ? null : (string) $value);
         }
-        Setting::put('home.reseller_cta_enabled', $request->boolean('home_reseller_cta_enabled') ? '1' : '0');
-
         // Branding
         foreach (['logo' => 'site.logo', 'favicon' => 'site.favicon'] as $field => $key) {
             if ($request->boolean("remove_{$field}") && ($old = setting($key))) {
@@ -81,6 +77,58 @@ class SettingsController extends Controller
         ActivityLog::record('settings.general_updated');
 
         return redirect()->to(route('admin.settings.index').'#site-settings')->with('success', 'Settings saved.');
+    }
+
+    public function updateHomePage(Request $request): RedirectResponse
+    {
+        $textRules = [
+            'hero_badge' => ['nullable', 'string', 'max:100'],
+            'hero_title' => ['required', 'string', 'max:180'],
+            'hero_description' => ['required', 'string', 'max:700'],
+            'browse_label' => ['required', 'string', 'max:50'],
+            'reseller_cta_label' => ['required', 'string', 'max:50'],
+            'trust_1' => ['nullable', 'string', 'max:80'],
+            'trust_2' => ['nullable', 'string', 'max:80'],
+            'trust_3' => ['nullable', 'string', 'max:80'],
+            'categories_title' => ['required', 'string', 'max:80'],
+            'category_imei_title' => ['required', 'string', 'max:100'],
+            'category_imei_description' => ['required', 'string', 'max:300'],
+            'category_server_title' => ['required', 'string', 'max:100'],
+            'category_server_description' => ['required', 'string', 'max:300'],
+            'category_remote_title' => ['required', 'string', 'max:100'],
+            'category_remote_description' => ['required', 'string', 'max:300'],
+            'hot_title' => ['required', 'string', 'max:80'],
+            'how_title' => ['required', 'string', 'max:80'],
+            'step_1_title' => ['required', 'string', 'max:80'],
+            'step_1_description' => ['required', 'string', 'max:220'],
+            'step_2_title' => ['required', 'string', 'max:80'],
+            'step_2_description' => ['required', 'string', 'max:220'],
+            'step_3_title' => ['required', 'string', 'max:80'],
+            'step_3_description' => ['required', 'string', 'max:220'],
+            'step_4_title' => ['required', 'string', 'max:80'],
+            'step_4_description' => ['required', 'string', 'max:220'],
+            'payment_title' => ['nullable', 'string', 'max:100'],
+            'payment_description' => ['required', 'string', 'max:240'],
+        ];
+        $data = $request->validate($textRules + [
+            'show_reseller_cta' => ['boolean'],
+            'show_categories' => ['boolean'],
+            'show_hot_services' => ['boolean'],
+            'show_how_it_works' => ['boolean'],
+            'show_payment_banner' => ['boolean'],
+        ]);
+
+        foreach (array_keys($textRules) as $key) {
+            Setting::put('home.'.$key, trim((string) ($data[$key] ?? '')));
+        }
+        foreach (['reseller_cta', 'categories', 'hot_services', 'how_it_works', 'payment_banner'] as $section) {
+            $key = $section === 'reseller_cta' ? 'home.reseller_cta_enabled' : 'home.show_'.$section;
+            Setting::put($key, $request->boolean('show_'.$section) ? '1' : '0');
+        }
+
+        ActivityLog::record('settings.home_page_updated');
+
+        return redirect()->to(route('admin.settings.index').'#home-page')->with('success', 'Home page settings saved.');
     }
 
     public function updateSocial(Request $request): RedirectResponse
