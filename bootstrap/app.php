@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Real visitor IP behind Cloudflare (runs before everything, incl. rate limits)
         $middleware->prepend(\App\Http\Middleware\CloudflareProxy::class);
+        // Clickjacking / MIME-sniffing / referrer / HSTS headers on every response
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
         // White-label reseller shops (after the session so we know who is logged in)
         $middleware->web(append: [\App\Http\Middleware\ResolveResellerShop::class]);
 

@@ -250,6 +250,16 @@ Customer က **Account › API Access** မှာ API key ထုတ်ပြီ�
 - **Cloudflare proxy** — "My domain goes through Cloudflare" ဖွင့်ရင် Cloudflare IP range ကလာမှ `CF-Connecting-IP` ကို visitor IP အဖြစ်ယူ (rate limit, log, trusted device မှန်) — တခြားက လိမ်ထည့်တဲ့ header ကို မယုံ
   - "Block direct access" — Server IP ကို တိုက်ရိုက်ဖွင့်တာ ပိတ် (Cloudflare ကနေ ဝင်နေမှပဲ ဖွင့်လို့ရ — ကိုယ့်ကိုယ်ကို မပိတ်မိအောင်)
 
+## Security hardening (QA စစ်ပြီး)
+
+- Browser header များ: `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `frame-ancestors`, HTTPS မှာ HSTS (`SecurityHeaders` middleware)
+- Host header အတု (`Host: evil.com`) နဲ့ password reset / email link ကို လိမ်မရအောင် — မသိတဲ့ host ဆို link အားလုံး `APP_URL` နဲ့ပဲ ထုတ်တယ်
+- Downloads: `.php`, `.phtml`, `x.php.zip`, `.htaccess`, `.html`, `.svg` စတာတွေ တင်လို့မရ၊ ဖိုင်အသစ်တွေ private disk မှာ သိမ်းပြီး `/downloads/{id}` ကနေပဲ ပို့တယ်
+- CSV export တွေမှာ `=`, `+`, `-`, `@` နဲ့စတဲ့ စာသားကို Excel formula မဖြစ်အောင် ကာကွယ်
+- Excel upload မှာ column အတု (ZZZZZZ1) နဲ့ memory မပြည့်အောင် ကာကွယ်
+- **Admin › Settings › Security › Staff accounts** — ဝန်ထမ်းအားလုံး Google Authenticator မဖွင့်ရင် Admin panel မဝင်ရအောင် ဖွင့်လို့ရတယ် (အကြံပြု)
+- Installer က HTTPS ဆိုရင် `SESSION_SECURE_COOKIE=true` ထည့်ပေးတယ်
+
 ## PayPal / Stripe, SMTP, Social login စစ်ဆေးခြင်း
 
 - **Admin › Settings › PayPal & Stripe** — Stripe (Card) နဲ့ PayPal key ထည့် → **Test keys** (✓ Tested ပြ)။ ငွေကြေး (USD), 1 USD = ? Ks, Min/Max, Fee %

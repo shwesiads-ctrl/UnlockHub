@@ -145,6 +145,10 @@ class SettingsController extends Controller
             Setting::put('captcha.verified_at', null); // not enforced until tested again
         }
 
+        // Only switch on "staff must use 2FA" if the person saving has it, so they can't lock themselves out
+        $staff2fa = $request->boolean('staff_2fa') && $request->user()->hasTwoFactor();
+        Setting::put('security.staff_2fa', $staff2fa ? '1' : '0');
+
         Setting::put('geo.auto_locale', $request->boolean('geo_locale') ? '1' : '0');
         Setting::put('geo.auto_payment', $request->boolean('geo_payment') ? '1' : '0');
 
@@ -160,6 +164,9 @@ class SettingsController extends Controller
         $msg = 'Security settings saved.';
         if ($data['provider'] !== 'none' && ! setting('captcha.verified_at')) {
             $msg .= ' The bot check is NOT active yet — pass the Test below to switch it on.';
+        }
+        if ($request->boolean('staff_2fa') && ! $staff2fa) {
+            $msg .= ' "Staff must use Google Authenticator" was not turned on — set it up on your own account first.';
         }
         if ($request->boolean('cloudflare_only') && ! $cfOnly) {
             $msg .= ' "Cloudflare only" was not turned on because this request did not come through Cloudflare (it would lock you out).';

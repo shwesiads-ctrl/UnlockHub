@@ -218,6 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step > 0) {
                 'DB_USERNAME' => $db['user'],
                 'DB_PASSWORD' => $db['pass'],
                 'SESSION_DRIVER' => 'database',
+                'SESSION_SECURE_COOKIE' => str_starts_with((string) $_SESSION['app_url'], 'https://') ? 'true' : 'false',
                 'QUEUE_CONNECTION' => 'database',
                 'CACHE_STORE' => 'database',
                 'QUEUE_IN_SCHEDULER' => 'true',

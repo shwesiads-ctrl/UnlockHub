@@ -87,8 +87,12 @@ class ContentController extends Controller
         abort_unless($download->is_active, 404);
         $download->increment('download_count');
 
-        if ($download->file_path && Storage::disk('public')->exists($download->file_path)) {
-            return Storage::disk('public')->download($download->file_path);
+        $disk = $download->file_path ? \App\Models\Download::diskFor($download->file_path) : null;
+        if ($disk && Storage::disk($disk)->exists($download->file_path)) {
+            return Storage::disk($disk)->download($download->file_path, basename($download->file_path), [
+                'X-Content-Type-Options' => 'nosniff',
+                'Content-Type' => 'application/octet-stream',
+            ]);
         }
 
         abort_unless($download->url, 404);

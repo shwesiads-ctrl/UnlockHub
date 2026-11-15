@@ -87,7 +87,7 @@ class ContentExtrasController extends Controller
     public function destroyDownload(Download $download): RedirectResponse
     {
         if ($download->file_path) {
-            Storage::disk('public')->delete($download->file_path);
+            Storage::disk(Download::diskFor($download->file_path))->delete($download->file_path);
         }
         $download->delete();
 
@@ -106,13 +106,19 @@ class ContentExtrasController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            if ($download->file_path) {
-                Storage::disk('public')->delete($download->file_path);
+            $file = $request->file('file');
+            // Never accept files a web server could run (shell.php, x.php.zip, .htaccess, .svg/.html pages)
+            if (\App\Support\SafeName::isDangerous($file->getClientOriginalName())) {
+                throw ValidationException::withMessages(['file' => 'This file type is not allowed. Zip it first (e.g. tool.zip).']);
             }
-            $download->file_path = $request->file('file')->storeAs(
+            if ($download->file_path) {
+                Storage::disk(Download::diskFor($download->file_path))->delete($download->file_path);
+            }
+            // Private disk: files are only sent through /downloads/{id}, never opened directly from the web.
+            $download->file_path = $file->storeAs(
                 'downloads',
-                now()->format('YmdHis').'-'.preg_replace('/[^A-Za-z0-9._-]/', '_', $request->file('file')->getClientOriginalName()),
-                'public'
+                now()->format('YmdHis').'-'.preg_replace('/[^A-Za-z0-9._-]/', '_', $file->getClientOriginalName()),
+                'local'
             );
         }
 

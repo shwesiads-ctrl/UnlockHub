@@ -48,7 +48,16 @@
             <span class="text-xs {{ $via ? 'text-ok' : 'text-muted' }}">This page reached the server {{ $via ? 'through Cloudflare ✓' : 'directly (not through Cloudflare)' }} · your IP: {{ request()->ip() }}</span>
             <span class="text-xs text-muted">Also recommended in Cloudflare: SSL/TLS = Full (strict), "Always Use HTTPS", Bot Fight Mode, and a WAF rate-limit rule for <code>/login</code> and <code>/api/*</code>.</span>
         </div>
-        @php $geo = \App\Support\GeoLocale::detect(request()); @endphp
+        @php
+            $geo = \App\Support\GeoLocale::detect(request());
+            $staffNo2fa = \App\Models\User::where('role', 'admin')->whereNull('two_factor_confirmed_at')->count();
+        @endphp
+        <div class="rounded-xl border border-line p-4 flex flex-col gap-2">
+            <span class="font-semibold">Staff accounts</span>
+            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="staff_2fa" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('security.staff_2fa') === '1')>
+                <span>Staff must use Google Authenticator to open the admin panel (strongly recommended — staff can approve top-ups and change wallets). <span class="text-muted">(Only turns on if your own account already has it.)</span></span></label>
+            <span class="text-xs {{ $staffNo2fa ? 'text-warn' : 'text-ok' }}">{{ $staffNo2fa ? $staffNo2fa.' staff account(s) without Google Authenticator.' : 'Every staff account uses Google Authenticator ✓' }}</span>
+        </div>
         <div class="rounded-xl border border-line p-4 flex flex-col gap-2">
             <span class="font-semibold">Visitor location → language &amp; payment</span>
             <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="geo_locale" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(setting('geo.auto_locale', '1') === '1')>

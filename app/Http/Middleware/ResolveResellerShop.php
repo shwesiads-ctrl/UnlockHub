@@ -48,6 +48,10 @@ class ResolveResellerShop
             }
         }
 
+        // Unknown Host header (e.g. "Host: evil.com"): build every link — password reset and
+        // email-code links included — on the real site address, never on the visitor's host.
+        $this->pinRootUrl($request, $byDomain);
+
         $user = $request->user();
 
         // On a reseller's domain: staff pages and other people's accounts belong on the main site
@@ -86,5 +90,21 @@ class ResolveResellerShop
         }
 
         return $next($request);
+    }
+
+    private function pinRootUrl(Request $request, bool $byDomain): void
+    {
+        if ($byDomain) {
+            return; // a real reseller shop domain: links stay on it
+        }
+        $appUrl = (string) config('app.url');
+        $base = strtolower((string) parse_url($appUrl, PHP_URL_HOST));
+        $shopBase = strtolower((string) (setting('reseller.base_domain') ?: $base));
+        $host = strtolower($request->getHost());
+
+        $known = in_array($host, array_filter([$base, 'www.'.$base, $shopBase, 'www.'.$shopBase, 'localhost', '127.0.0.1']), true);
+        if (! $known && $base !== '') {
+            \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
+        }
     }
 }

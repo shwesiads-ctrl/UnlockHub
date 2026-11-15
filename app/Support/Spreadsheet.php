@@ -11,6 +11,8 @@ use ZipArchive;
  */
 class Spreadsheet
 {
+    public const MAX_COLUMNS = 100;
+
     public const MAX_SHEET_BYTES = 20 * 1024 * 1024; // unzipped sheet limit (zip-bomb guard)
 
     /** @return list<list<string>> rows of cells */
@@ -85,6 +87,9 @@ class Spreadsheet
             $cells = [];
             foreach ($row->c as $c) {
                 $col = self::colIndex(preg_replace('/\d+/', '', (string) $c['r']));
+                if ($col > self::MAX_COLUMNS) {
+                    continue; // a crafted "ZZZZZZ1" cell must not allocate millions of columns
+                }
                 $type = (string) $c['t'];
                 $v = match ($type) {
                     's' => $strings[(int) $c->v] ?? '',
@@ -111,13 +116,32 @@ class Spreadsheet
         return $rows;
     }
 
+    /**
+     * Stop CSV/formula injection: a text cell starting with = + - @ (or tab/CR)
+     * would run as a formula when opened in Excel. Numbers are left alone.
+     */
+    public static function safeCell(mixed $v): mixed
+    {
+        if (! is_string($v) || $v === '' || is_numeric($v)) {
+            return $v;
+        }
+
+        return in_array($v[0], ['=', '+', '-', '@', "\t", "\r"], true) ? "'".$v : $v;
+    }
+
+    /** @param  array<int, mixed>  $row */
+    public static function safeRow(array $row): array
+    {
+        return array_map([self::class, 'safeCell'], $row);
+    }
+
     /** CSV download (UTF-8 BOM so Excel shows Burmese / symbols correctly). */
     public static function csv(array $rows): string
     {
         $fh = fopen('php://temp', 'r+');
         fwrite($fh, "\xEF\xBB\xBF");
         foreach ($rows as $r) {
-            fputcsv($fh, $r, ',', '"', '');
+            fputcsv($fh, self::safeRow($r), ',', '"', '');
         }
         rewind($fh);
         $out = stream_get_contents($fh);

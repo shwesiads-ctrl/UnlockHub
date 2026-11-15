@@ -105,9 +105,9 @@ class ReconcileController extends Controller
             fputcsv($out, []);
             fputcsv($out, ['Issue', 'Type', 'Severity', 'Status', 'User', 'Expected', 'Actual', 'Message', 'Correction', 'Amount', 'Reason', 'Proposed by', 'Approved by', 'Found', 'Resolved']);
             foreach (ReconciliationIssue::with(['user:id,username', 'proposer:id,username', 'approver:id,username'])->latest('id')->limit(10000)->cursor() as $i) {
-                fputcsv($out, [$i->id, $i->type, $i->severity, $i->status, $i->user?->username, $i->expected, $i->actual, $i->message,
+                fputcsv($out, \App\Support\Spreadsheet::safeRow([$i->id, $i->type, $i->severity, $i->status, $i->user?->username, $i->expected, $i->actual, $i->message,
                     $i->correction, $i->correction_amount, $i->reason, $i->proposer?->username, $i->approver?->username,
-                    $i->created_at?->format('Y-m-d H:i'), $i->resolved_at?->format('Y-m-d H:i')]);
+                    $i->created_at?->format('Y-m-d H:i'), $i->resolved_at?->format('Y-m-d H:i')]));
             }
             fclose($out);
         }, 'wallet-reconciliation-'.now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv']);

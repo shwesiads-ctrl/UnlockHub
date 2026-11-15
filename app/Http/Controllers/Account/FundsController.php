@@ -65,7 +65,7 @@ class FundsController extends Controller
         $method = PaymentMethod::active()->where('code', $request->input('method'))->firstOrFail();
 
         $receipt = config('unlockhub.receipts');
-        $amountRules = ['required', 'numeric', 'gt:0', 'min:'.(float) $method->min_amount];
+        $amountRules = ['required', 'numeric', 'gt:0', 'max:9999999999', 'min:'.(float) $method->min_amount];
         if ($method->max_amount) {
             $amountRules[] = 'max:'.(float) $method->max_amount;
         }

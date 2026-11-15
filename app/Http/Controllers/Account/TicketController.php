@@ -109,7 +109,7 @@ class TicketController extends Controller
         return Storage::disk(TicketAttachment::DISK)->response($attachment->path, $attachment->original_name, [
             'Content-Type' => $attachment->mime,
             'X-Content-Type-Options' => 'nosniff',
-            'Content-Disposition' => ($attachment->isImage() ? 'inline' : 'attachment').'; filename="'.addslashes($attachment->original_name).'"',
+            'Content-Disposition' => ($attachment->isImage() ? 'inline' : 'attachment').'; filename="'.\App\Support\SafeName::header($attachment->original_name).'"',
         ]);
     }
 

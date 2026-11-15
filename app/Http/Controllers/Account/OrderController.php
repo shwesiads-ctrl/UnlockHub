@@ -154,10 +154,10 @@ class OrderController extends Controller
             $out = fopen('php://output', 'w');
             fputcsv($out, ['Order', 'Date', 'Service', 'Input', 'Price', 'Status', 'Result']);
             foreach ($query->cursor() as $o) {
-                fputcsv($out, [
+                fputcsv($out, \App\Support\Spreadsheet::safeRow([
                     $o->order_no, $o->created_at->format('Y-m-d H:i'), $o->service_name,
                     $o->imei, (float) $o->price, $o->statusLabel(), $o->result,
-                ]);
+                ]));
             }
             fclose($out);
         }, 'orders-'.now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv']);
