@@ -43,6 +43,25 @@ class AppServiceProvider extends ServiceProvider
             'point_transaction' => \App\Models\PointTransaction::class,
             'service' => \App\Models\Service::class,
             'supplier' => \App\Models\Supplier::class,
+            // Every other model that can be an activity-log subject or a reference
+            'ticket' => \App\Models\Ticket::class,
+            'ticket_message' => \App\Models\TicketMessage::class,
+            'reseller_profile' => \App\Models\ResellerProfile::class,
+            'reseller_price' => \App\Models\ResellerPrice::class,
+            'payment_method' => \App\Models\PaymentMethod::class,
+            'price_change_request' => \App\Models\PriceChangeRequest::class,
+            'service_category' => \App\Models\ServiceCategory::class,
+            'service_price' => \App\Models\ServicePrice::class,
+            'user_group' => \App\Models\UserGroup::class,
+            'post' => \App\Models\Post::class,
+            'download' => \App\Models\Download::class,
+            'testimonial' => \App\Models\Testimonial::class,
+            'announcement' => \App\Models\Announcement::class,
+            'canned_reply' => \App\Models\CannedReply::class,
+            'reconciliation_run' => \App\Models\ReconciliationRun::class,
+            'order_request' => \App\Models\OrderRequest::class,
+            'social_account' => \App\Models\SocialAccount::class,
+            'trusted_device' => \App\Models\TrustedDevice::class,
         ]);
 
         View::composer('layouts.app', function ($view) {
