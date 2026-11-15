@@ -1,6 +1,7 @@
 @php
     $tabs = [
         ['Knowledge Base', route('admin.posts.index', ['type' => 'kb']), request()->routeIs('admin.posts.*') && (request('type', $post->type ?? 'kb') === 'kb')],
+        ['Questions & Answers', route('admin.kb-faqs.index'), request()->routeIs('admin.kb-faqs.*')],
         ['Blog', route('admin.posts.index', ['type' => 'blog']), request()->routeIs('admin.posts.*') && (request('type', $post->type ?? null) === 'blog')],
         ['Testimonials', route('admin.testimonials.index'), request()->routeIs('admin.testimonials.*')],
         ['Downloads', route('admin.downloads.index'), request()->routeIs('admin.downloads.*')],

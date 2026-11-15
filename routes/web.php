@@ -290,6 +290,7 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     Route::post('/suppliers/{supplier}/sync-costs', [Admin\SupplierController::class, 'syncCosts'])->name('suppliers.sync-costs');
 
     Route::resource('posts', Admin\PostController::class)->except('show');
+    Route::resource('kb-faqs', Admin\KnowledgeBaseFaqController::class)->except('show');
     Route::controller(Admin\ContentExtrasController::class)->group(function () {
         Route::get('/testimonials', 'testimonials')->name('testimonials.index');
         Route::post('/testimonials', 'storeTestimonial')->name('testimonials.store');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Download;
+use App\Models\KnowledgeBaseFaq;
 use App\Models\Order;
 use App\Models\Post;
 use App\Models\Service;
@@ -30,7 +31,13 @@ class ContentController extends Controller
             ->orderByDesc('published_at')
             ->paginate($type === 'kb' ? 30 : 9)->withQueryString();
 
-        return view('content.posts', compact('posts', 'type', 'search'));
+        $faqs = $type === 'kb'
+            ? KnowledgeBaseFaq::published()
+                ->when($search !== '', fn ($q) => $q->where(fn ($w) => $w->where('question', 'like', "%{$search}%")->orWhere('answer', 'like', "%{$search}%")))
+                ->orderBy('sort')->orderBy('id')->paginate(10, ['*'], 'faqs')->withQueryString()
+            : null;
+
+        return view('content.posts', compact('posts', 'type', 'search', 'faqs'));
     }
 
     public function post(string $type, string $slug): View

@@ -10,26 +10,56 @@
         </div>
         <form method="GET" role="search" class="flex gap-2">
             <label for="q" class="sr-only">{{ __('Search') }}</label>
-            <input id="q" name="q" type="search" value="{{ $search }}" placeholder="{{ $isKb ? __('Search articles…') : __('Search posts…') }}" class="input h-11 w-full sm:w-72">
+            <input id="q" name="q" type="search" value="{{ $search }}" placeholder="{{ $isKb ? __('Search articles and questions…') : __('Search posts…') }}" class="input h-11 w-full sm:w-72">
             <button class="btn h-11">{{ __('Search') }}</button>
         </form>
     </div>
 
-    @if ($posts->isEmpty())
+    @if (! $isKb && $posts->isEmpty())
         <div class="card p-10 text-center text-muted">{{ $search ? 'Nothing matches "'.$search.'".' : 'Nothing published yet.' }}</div>
     @elseif ($isKb)
-        <div class="card divide-y divide-[var(--uh-line)]">
-            @foreach ($posts as $post)
-                <a href="{{ route('kb.show', $post->slug) }}" class="flex items-center gap-4 px-5 py-4 no-underline text-ink hover:text-ink hover:bg-surface-2">
-                    <span class="w-10 h-10 rounded-xl bg-brand-soft text-brand-ink flex items-center justify-center shrink-0"><x-icon name="file" /></span>
-                    <span class="flex-1 min-w-0">
-                        <span class="block font-semibold">{{ $post->title }}</span>
-                        @if ($post->excerpt) <span class="block text-sm text-muted truncate">{{ $post->excerpt }}</span> @endif
-                    </span>
-                    <x-icon name="list" class="text-muted" />
-                </a>
-            @endforeach
-        </div>
+        @if ($faqs->isNotEmpty())
+            <section class="flex flex-col gap-3" aria-labelledby="faq-heading">
+                <div>
+                    <h2 id="faq-heading" class="m-0 text-2xl font-bold">Questions &amp; Answers</h2>
+                    <p class="m-0 mt-1 text-sm text-muted">Quick answers to common questions.</p>
+                </div>
+                <div class="card divide-y divide-[var(--uh-line)] overflow-hidden">
+                    @foreach ($faqs as $faq)
+                        <details class="group px-5 py-4">
+                            <summary class="cursor-pointer list-none flex items-center justify-between gap-4 font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                                <span>{{ $faq->question }}</span>
+                                <span aria-hidden="true" class="text-brand-ink text-xl leading-none transition-transform group-open:rotate-45">+</span>
+                            </summary>
+                            <div class="mt-3 text-sm leading-relaxed text-muted prose prose-invert max-w-none">{!! Illuminate\Support\Str::markdown($faq->answer, ['html_input' => 'escape', 'allow_unsafe_links' => false]) !!}</div>
+                        </details>
+                    @endforeach
+                </div>
+                {{ $faqs->links() }}
+            </section>
+        @endif
+
+        @if ($posts->isNotEmpty())
+            <section class="flex flex-col gap-3" aria-labelledby="articles-heading">
+                <h2 id="articles-heading" class="m-0 text-2xl font-bold">Articles &amp; Guides</h2>
+                <div class="card divide-y divide-[var(--uh-line)]">
+                    @foreach ($posts as $post)
+                        <a href="{{ route('kb.show', $post->slug) }}" class="flex items-center gap-4 px-5 py-4 no-underline text-ink hover:text-ink hover:bg-surface-2">
+                            <span class="w-10 h-10 rounded-xl bg-brand-soft text-brand-ink flex items-center justify-center shrink-0"><x-icon name="file" /></span>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-semibold">{{ $post->title }}</span>
+                                @if ($post->excerpt) <span class="block text-sm text-muted truncate">{{ $post->excerpt }}</span> @endif
+                            </span>
+                            <x-icon name="list" class="text-muted" />
+                        </a>
+                    @endforeach
+                </div>
+                {{ $posts->links() }}
+            </section>
+        @endif
+        @if ($posts->isEmpty() && $faqs->isEmpty())
+            <div class="card p-10 text-center text-muted">{{ $search ? 'Nothing matches "'.$search.'".' : 'Nothing published yet.' }}</div>
+        @endif
     @else
         <div class="grid gap-5 grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
             @foreach ($posts as $post)
@@ -47,8 +77,7 @@
                 </a>
             @endforeach
         </div>
+        {{ $posts->links() }}
     @endif
-
-    {{ $posts->links() }}
 </div>
 @endsection

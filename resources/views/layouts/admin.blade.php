@@ -33,7 +33,7 @@
                 ['Profit guard', 'chart', 'admin.pricing.index', 'pricing', ['admin.pricing.*']],
                 ['Points', 'star', 'admin.points.index', null, ['admin.points.*']],
                 ['Popups', 'bell', 'admin.popups.edit', null, ['admin.popups.*']],
-                ['Content', 'file', 'admin.posts.index', null, ['admin.posts.*', 'admin.testimonials.*', 'admin.downloads.*', 'admin.announcements.*']],
+                ['Content', 'file', 'admin.posts.index', null, ['admin.posts.*', 'admin.kb-faqs.*', 'admin.testimonials.*', 'admin.downloads.*', 'admin.announcements.*']],
                 ['Email campaigns', 'chat', 'admin.mail-campaigns.index', null, ['admin.mail-campaigns.*']],
                 ['Reports', 'chart', 'admin.reports.index', null, ['admin.reports.*']],
                 ['Activity Log', 'clock', 'admin.activity.index', null, ['admin.activity.*']],

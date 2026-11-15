@@ -118,6 +118,7 @@ class Permissions
         'admin.settings.*' => 'settings.manage',
         'admin.staff.*' => 'staff.manage',
         'admin.posts.*' => 'content.manage',
+        'admin.kb-faqs.*' => 'content.manage',
         'admin.testimonials.*' => 'content.manage',
         'admin.downloads.*' => 'content.manage',
         'admin.announcements.*' => 'content.manage',
