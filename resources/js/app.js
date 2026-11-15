@@ -9,6 +9,12 @@ document.addEventListener('click', (e) => {
   if (input) { input.value = btn.dataset.value; input.focus(); }
 });
 
+// Forms with [data-auto-submit] submit as soon as a file is chosen (avatar upload)
+document.addEventListener('change', (e) => {
+  const form = e.target.closest('form[data-auto-submit]');
+  if (form && e.target.type === 'file' && e.target.files.length) form.submit();
+});
+
 // File inputs inside [data-dropzone]: show the chosen file name
 document.addEventListener('change', (e) => {
   const zone = e.target.closest('[data-dropzone]');

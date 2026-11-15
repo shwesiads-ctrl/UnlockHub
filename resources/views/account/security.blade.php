@@ -4,65 +4,23 @@
 <div class="flex flex-wrap gap-5 items-start">
     <div class="flex-[999_1_520px] min-w-0 flex flex-col gap-5">
 
-        {{-- Profile --}}
-        <section class="card p-6 flex flex-col gap-4">
-            <h2 class="m-0 text-lg font-bold">Profile</h2>
-            <form method="POST" action="{{ route('account.security.profile') }}" class="flex flex-col gap-4">
-                @csrf @method('PUT')
-                <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
-                    <div>
-                        <label for="name" class="label">Full name</label>
-                        <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" class="input" required>
-                        <x-field-error name="name" />
-                    </div>
-                    <div>
-                        <label for="phone" class="label">Phone</label>
-                        <input id="phone" name="phone" type="tel" value="{{ old('phone', $user->phone) }}" class="input">
-                        <x-field-error name="phone" />
-                    </div>
-                    <div>
-                        <label class="label">Username</label>
-                        <input type="text" value="{{ $user->username }}" class="input opacity-70" disabled>
-                    </div>
-                    <div>
-                        <label class="label">Email</label>
-                        <input type="email" value="{{ $user->email }}" class="input opacity-70" disabled>
-                    </div>
-                    <div>
-                        <label for="preferred_locale" class="label">Language</label>
-                        <select id="preferred_locale" name="preferred_locale" class="input">
-                            @foreach (config('unlockhub.locales') as $code => $label)
-                                <option value="{{ $code }}" @selected($user->preferred_locale === $code)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label for="preferred_currency" class="label">Show prices in</label>
-                        <select id="preferred_currency" name="preferred_currency" class="input">
-                            @foreach (config('unlockhub.currencies') as $c)
-                                <option value="{{ $c }}" @selected($user->preferred_currency === $c)>{{ $c }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <label class="flex items-start gap-2.5 text-sm">
-                    <input type="checkbox" name="notify_email" value="1" class="w-5 h-5 mt-0.5 accent-[var(--uh-brand)]" @checked(old('notify_email', $user->notify_email))>
-                    <span><strong>Email me</strong> when an order finishes or a top-up is reviewed. (Notifications always appear on the site.)</span>
-                </label>
-                <button class="btn btn-primary self-start">Save profile</button>
-            </form>
-        </section>
+        <div class="rounded-xl px-4 py-3 text-sm bg-brand-soft text-brand-ink">Name, photo, shop details and language are on <a href="{{ route('account.profile') }}" class="font-semibold">My Profile</a>.</div>
 
         {{-- Password --}}
         <section class="card p-6 flex flex-col gap-4">
-            <h2 class="m-0 text-lg font-bold">Change password</h2>
+            <h2 class="m-0 text-lg font-bold">{{ $user->password_set ? 'Change password' : 'Set a password' }}</h2>
+            @unless ($user->password_set)
+                <p class="m-0 text-sm text-muted">You signed up with a social login. Set a password to also log in with your username.</p>
+            @endunless
             <form method="POST" action="{{ route('account.security.password') }}" class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
                 @csrf @method('PUT')
+                @if ($user->password_set)
                 <div>
                     <label for="current_password" class="label">Current password</label>
                     <input id="current_password" name="current_password" type="password" class="input" autocomplete="current-password" required>
                     <x-field-error name="current_password" />
                 </div>
+                @endif
                 <div>
                     <label for="password" class="label">New password</label>
                     <input id="password" name="password" type="password" class="input" autocomplete="new-password" required>
@@ -72,7 +30,7 @@
                     <label for="password_confirmation" class="label">Confirm</label>
                     <input id="password_confirmation" name="password_confirmation" type="password" class="input" autocomplete="new-password" required>
                 </div>
-                <div class="col-span-full"><button class="btn btn-primary">Change password</button></div>
+                <div class="col-span-full"><button class="btn btn-primary">{{ $user->password_set ? 'Change password' : 'Set password' }}</button></div>
             </form>
         </section>
     </div>
@@ -122,6 +80,32 @@
                 </form>
             @endif
         </section>
+
+        {{-- Connected accounts --}}
+        @php $providers = \App\Services\Social\SocialProviders::enabled(); $linked = $user->socialAccounts->keyBy('provider'); @endphp
+        @if ($providers || $linked->isNotEmpty())
+            <section class="card p-6 flex flex-col gap-3">
+                <h2 class="m-0 text-lg font-bold">Connected logins</h2>
+                <p class="m-0 text-sm text-muted">Log in with these instead of your password.</p>
+                @foreach (array_unique(array_merge($providers, $linked->keys()->all())) as $p)
+                    @php $acc = $linked[$p] ?? null; $label = \App\Services\Social\SocialProviders::PROVIDERS[$p]['label'] ?? ucfirst($p); @endphp
+                    <div class="flex items-center gap-3 p-3 rounded-[10px] bg-surface-2">
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-semibold">{{ $label }}</div>
+                            <div class="text-xs text-muted truncate">{{ $acc ? ($acc->name ?: $acc->email ?: 'Connected') : 'Not connected' }}</div>
+                        </div>
+                        @if ($acc)
+                            <form method="POST" action="{{ route('social.unlink', $p) }}">@csrf @method('DELETE')<button class="btn h-9 text-xs">Disconnect</button></form>
+                        @elseif ($p !== 'telegram' && in_array($p, $providers, true))
+                            <a href="{{ route('social.redirect', $p) }}" class="btn h-9 text-xs">Connect</a>
+                        @endif
+                    </div>
+                @endforeach
+                @if (in_array('telegram', $providers, true) && ! isset($linked['telegram']))
+                    <div class="flex justify-center"><script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="{{ \App\Services\Social\SocialProviders::telegramBotUsername() }}" data-size="medium" data-radius="10" data-auth-url="{{ route('social.telegram') }}"></script></div>
+                @endif
+            </section>
+        @endif
 
         {{-- Trusted devices --}}
         <section class="card p-6 flex flex-col gap-3">

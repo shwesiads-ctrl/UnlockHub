@@ -53,11 +53,17 @@ class PointsController extends Controller
             'redeem_rate' => ['required', 'numeric', 'min:0', 'max:1000000'],
             'redeem_min' => ['required', 'integer', 'min:1', 'max:100000000'],
             'referral_bonus' => ['required', 'integer', 'min:0', 'max:100000000'],
+            'signup_bonus' => ['required', 'integer', 'min:0', 'max:100000000'],
+            'profile_bonus' => ['required', 'integer', 'min:0', 'max:100000000'],
+            'topup_per_ks' => ['required', 'integer', 'min:0', 'max:100000000'],
+            'checkin_points' => ['required', 'integer', 'min:0', 'max:100000'],
+            'checkin_streak_bonus' => ['required', 'integer', 'min:0', 'max:100000'],
+            'checkin_streak_max' => ['required', 'integer', 'min:1', 'max:60'],
             'thresholds' => ['array'],
             'thresholds.*' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        foreach (['per_ks', 'redeem_rate', 'redeem_min', 'referral_bonus'] as $key) {
+        foreach (['per_ks', 'redeem_rate', 'redeem_min', 'referral_bonus', 'signup_bonus', 'profile_bonus', 'topup_per_ks', 'checkin_points', 'checkin_streak_bonus', 'checkin_streak_max'] as $key) {
             Setting::put('points.'.$key, (string) $data[$key]);
         }
 

@@ -19,10 +19,11 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'username', 'email', 'phone', 'password',
         'user_group_id', 'referred_by', 'preferred_locale', 'preferred_currency', 'notify_email',
+        'shop_name', 'city',
     ];
 
     protected $hidden = [
-        'password', 'remember_token', 'two_factor_secret',
+        'password', 'remember_token', 'two_factor_secret', 'api_key_hash',
     ];
 
     protected function casts(): array
@@ -36,6 +37,12 @@ class User extends Authenticatable
             'balance' => 'decimal:2',
             'points' => 'integer',
             'notify_email' => 'boolean',
+            'password_set' => 'boolean',
+            'profile_bonus_awarded' => 'boolean',
+            'last_checkin_on' => 'date',
+            'checkin_streak' => 'integer',
+            'api_enabled' => 'boolean',
+            'api_last_used_at' => 'datetime',
         ];
     }
 
@@ -60,6 +67,46 @@ class User extends Authenticatable
     public function hasTwoFactor(): bool
     {
         return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
+    }
+
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar_path ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->avatar_path) : null;
+    }
+
+    public function initials(): string
+    {
+        return strtoupper(mb_substr($this->name ?: $this->username, 0, 2));
+    }
+
+    /** Fields that count for the profile bonus. */
+    public function profileChecklist(): array
+    {
+        return [
+            'email' => filled($this->email),
+            'phone' => filled($this->phone),
+            'avatar' => filled($this->avatar_path),
+            'shop_name' => filled($this->shop_name),
+            'city' => filled($this->city),
+        ];
+    }
+
+    public function profilePercent(): int
+    {
+        $list = $this->profileChecklist();
+
+        return (int) round(count(array_filter($list)) / count($list) * 100);
+    }
+
+    /** @return string[] */
+    public function apiIpList(): array
+    {
+        return array_values(array_filter(array_map('trim', preg_split('/[\s,]+/', (string) $this->api_ips))));
+    }
+
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
     }
 
     public function group(): BelongsTo

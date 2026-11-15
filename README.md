@@ -124,6 +124,9 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 | Admin က ပေးတာ | Admin › Points › Adjust |
 
 - **Redeem:** Account › Points မှာ point ကို wallet credit အဖြစ် ပြောင်းလို့ရတယ် (default: 1 point = 10 Ks၊ အနည်းဆုံး 100 point)
+- **Welcome bonus** (အကောင့်ဖွင့်တာနဲ့)၊ **Profile ပြည့်စုံရင် bonus** (email, ဖုန်း, ပုံ, ဆိုင်နာမည်, မြို့ — တစ်ကြိမ်ပဲ)
+- **Top-up bonus:** ငွေဖြည့်မှု approve ဖြစ်တိုင်း ပမာဏအလိုက် (ဥပမာ 10,000 Ks = 1 point — default ပိတ်ထား)
+- **Daily check-in:** နေ့တိုင်း နှိပ်ရင် point ရ၊ ဆက်တိုက်နေ့တွေ (streak) ဆိုရင် ပိုရ
 - **Group auto-upgrade:** Admin › Points › Rules မှာ Reseller / VIP အတွက် "lifetime points" ကန့်သတ်ချက် ထည့်ထားရင် အဲဒီ point ပြည့်တာနဲ့ user ကို အဲဒီ group ကို အလိုအလျောက် တင်ပေးမယ် (တက်ပဲတက်မယ်၊ မကျဘူး)
 - Reject / Cancel ဖြစ်တဲ့ order တွေက point မရပါ
 - Rule အားလုံးကို Admin › **Points** မှာ ပြင်လို့ရတယ်
@@ -170,6 +173,33 @@ Field key တွေက supplier ဆီ ဒီလို ရောက်တယ်:
 | **Settings** | ဆိုဒ်နာမည်, Support hours, Contact email/phone/address, Social link, USD rate, Terms စာမျက်နှာ, Telegram |
 
 **ဘာသာစကား:** Header က **မြန်မာ / English** ခလုတ်နဲ့ ပြောင်းလို့ရတယ် (login ဝင်ထားရင် မှတ်ထားမယ်)။ ဘာသာပြန်တွေက `lang/my.json` မှာ ရှိတယ် — Menu, Home, Services, Account menu, Status တွေ ပြန်ပြီးပြီ။ ကျန်တဲ့ စာမျက်နှာတွေကို `__('English text')` နဲ့ wrap လုပ်ပြီး `lang/my.json` ထဲ ထပ်ထည့်ရုံပါပဲ။
+
+## Social Login (Google, Facebook, Discord, TikTok, Telegram)
+
+Admin › **Settings** › Social login မှာ provider တစ်ခုချင်း ဖွင့်ပါ —
+1. Provider ရဲ့ developer console မှာ app ဆောက် (link ပါပြီးသား)
+2. Client ID / Secret ကို ကူးထည့်ပြီး ပြထားတဲ့ **Redirect URL** ကို အဲဒီ app ထဲ ထည့်
+3. **Telegram:** @BotFather မှာ `/setdomain` နဲ့ ကိုယ့် domain ကို သတ်မှတ်ပြီး bot username ထည့် (HTTPS domain အစစ်မှာပဲ အလုပ်လုပ်)
+
+- Login/Register စာမျက်နှာမှာ ခလုတ်တွေ ပေါ်လာမယ်၊ Account › Settings မှာ Connect / Disconnect လုပ်လို့ရတယ်
+- Email တူတဲ့ အကောင့်ရှိပြီးသားဆိုရင် အလိုအလျောက် မပေါင်းဘူး (လုံခြုံရေး) — password နဲ့ ဝင်ပြီး Settings ကနေ connect လုပ်ရမယ်
+- Google Authenticator ဖွင့်ထားသူကို social login နဲ့ ဝင်ရင်လည်း 2FA code တောင်းတယ်
+- Telegram / TikTok က email မပေးလို့ အကောင့်ဖွင့်ပြီးရင် Profile မှာ email ထည့်ခိုင်းတယ်
+
+## Profile & Logo
+
+- **Account › My Profile** — Profile ပုံ upload၊ ဆိုင်နာမည်၊ ဖုန်း၊ မြို့၊ ဘာသာစကား၊ ငွေကြေး၊ Profile ပြည့်စုံမှု %
+- **Admin › Settings** — Site logo နဲ့ browser tab icon upload
+
+## Reseller API (DHRU Fusion compatible)
+
+Customer က **Account › API Access** မှာ API key ထုတ်ပြီး သူ့ DHRU ဆိုဒ်ကနေ ကိုယ့်ဆိုဒ်ကို supplier အဖြစ် ချိတ်လို့ရတယ် —
+- API URL = ကိုယ့်ဆိုဒ်လိပ်စာ (`/api/index.php` ကို DHRU က အလိုအလျောက် ထည့်), Username, API key
+- `accountinfo`, `imeiservicelist`, `getimeiservicedetails`, `placeimeiorder`, `getimeiorder` ကို support လုပ်တယ်
+- သူ့ group ဈေးနဲ့ wallet ကနေ နုတ်တယ်၊ Reject ရင် auto refund
+- Key ကို hash နဲ့ပဲ သိမ်းတယ် (တစ်ခါပဲ ပြ)၊ IP whitelist ထည့်လို့ရတယ်၊ မှားရိုက်တာ များရင် ခဏပိတ်တယ်
+
+> **Nginx သုံးရင်:** `location ~ \.php$` block က `/api/index.php` ကို ဖမ်းမသွားအောင် `location = /api/index.php { try_files $uri /index.php?$query_string; }` ကို အရင်ထည့်ပါ။
 
 ## Project ဖွဲ့စည်းပုံ
 

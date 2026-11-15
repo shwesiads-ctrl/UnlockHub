@@ -19,6 +19,12 @@ class SettingSeeder extends Seeder
             'points.redeem_rate' => '10',
             'points.redeem_min' => '100',
             'points.referral_bonus' => '50',
+            'points.signup_bonus' => '20',
+            'points.profile_bonus' => '30',
+            'points.topup_per_ks' => '0',
+            'points.checkin_points' => '1',
+            'points.checkin_streak_bonus' => '1',
+            'points.checkin_streak_max' => '7',
 
             // Display only — wallet is MMK
             'currency.usd_rate' => '4500',

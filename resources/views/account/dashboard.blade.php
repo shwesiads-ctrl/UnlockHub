@@ -8,6 +8,14 @@
     </div>
 @endif
 
+@if (app(\App\Services\PointService::class)->canCheckInToday($user))
+    <form method="POST" action="{{ route('account.points.checkin') }}" class="rounded-xl px-4 py-3 text-sm bg-point-soft text-point flex flex-wrap gap-3 items-center">
+        @csrf
+        <span class="flex-1 font-medium">Daily check-in is ready{{ $user->checkin_streak > 0 && $user->last_checkin_on?->isSameDay(today()->subDay()) ? ' — keep your '.$user->checkin_streak.'-day streak!' : '.' }}</span>
+        <button class="btn btn-primary h-9">Check in</button>
+    </form>
+@endif
+
 <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
     <div class="bg-brand text-white rounded-2xl p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold opacity-90">Wallet balance</span>

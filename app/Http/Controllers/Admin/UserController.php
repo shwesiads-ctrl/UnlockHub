@@ -78,7 +78,7 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:20'],
             'user_group_id' => ['required', 'exists:user_groups,id'],
             'status' => ['required', Rule::in(['active', 'suspended'])],
@@ -93,7 +93,7 @@ class UserController extends Controller
 
         $user->forceFill([
             'name' => $data['name'],
-            'email' => strtolower($data['email']),
+            'email' => isset($data['email']) ? strtolower($data['email']) : null,
             'phone' => $data['phone'] ?? null,
             'user_group_id' => $data['user_group_id'],
             'status' => $data['status'],

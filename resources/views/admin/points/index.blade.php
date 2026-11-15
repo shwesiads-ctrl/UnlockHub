@@ -73,6 +73,36 @@
                 <input id="referral_bonus" name="referral_bonus" type="number" min="0" value="{{ old('referral_bonus', $rules['referral_bonus']) }}" class="input h-11">
                 <p class="m-0 mt-1 text-xs text-muted">Given to the referrer when their friend's first order succeeds. 0 = off.</p>
             </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label for="signup_bonus" class="label">Welcome bonus</label>
+                    <input id="signup_bonus" name="signup_bonus" type="number" min="0" value="{{ old('signup_bonus', $rules['signup_bonus']) }}" class="input h-11">
+                </div>
+                <div>
+                    <label for="profile_bonus" class="label">Profile complete</label>
+                    <input id="profile_bonus" name="profile_bonus" type="number" min="0" value="{{ old('profile_bonus', $rules['profile_bonus']) }}" class="input h-11">
+                </div>
+            </div>
+            <div>
+                <label for="topup_per_ks" class="label">Top-up bonus: 1 point per … Ks</label>
+                <input id="topup_per_ks" name="topup_per_ks" type="number" min="0" value="{{ old('topup_per_ks', $rules['topup_per_ks']) }}" class="input h-11">
+                <p class="m-0 mt-1 text-xs text-muted">Given when a top-up is approved. 0 = off. Example: 10000 → 50,000 Ks top-up = 5 points.</p>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label for="checkin_points" class="label">Check-in</label>
+                    <input id="checkin_points" name="checkin_points" type="number" min="0" value="{{ old('checkin_points', $rules['checkin_points']) }}" class="input h-11">
+                </div>
+                <div>
+                    <label for="checkin_streak_bonus" class="label">+ per day</label>
+                    <input id="checkin_streak_bonus" name="checkin_streak_bonus" type="number" min="0" value="{{ old('checkin_streak_bonus', $rules['checkin_streak_bonus']) }}" class="input h-11">
+                </div>
+                <div>
+                    <label for="checkin_streak_max" class="label">Max days</label>
+                    <input id="checkin_streak_max" name="checkin_streak_max" type="number" min="1" max="60" value="{{ old('checkin_streak_max', $rules['checkin_streak_max']) }}" class="input h-11">
+                </div>
+            </div>
+            <p class="m-0 -mt-2 text-xs text-muted">Day 1 gives "Check-in"; each next day in a row adds "+ per day", up to "Max days". Check-in 0 = off.</p>
             <fieldset class="m-0 p-0 border-0 flex flex-col gap-2">
                 <legend class="label">Auto-upgrade group at lifetime points</legend>
                 @foreach ($groups as $g)

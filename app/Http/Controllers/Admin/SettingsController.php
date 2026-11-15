@@ -20,6 +20,7 @@ class SettingsController extends Controller
         return view('admin.settings.index', [
             'general' => collect(self::GENERAL)->mapWithKeys(fn ($rule, $key) => [$key => setting($key)])->all(),
             'kbPages' => \App\Models\Post::where('type', 'kb')->orderBy('title')->get(['title', 'slug']),
+            'socialProviders' => \App\Services\Social\SocialProviders::PROVIDERS,
             'telegramConfigured' => (bool) Notify::telegramToken(),
             'chatId' => Notify::telegramChatId(),
             'events' => Notify::TELEGRAM_EVENTS,
@@ -50,6 +51,8 @@ class SettingsController extends Controller
         foreach (self::GENERAL as $key => $rule) {
             $rules[str_replace('.', '_', $key)] = $rule;
         }
+        $rules['logo'] = ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024']; // no SVG: it can carry scripts
+        $rules['favicon'] = ['nullable', 'file', 'mimes:png,ico', 'max:256'];
         $data = $request->validate($rules);
 
         foreach (array_keys(self::GENERAL) as $key) {
@@ -57,9 +60,56 @@ class SettingsController extends Controller
             Setting::put($key, $value === null ? null : (string) $value);
         }
 
+        // Branding
+        foreach (['logo' => 'site.logo', 'favicon' => 'site.favicon'] as $field => $key) {
+            if ($request->boolean("remove_{$field}") && ($old = setting($key))) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($old);
+                Setting::put($key, null);
+            }
+            if ($request->hasFile($field)) {
+                if ($old = setting($key)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($old);
+                }
+                Setting::put($key, $request->file($field)->store('branding', 'public'));
+            }
+        }
+        Setting::put('site.logo_show_name', $request->boolean('logo_show_name') ? '1' : '0');
+
         ActivityLog::record('settings.general_updated');
 
         return back()->with('success', 'Settings saved.');
+    }
+
+    public function updateSocial(Request $request): RedirectResponse
+    {
+        $providers = array_keys(\App\Services\Social\SocialProviders::PROVIDERS);
+        $rules = [];
+        foreach ($providers as $p) {
+            $rules["{$p}_enabled"] = ['boolean'];
+            $rules["{$p}_client_id"] = ['nullable', 'string', 'max:255'];
+            $rules["{$p}_client_secret"] = ['nullable', 'string', 'max:255'];
+        }
+        $rules['telegram_bot_username'] = ['nullable', 'string', 'max:64', 'regex:/^@?[A-Za-z0-9_]{5,}$/'];
+        $rules['telegram_bot_token'] = ['nullable', 'string', 'max:100', 'regex:/^\d+:[A-Za-z0-9_-]{30,}$/'];
+        $data = $request->validate($rules);
+
+        foreach ($providers as $p) {
+            Setting::put("social_login.{$p}.enabled", $request->boolean("{$p}_enabled") ? '1' : '0');
+            if ($p !== 'telegram') {
+                Setting::put("social_login.{$p}.client_id", $data["{$p}_client_id"] ?? null);
+                if (filled($data["{$p}_client_secret"] ?? null)) {
+                    Setting::put("social_login.{$p}.client_secret", encrypt($data["{$p}_client_secret"]));
+                }
+            }
+        }
+        Setting::put('social_login.telegram.bot_username', $data['telegram_bot_username'] ?? null);
+        if (filled($data['telegram_bot_token'] ?? null)) {
+            Setting::put('social_login.telegram.bot_token', encrypt($data['telegram_bot_token']));
+        }
+
+        ActivityLog::record('settings.social_updated');
+
+        return back()->with('success', 'Social login settings saved.');
     }
 
     public function updateTelegram(Request $request): RedirectResponse

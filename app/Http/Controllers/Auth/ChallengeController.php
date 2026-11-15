@@ -98,8 +98,12 @@ class ChallengeController extends Controller
         return back()->with('success', 'A new code has been sent.');
     }
 
-    private function mask(string $email): string
+    private function mask(?string $email): string
     {
+        if (! $email) {
+            return '—';
+        }
+
         [$name, $domain] = explode('@', $email, 2) + [1 => ''];
 
         return mb_substr($name, 0, 2).str_repeat('•', max(1, mb_strlen($name) - 2)).'@'.$domain;

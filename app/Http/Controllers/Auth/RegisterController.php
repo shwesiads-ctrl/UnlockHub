@@ -49,6 +49,8 @@ class RegisterController extends Controller
                 : null,
         ]);
 
+        app(\App\Services\PointService::class)->awardSignup($user);
+
         // Verify the email with a code before the first sign-in completes
         $this->startPending($request, $user, false);
         $this->otp->send($user);

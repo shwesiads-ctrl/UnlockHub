@@ -24,6 +24,8 @@
         <button class="btn btn-primary btn-lg w-full">Log in</button>
     </form>
 
+    @include('auth._social')
+
     <x-slot:footer>New here? <a href="{{ route('register') }}" class="font-semibold">Create an account</a></x-slot:footer>
 </x-auth-card>
 @endsection

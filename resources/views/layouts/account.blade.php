@@ -7,12 +7,12 @@
 <div class="flex flex-wrap min-h-screen">
     <aside class="flex-[1_1_240px] max-w-full bg-surface border-r border-line px-4 py-5 flex flex-col gap-1">
         <a href="{{ route('home') }}" class="flex items-center gap-2.5 no-underline text-ink px-2 pb-5">
-            <span class="w-9 h-9 rounded-[9px] bg-brand text-white flex items-center justify-center"><x-icon name="lock" size="20" /></span>
-            <span class="font-display text-xl font-bold">{{ setting('site.name', config('app.name')) }}</span>
+            <x-site-logo />
         </a>
         @php
             $nav = [
                 ['Dashboard', 'grid', 'account.dashboard'],
+                ['My Profile', 'hand', 'account.profile'],
                 ['Place Order', 'phone', 'services.index'],
                 ['Order History', 'list', 'account.orders.index'],
                 ['Add Funds', 'wallet', 'account.funds.index'],
@@ -50,6 +50,7 @@
                 <span class="btn bg-point-soft text-point border-transparent font-bold"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</span>
                 <x-notification-bell />
                 <x-theme-toggle />
+                <a href="{{ route('account.profile') }}" aria-label="My profile" class="no-underline"><x-avatar :user="auth()->user()" :size="44" /></a>
             </div>
         </header>
 

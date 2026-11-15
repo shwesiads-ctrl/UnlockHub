@@ -1,16 +1,19 @@
 <?php
 
+use App\Http\Controllers\Account\ApiAccessController;
 use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\FundsController;
 use App\Http\Controllers\Account\NotificationController;
 use App\Http\Controllers\Account\OrderController;
 use App\Http\Controllers\Account\PointsController;
+use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\StatementController;
 use App\Http\Controllers\Account\SecurityController;
 use App\Http\Controllers\Auth\ChallengeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\HomeController;
@@ -66,9 +69,22 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
+/* ---------------- Social login (guest = sign in / register, signed in = connect) ---------------- */
+Route::get('/auth/telegram/callback', [SocialAuthController::class, 'telegram'])->middleware('throttle:20,1')->name('social.telegram');
+Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+    ->whereIn('provider', ['google', 'facebook', 'discord', 'tiktok'])->middleware('throttle:20,1')->name('social.redirect');
+Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+    ->whereIn('provider', ['google', 'facebook', 'discord', 'tiktok'])->middleware('throttle:20,1')->name('social.callback');
+Route::delete('/account/social/{provider}', [SocialAuthController::class, 'unlink'])->middleware(['auth', 'active'])->name('social.unlink');
+
 /* ---------------- Signed-in user ---------------- */
 Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'avatar'])->name('profile.avatar')->middleware('throttle:10,1');
+    Route::delete('/profile/avatar', [ProfileController::class, 'removeAvatar'])->name('profile.avatar.remove');
 
     Route::get('/funds', [FundsController::class, 'index'])->name('funds.index');
     Route::post('/funds', [FundsController::class, 'store'])->name('funds.store')->middleware('throttle:10,1');
@@ -79,8 +95,14 @@ Route::middleware(['auth', 'active'])->prefix('account')->name('account.')->grou
     Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
 
+    Route::get('/api', [ApiAccessController::class, 'show'])->name('api');
+    Route::post('/api/key', [ApiAccessController::class, 'generate'])->name('api.generate')->middleware('throttle:5,1');
+    Route::put('/api', [ApiAccessController::class, 'update'])->name('api.update');
+    Route::delete('/api/key', [ApiAccessController::class, 'revoke'])->name('api.revoke');
+
     Route::get('/points', [PointsController::class, 'index'])->name('points');
     Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
+    Route::post('/points/check-in', [PointsController::class, 'checkIn'])->name('points.checkin')->middleware('throttle:10,1');
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
@@ -152,6 +174,7 @@ Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->name('admin.')-
 
     Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
+    Route::put('/settings/social', [Admin\SettingsController::class, 'updateSocial'])->name('settings.social');
     Route::put('/settings/telegram',[Admin\SettingsController::class, 'updateTelegram'])->name('settings.telegram');
     Route::post('/settings/telegram/test', [Admin\SettingsController::class, 'testTelegram'])->name('settings.telegram.test')->middleware('throttle:6,1');
 

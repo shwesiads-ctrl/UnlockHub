@@ -18,7 +18,6 @@
     "Testimonials": "သုံးသပ်ချက်များ",
     "Terms & Refunds": "စည်းကမ်းနှင့် ငွေပြန်အမ်းခြင်း",
     "Check IMEI and model carefully — wrong entries are non-refundable. Orders already In Process cannot be cancelled.": "IMEI နှင့် မော်ဒယ်ကို သေချာစစ်ပါ — မှားထည့်လျှင် ငွေပြန်မအမ်းပါ။ In Process ဖြစ်နေသော အော်ဒါကို ပယ်ဖျက်၍ မရပါ။",
-
     "For repair shops & resellers in Myanmar": "မြန်မာနိုင်ငံရှိ ဖုန်းပြင်ဆိုင်နှင့် Reseller များအတွက်",
     "Unlock codes, tool credits & activations — in one wallet.": "Unlock ကုဒ်၊ Tool Credit နှင့် Activation များ — Wallet တစ်ခုတည်းဖြင့်။",
     "Top up with KBZPay, WavePay or AYA Pay, place IMEI and server orders, track every result, and earn points on each successful order.": "KBZPay၊ WavePay သို့မဟုတ် AYA Pay ဖြင့် ငွေဖြည့်ပါ၊ IMEI နှင့် Server အော်ဒါများ တင်ပါ၊ ရလဒ်တိုင်းကို စောင့်ကြည့်ပြီး အောင်မြင်သော အော်ဒါတိုင်းတွင် Point ရယူပါ။",
@@ -47,7 +46,6 @@
     "Code delivered to your orders page; points added on success.": "ကုဒ်ကို အော်ဒါစာမျက်နှာတွင် ပို့ပေးပြီး အောင်မြင်လျှင် Point ထည့်ပေးပါမည်။",
     "Pay the Myanmar way": "မြန်မာ ငွေပေးချေမှုဖြင့် ပေးပါ",
     "Transfer, upload your receipt and your wallet is credited after approval.": "ငွေလွှဲ၍ ပြေစာတင်ပါ — အတည်ပြုပြီးသည်နှင့် Wallet ထဲ ငွေဝင်ပါမည်။",
-
     "All groups": "အုပ်စုအားလုံး",
     "Search services…": "ဝန်ဆောင်မှု ရှာရန်…",
     "HOT only": "HOT သာ",
@@ -64,21 +62,19 @@
     "Log in to order": "မှာရန် အကောင့်ဝင်ပါ",
     "Place order": "အော်ဒါ တင်မည်",
     "I checked the details. Wrong entries are non-refundable and In Process orders can't be cancelled.": "အချက်အလက်များကို စစ်ပြီးပါပြီ။ မှားထည့်လျှင် ငွေပြန်မအမ်းကြောင်း နှင့် In Process ဖြစ်ပြီးသော အော်ဒါကို ပယ်ဖျက်၍ မရကြောင်း သိပါသည်။",
-
     "Dashboard": "ပင်မ",
     "Place Order": "အော်ဒါ တင်ရန်",
     "Order History": "အော်ဒါ မှတ်တမ်း",
     "Add Funds": "ငွေဖြည့်ရန်",
     "Statement": "ငွေစာရင်း",
     "Notifications": "အသိပေးချက်များ",
-    "API Access": "API",
+    "API Access": "API ချိတ်ဆက်မှု",
     "Settings & 2FA": "ဆက်တင်နှင့် 2FA",
     "Settings & Security": "ဆက်တင်နှင့် လုံခြုံရေး",
     "Admin panel": "Admin စာမျက်နှာ",
     "Log out": "ထွက်ရန်",
     "Group": "အဆင့်",
     "Account": "အကောင့်",
-
     "Pending": "စောင့်ဆိုင်းဆဲ",
     "In Process": "လုပ်ဆောင်နေဆဲ",
     "Success": "အောင်မြင်",
@@ -86,5 +82,10 @@
     "Cancelled": "ပယ်ဖျက်ပြီး",
     "Approved": "အတည်ပြုပြီး",
     "Manual": "Manual",
-    "API": "API"
+    "API": "API",
+    "My Profile": "ကျွန်ုပ်၏ Profile",
+    "Balance": "လက်ကျန်ငွေ",
+    "Orders": "အော်ဒါများ",
+    "Completed": "ပြီးဆုံး",
+    "Friends invited": "ဖိတ်ခေါ်ထားသူ"
 }

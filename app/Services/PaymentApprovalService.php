@@ -46,6 +46,8 @@ class PaymentApprovalService
                 "Top-up via {$locked->method->name} (Txn {$locked->transaction_id})"
             );
 
+            app(PointService::class)->awardTopup($locked);
+
             ActivityLog::record('payment.approved', $locked, ['credited' => $creditAmount]);
             Notify::user($locked->user, new PaymentReviewed($locked));
 

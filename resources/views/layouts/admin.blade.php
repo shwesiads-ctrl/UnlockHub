@@ -7,9 +7,8 @@
 <div class="flex flex-wrap min-h-screen">
     <aside class="flex-[1_1_240px] max-w-full bg-surface border-r border-line px-4 py-5 flex flex-col gap-1">
         <div class="flex items-center gap-2.5 px-2 pb-5">
-            <span class="w-9 h-9 rounded-[9px] bg-brand text-white flex items-center justify-center"><x-icon name="lock" size="20" /></span>
-            <span class="flex flex-col">
-                <span class="font-display text-lg font-bold">{{ setting('site.name', config('app.name')) }}</span>
+            <span class="flex flex-col gap-0.5">
+                <x-site-logo />
                 <span class="text-[11px] font-bold text-brand-ink tracking-widest">ADMIN</span>
             </span>
         </div>
@@ -62,7 +61,7 @@
                     <input id="admin-search" name="q" type="text" placeholder="Order ID, IMEI, user…" class="flex-1 bg-transparent outline-none text-ink text-sm">
                 </form>
                 <x-theme-toggle />
-                <span class="w-11 h-11 rounded-full bg-brand text-white font-bold flex items-center justify-center" aria-label="Admin account">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}</span>
+                <a href="{{ route('account.profile') }}" aria-label="My profile" class="no-underline"><x-avatar :user="auth()->user()" :size="44" /></a>
             </div>
         </header>
 

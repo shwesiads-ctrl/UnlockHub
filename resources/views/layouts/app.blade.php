@@ -17,8 +17,7 @@
     <header class="bg-surface border-b border-line">
         <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex flex-wrap items-center gap-4">
             <a href="{{ route('home') }}" class="flex items-center gap-2.5 no-underline text-ink">
-                <span class="w-9 h-9 rounded-[9px] bg-brand text-white flex items-center justify-center"><x-icon name="lock" size="20" /></span>
-                <span class="font-display text-xl font-bold">{{ setting('site.name', config('app.name')) }}</span>
+                <x-site-logo />
             </a>
 
             <nav aria-label="Main" class="flex flex-wrap gap-1 sm:ml-3">
@@ -38,7 +37,7 @@
                 @auth
                     <a href="{{ route('account.dashboard') }}" class="btn bg-ok-soft text-ok border-transparent font-bold hover:text-ok"><x-icon name="wallet" size="16" />{{ money(auth()->user()->balance) }}</a>
                     <a href="{{ route('account.dashboard') }}" class="btn bg-point-soft text-point border-transparent font-bold hover:text-point"><x-icon name="star" size="16" />{{ number_format(auth()->user()->points) }} pts</a>
-                    <a href="{{ route('account.dashboard') }}" class="w-11 h-11 rounded-full bg-brand text-white hover:text-white font-bold no-underline flex items-center justify-center" aria-label="My account">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</a>
+                    <a href="{{ route('account.profile') }}" class="no-underline" aria-label="My profile"><x-avatar :user="auth()->user()" :size="44" /></a>
                 @else
                     <a href="{{ route('login') }}" class="btn">{{ __('Login') }}</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">{{ __('Register') }}</a>

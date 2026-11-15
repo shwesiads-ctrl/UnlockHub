@@ -77,7 +77,7 @@
             @csrf @method('PUT')
             <h2 class="m-0 text-lg font-bold">Account</h2>
             <div><label for="name" class="label text-xs">Name</label><input id="name" name="name" value="{{ old('name', $user->name) }}" class="input h-10" required><x-field-error name="name" /></div>
-            <div><label for="email" class="label text-xs">Email</label><input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" class="input h-10" required><x-field-error name="email" /></div>
+            <div><label for="email" class="label text-xs">Email</label><input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" class="input h-10"><x-field-error name="email" /></div>
             <div><label for="phone" class="label text-xs">Phone</label><input id="phone" name="phone" value="{{ old('phone', $user->phone) }}" class="input h-10"></div>
             <div class="grid grid-cols-3 gap-2">
                 <div><label for="user_group_id" class="label text-xs">Group</label>

@@ -54,6 +54,32 @@
     </section>
 
     <aside class="flex-[1_1_320px] min-w-0 flex flex-col gap-5">
+        @if ($rules['checkin_points'] > 0)
+            <section class="card p-5 flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <h2 class="m-0 text-lg font-bold">Daily check-in</h2>
+                    @if ($user->checkin_streak > 0 && $user->last_checkin_on?->gte(today()->subDay()))
+                        <span class="badge badge-pending">{{ $user->checkin_streak }}-day streak</span>
+                    @endif
+                </div>
+                @php
+                    $nextStreak = $user->last_checkin_on?->isSameDay(today()->subDay()) ? $user->checkin_streak + 1 : 1;
+                    $nextPoints = $rules['checkin_points'] + (min($nextStreak, max(1, $rules['checkin_streak_max'])) - 1) * $rules['checkin_streak_bonus'];
+                @endphp
+                <div class="flex gap-1.5" aria-label="Streak progress">
+                    @for ($d = 1; $d <= max(1, $rules['checkin_streak_max']); $d++)
+                        @php $done = $canCheckIn ? $d < $nextStreak : $d <= $user->checkin_streak; @endphp
+                        <span @class(['flex-1 h-9 rounded-lg flex items-center justify-center text-xs font-bold', 'bg-point text-white' => $done, 'bg-surface-2 text-muted' => ! $done]) title="Day {{ $d }}">{{ $d }}</span>
+                    @endfor
+                </div>
+                @if ($canCheckIn)
+                    <form method="POST" action="{{ route('account.points.checkin') }}">@csrf<button class="btn btn-primary w-full">Check in · +{{ $nextPoints }} pts</button></form>
+                @else
+                    <p class="m-0 text-sm text-muted text-center">Checked in today. Come back tomorrow to keep your streak.</p>
+                @endif
+            </section>
+        @endif
+
         <form method="POST" action="{{ route('account.points.redeem') }}" class="card p-5 flex flex-col gap-3.5" data-redeem data-rate="{{ $rules['redeem_rate'] }}">
             @csrf
             <h2 class="m-0 text-lg font-bold flex items-center gap-2"><x-icon name="star" class="text-point" />Redeem points</h2>
@@ -99,11 +125,24 @@
             @endif
         </section>
 
-        <section class="card p-5 flex flex-col gap-2 text-sm text-muted leading-relaxed">
-            <h2 class="m-0 text-lg font-bold text-ink">How points work</h2>
-            <span>Each successful order earns the points shown on the service (usually 1 point per {{ number_format($rules['per_ks']) }} Ks).</span>
-            <span>Rejected or cancelled orders earn nothing.</span>
-            @if ($nextGroup) <span>Earn enough points and you move up to cheaper group prices automatically.</span> @endif
+        <section class="card p-5 flex flex-col gap-2.5 text-sm">
+            <h2 class="m-0 text-lg font-bold">Ways to earn</h2>
+            @php
+                $ways = array_filter([
+                    ['Successful order', 'about 1 pt per '.number_format($rules['per_ks']).' Ks (shown on each service)', $rules['per_ks'] > 0],
+                    ['Daily check-in', '+'.$rules['checkin_points'].' pts, more for streaks', $rules['checkin_points'] > 0],
+                    ['Top-up bonus', '1 pt per '.number_format(max(1, $rules['topup_per_ks'])).' Ks topped up', $rules['topup_per_ks'] > 0],
+                    ['Complete your profile', '+'.$rules['profile_bonus'].' pts once', $rules['profile_bonus'] > 0 && ! $user->profile_bonus_awarded],
+                    ['Invite a friend', '+'.$rules['referral_bonus'].' pts after their first order', $rules['referral_bonus'] > 0],
+                ], fn ($w) => $w[2]);
+            @endphp
+            @foreach ($ways as [$title, $desc])
+                <div class="flex flex-col p-3 rounded-[10px] bg-surface-2"><span class="font-semibold">{{ $title }}</span><span class="text-xs text-muted">{{ $desc }}</span></div>
+            @endforeach
+            @if ($rules['profile_bonus'] > 0 && ! $user->profile_bonus_awarded)
+                <a href="{{ route('account.profile') }}" class="text-[13px]">Complete your profile →</a>
+            @endif
+            <span class="text-xs text-muted">Rejected or cancelled orders earn nothing.@if ($nextGroup) Earn enough and you move up to cheaper group prices automatically.@endif</span>
         </section>
     </aside>
 </div>

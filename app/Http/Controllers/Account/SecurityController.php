@@ -32,6 +32,8 @@ class SecurityController extends Controller
             $qr = $this->twoFactor->qrSvg($user, $user->two_factor_secret);
         }
 
+        $user->load('socialAccounts');
+
         return view('account.security', [
             'user' => $user,
             'qr' => $qr,
@@ -59,14 +61,16 @@ class SecurityController extends Controller
 
     public function updatePassword(Request $request): RedirectResponse
     {
+        $user = $request->user();
+
         $request->validate([
-            'current_password' => ['required', 'current_password'],
+            'current_password' => $user->password_set ? ['required', 'current_password'] : ['nullable'],
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         ]);
 
-        $request->user()->forceFill(['password' => $request->input('password')])->save();
+        $user->forceFill(['password' => $request->input('password'), 'password_set' => true])->save();
 
-        return back()->with('success', 'Password changed.');
+        return back()->with('success', 'Password saved.');
     }
 
     public function startTwoFactor(Request $request): RedirectResponse

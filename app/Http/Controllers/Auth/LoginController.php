@@ -66,6 +66,13 @@ class LoginController extends Controller
             return $this->finishLogin($request, $user, $remember);
         }
 
+        // Accounts made with Telegram/TikTok may have no email yet → no email code possible
+        if (! $user->hasTwoFactor() && ! $user->email) {
+            throw ValidationException::withMessages([
+                'login' => 'This account has no email for the login code. Use the social login you signed up with, then add an email in your profile.',
+            ]);
+        }
+
         $this->startPending($request, $user, $remember);
 
         if (! $user->hasTwoFactor() && $this->otp->cooldown($user) === 0) {

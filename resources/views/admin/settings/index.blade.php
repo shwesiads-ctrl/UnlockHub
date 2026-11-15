@@ -1,7 +1,7 @@
 @extends('layouts.admin', ['title' => 'Settings', 'subtitle' => 'Site information, contact details and notifications'])
 
 @section('content')
-<form method="POST" action="{{ route('admin.settings.general') }}" class="card p-6 flex flex-col gap-5">
+<form method="POST" action="{{ route('admin.settings.general') }}" enctype="multipart/form-data" class="card p-6 flex flex-col gap-5">
     @csrf @method('PUT')
     <h2 class="m-0 text-lg font-bold">Site</h2>
     @php
@@ -39,6 +39,27 @@
             <p class="m-0 mt-1 text-xs text-muted">Write it as a Knowledge Base article, then pick it here (shown in the footer).</p>
         </div>
     </div>
+    <h3 class="m-0 text-base font-bold">Logo</h3>
+    <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))] items-start">
+        <div class="flex flex-col gap-2">
+            <label for="logo" class="label mb-0">Site logo <span class="font-normal text-muted">(PNG/WebP, transparent, ~ 300×80)</span></label>
+            @if ($logo = setting('site.logo'))
+                <div class="p-3 rounded-xl bg-surface-2 flex items-center gap-3"><img src="{{ Storage::disk('public')->url($logo) }}" alt="Current logo" class="h-10 w-auto max-w-[200px] object-contain"><label class="flex items-center gap-2 text-xs text-muted ml-auto"><input type="checkbox" name="remove_logo" value="1">Remove</label></div>
+            @endif
+            <input id="logo" name="logo" type="file" accept="image/*" class="text-sm">
+            <x-field-error name="logo" />
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="logo_show_name" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked(setting('site.logo_show_name', '1') === '1')>Show site name next to the logo</label>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="favicon" class="label mb-0">Browser tab icon <span class="font-normal text-muted">(PNG/ICO, 64×64)</span></label>
+            @if ($fav = setting('site.favicon'))
+                <div class="p-3 rounded-xl bg-surface-2 flex items-center gap-3"><img src="{{ Storage::disk('public')->url($fav) }}" alt="Current icon" class="w-8 h-8 object-contain"><label class="flex items-center gap-2 text-xs text-muted ml-auto"><input type="checkbox" name="remove_favicon" value="1">Remove</label></div>
+            @endif
+            <input id="favicon" name="favicon" type="file" accept=".png,.ico" class="text-sm">
+            <x-field-error name="favicon" />
+        </div>
+    </div>
+
     <h3 class="m-0 text-base font-bold">Social &amp; support channels</h3>
     <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
         @foreach ($social as [$key, $label, $ph])
@@ -51,6 +72,34 @@
         @endforeach
     </div>
     <button class="btn btn-primary self-start">Save site settings</button>
+</form>
+
+<form method="POST" action="{{ route('admin.settings.social') }}" class="card p-6 flex flex-col gap-4" autocomplete="off">
+    @csrf @method('PUT')
+    <div class="flex flex-col gap-1">
+        <h2 class="m-0 text-lg font-bold">Social login</h2>
+        <p class="m-0 text-sm text-muted">Create an app on each platform, paste its ID and secret, and add the <strong class="text-ink">Redirect URL</strong> shown below to that app. Secrets are stored encrypted and never shown again.</p>
+    </div>
+    <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
+        @foreach ($socialProviders as $key => $p)
+            @php $on = setting("social_login.{$key}.enabled") === '1'; $hasSecret = filled(setting("social_login.{$key}.client_secret")); @endphp
+            <fieldset class="m-0 rounded-xl border border-line p-4 flex flex-col gap-3">
+                <legend class="px-1 font-bold">{{ $p['label'] }}</legend>
+                <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="{{ $key }}_enabled" value="1" class="w-5 h-5 accent-[var(--uh-brand)]" @checked($on)>Enabled</label>
+                @if ($key === 'telegram')
+                    <div><label for="tg_user" class="label text-xs">Bot username</label><input id="tg_user" name="telegram_bot_username" value="{{ setting('social_login.telegram.bot_username') }}" class="input h-10" placeholder="@YourShopBot"><x-field-error name="telegram_bot_username" /></div>
+                    <div><label for="tg_token" class="label text-xs">Bot token <span class="font-normal text-muted">(empty = use the alerts bot)</span></label><input id="tg_token" name="telegram_bot_token" type="password" class="input h-10 font-mono" autocomplete="new-password" placeholder="{{ filled(setting('social_login.telegram.bot_token')) ? 'Saved — leave empty to keep' : '123456:ABC…' }}"><x-field-error name="telegram_bot_token" /></div>
+                    <p class="m-0 text-xs text-muted">In @BotFather send <code>/setdomain</code> and set <code>{{ parse_url(url('/'), PHP_URL_HOST) }}</code>. Telegram only works on a real domain with HTTPS.</p>
+                @else
+                    <div><label for="{{ $key }}_id" class="label text-xs">{{ $key === 'tiktok' ? 'Client key' : ($key === 'facebook' ? 'App ID' : 'Client ID') }}</label><input id="{{ $key }}_id" name="{{ $key }}_client_id" value="{{ setting("social_login.{$key}.client_id") }}" class="input h-10 font-mono text-sm"></div>
+                    <div><label for="{{ $key }}_secret" class="label text-xs">{{ $key === 'facebook' ? 'App secret' : 'Client secret' }}</label><input id="{{ $key }}_secret" name="{{ $key }}_client_secret" type="password" class="input h-10 font-mono text-sm" autocomplete="new-password" placeholder="{{ $hasSecret ? 'Saved — leave empty to keep' : '' }}"></div>
+                    <div class="text-xs text-muted">Redirect URL: <code class="text-ink break-all select-all">{{ route('social.callback', $key) }}</code> <button type="button" class="btn h-7 px-2 text-[11px]" data-copy="{{ route('social.callback', $key) }}">Copy</button></div>
+                @endif
+                <a href="{{ $p['console'] }}" target="_blank" rel="noopener" class="text-xs">Open {{ $p['label'] }} developer console →</a>
+            </fieldset>
+        @endforeach
+    </div>
+    <button class="btn btn-primary self-start">Save social login</button>
 </form>
 
 <div class="flex flex-wrap gap-5 items-start">

@@ -20,6 +20,10 @@ class PointsController extends Controller
         'redeem' => 'Redeemed',
         'admin' => 'Admin',
         'reversal' => 'Reversal',
+        'signup' => 'Welcome',
+        'profile' => 'Profile',
+        'topup' => 'Top-up bonus',
+        'checkin' => 'Check-in',
     ];
 
     public function __construct(private PointService $points) {}
@@ -52,7 +56,22 @@ class PointsController extends Controller
             'lifetime' => $lifetime,
             'nextGroup' => $nextGroup,
             'types' => self::TYPES,
+            'canCheckIn' => $this->points->canCheckInToday($user),
         ]);
+    }
+
+    public function checkIn(Request $request): RedirectResponse
+    {
+        try {
+            $r = $this->points->checkIn($request->user());
+        } catch (InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        $msg = "+{$r['points']} points";
+        $msg .= $r['streak'] > 1 ? " — {$r['streak']} days in a row!" : ' — see you tomorrow!';
+
+        return back()->with('success', $msg);
     }
 
     public function redeem(Request $request): RedirectResponse
