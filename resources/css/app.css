@@ -157,12 +157,25 @@
   padding: 16px; border: 1.5px dashed var(--uh-line);
   border-radius: 12px; background: var(--uh-bg);
 }
-.settings-upload input[type=file] { width: 100%; font-size: 12px; color: var(--uh-muted); }
-.settings-upload input[type=file]::file-selector-button {
-  padding: 7px 11px; margin-right: 10px;
-  border: 1px solid var(--uh-line); border-radius: 8px;
-  background: var(--uh-surface); color: var(--uh-ink); cursor: pointer;
+/* Consistent upload controls across admin, account, support, and reseller forms. */
+input[type="file"]:not(.sr-only) {
+  display: block; width: 100%; min-width: 0; min-height: 44px;
+  padding: 5px; overflow: hidden;
+  border: 1px solid var(--uh-line-strong); border-radius: 10px;
+  background: var(--uh-bg); color: var(--uh-muted);
+  font: inherit; font-size: 13px; cursor: pointer;
 }
+input[type="file"]:not(.sr-only)::file-selector-button {
+  min-height: 32px; margin: 0 10px 0 0; padding: 6px 12px;
+  border: 1px solid var(--uh-line); border-radius: 7px;
+  background: var(--uh-surface-2); color: var(--uh-ink);
+  font: inherit; font-weight: 600; cursor: pointer;
+  transition: background-color .12s, color .12s, border-color .12s;
+}
+input[type="file"]:not(.sr-only):hover::file-selector-button {
+  border-color: var(--uh-brand); background: var(--uh-brand-soft); color: var(--uh-brand-ink);
+}
+input[type="file"]:not(.sr-only):disabled { opacity: .55; cursor: not-allowed; }
 
 /* ── Save-action row ── */
 .settings-actions {
