@@ -7,11 +7,6 @@
     $seoTitle = setting('seo.title') ?: setting('site.name', config('app.name'));
     $seoDescription = setting('seo.description') ?: (setting('site.tagline') ?: __('Unlock codes, tool credits & activations — in one wallet.'));
     $seoImage = setting('seo.image_url');
-    $analyticsId = setting('seo.google_analytics_id');
-    $analyticsOn = setting('seo.analytics_enabled') === '1'
-        && is_string($analyticsId)
-        && preg_match('/^G-[A-Z0-9]{4,20}$/i', $analyticsId)
-        && ! request()->is('admin', 'admin/*');
 @endphp
 <meta name="description" content="{{ $seoDescription }}">
 @if (filled(setting('seo.keywords')))<meta name="keywords" content="{{ setting('seo.keywords') }}">@endif
@@ -34,15 +29,6 @@
 <meta name="sw-version" content="{{ substr(md5($swBuild.'|'.setting('pwa.icon_version').'|2'), 0, 10) }}">
 @auth <meta name="push-key" content="{{ \App\Services\WebPush::enabled() ? \App\Services\WebPush::publicKey() : '' }}"> @endauth
 <title>{{ isset($title) ? __($title).' · '.setting('site.name', config('app.name')) : $seoTitle }}</title>
-@if ($analyticsOn)
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ $analyticsId }}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', @json($analyticsId));
-</script>
-@endif
 <script>
   (function () {
     try {

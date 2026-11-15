@@ -80,8 +80,12 @@
                 @foreach (['telegram' => 'Telegram', 'viber' => 'Viber', 'facebook' => 'Facebook', 'youtube' => 'YouTube'] as $k => $label)
                     @if ($url = setting('social.'.$k)) <a href="{{ $url }}" rel="noopener" target="_blank">{{ $label }}</a> @endif
                 @endforeach
+                @if (setting('seo.analytics_enabled') === '1' && preg_match('/^G-[A-Z0-9]{4,20}$/i', (string) setting('seo.google_analytics_id')))
+                    <button type="button" class="text-left" data-cookie-open>{{ __('Cookie settings') }}</button>
+                @endif
             </div>
         </div>
     </footer>
+    <x-cookie-consent />
 </body>
 </html>
