@@ -45,6 +45,7 @@ class PointService
         'topup' => 'Top-up bonus',
         'checkin' => 'Daily check-in',
         'redeem' => 'Redeem points to wallet',
+        'wallet_convert' => 'Convert wallet Ks to points',
         'upgrade' => 'Group auto-upgrade by points',
     ];
 
@@ -71,6 +72,7 @@ class PointService
             'order' => ['per_ks'], 'referral' => ['referral_bonus'], 'signup' => ['signup_bonus'],
             'profile' => ['profile_bonus'], 'topup' => ['topup_per_ks'], 'checkin' => ['checkin_points'],
             'redeem' => ['redeem_rate'],
+            'wallet_convert' => ['convert_rate'],
         ];
         foreach ($off as $feature => $keys) {
             if (! self::on($feature)) {
@@ -89,6 +91,7 @@ class PointService
         return [
             'per_ks' => (int) setting('points.per_ks', 1000),
             'redeem_rate' => (float) setting('points.redeem_rate', 10),
+            'convert_rate' => (int) setting('points.convert_rate', 10),
             'redeem_min' => (int) setting('points.redeem_min', 100),
             'referral_bonus' => (int) setting('points.referral_bonus', 50),
             'signup_bonus' => (int) setting('points.signup_bonus', 20),
@@ -121,6 +124,30 @@ class PointService
         });
 
         return $amount;
+    }
+
+    /** Debit wallet Ks and issue an exact whole number of points at Ks-per-point rate. */
+    public function convertWalletToPoints(User $user, int $amount): int
+    {
+        $rules = self::rules();
+        $rate = $rules['convert_rate'];
+
+        if (! self::on('wallet_convert') || $rate <= 0) {
+            throw new InvalidArgumentException('Wallet-to-points conversion is turned off right now.');
+        }
+
+        if ($amount < $rate || $amount % $rate !== 0) {
+            throw new InvalidArgumentException("Enter a Ks amount that is a multiple of {$rate} Ks.");
+        }
+
+        $points = intdiv($amount, $rate);
+
+        DB::transaction(function () use ($user, $amount, $points) {
+            $walletTx = $this->wallet->debit($user, $amount, 'points_purchase', null, "Converted {$amount} Ks to {$points} points");
+            $this->add($user, $points, 'wallet_convert', $walletTx, "Converted ".money($amount)." to {$points} points");
+        });
+
+        return $points;
     }
 
     /**

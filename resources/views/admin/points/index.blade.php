@@ -86,6 +86,12 @@
                     <x-field-error name="redeem_min" />
                 </div>
             </div>
+            <div>
+                <label for="convert_rate" class="label">Convert wallet Ks to points: Ks per 1 point</label>
+                <input id="convert_rate" name="convert_rate" type="number" min="1" value="{{ old('convert_rate', $rules['convert_rate']) }}" class="input h-11">
+                <p class="m-0 mt-1 text-xs text-muted">The wallet conversion switch above controls whether users can use this rate.</p>
+                <x-field-error name="convert_rate" />
+            </div>
             <details class="rounded-xl border border-line bg-bg/40 p-4">
                 <summary class="cursor-pointer font-semibold">Bonuses &amp; check-in</summary>
                 <div class="mt-4 flex flex-col gap-4">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use App\Exceptions\InsufficientBalanceException;
 use App\Models\Order;
 use App\Models\UserGroup;
 use App\Services\PointService;
@@ -18,6 +19,7 @@ class PointsController extends Controller
         'order' => 'Order',
         'referral' => 'Referral',
         'redeem' => 'Redeemed',
+        'wallet_convert' => 'Wallet to points',
         'admin' => 'Admin',
         'reversal' => 'Reversal',
         'signup' => 'Welcome',
@@ -98,5 +100,29 @@ class PointsController extends Controller
         }
 
         return back()->with('success', number_format($data['points']).' points converted — '.money($amount).' added to your wallet.');
+    }
+
+    public function convertWallet(Request $request): RedirectResponse
+    {
+        abort_unless(PointService::on('wallet_convert'), 403, 'Wallet-to-points conversion is turned off.');
+
+        $user = $request->user();
+        $rate = PointService::rules()['convert_rate'];
+        $data = $request->validate([
+            'ks_amount' => ['required', 'integer', 'min:'.max(1, $rate), 'max:'.max(1, (int) floor((float) $user->balance)), 'multiple_of:'.max(1, $rate)],
+        ], [
+            'ks_amount.multiple_of' => 'Enter an amount in multiples of '.number_format($rate).' Ks.',
+            'ks_amount.max' => 'Your wallet balance is '.money($user->balance).'.',
+        ]);
+
+        try {
+            $points = $this->points->convertWalletToPoints($user, (int) $data['ks_amount']);
+        } catch (InsufficientBalanceException) {
+            throw ValidationException::withMessages(['ks_amount' => 'Your wallet balance is not enough for this conversion.']);
+        } catch (InvalidArgumentException $e) {
+            throw ValidationException::withMessages(['ks_amount' => $e->getMessage()]);
+        }
+
+        return back()->with('success', money($data['ks_amount']).' converted to '.number_format($points).' points.');
     }
 }

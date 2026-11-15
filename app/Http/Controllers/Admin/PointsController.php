@@ -53,6 +53,7 @@ class PointsController extends Controller
         $data = $request->validate([
             'per_ks' => ['required', 'integer', 'min:0', 'max:100000000'],
             'redeem_rate' => ['required', 'numeric', 'min:0', 'max:1000000'],
+            'convert_rate' => ['required', 'integer', 'min:1', 'max:100000000'],
             'redeem_min' => ['required', 'integer', 'min:1', 'max:100000000'],
             'referral_bonus' => ['required', 'integer', 'min:0', 'max:100000000'],
             'signup_bonus' => ['required', 'integer', 'min:0', 'max:100000000'],
@@ -70,7 +71,7 @@ class PointsController extends Controller
             Setting::put("points.on.{$feature}", $request->boolean("on_{$feature}") ? '1' : '0');
         }
 
-        foreach (['per_ks', 'redeem_rate', 'redeem_min', 'referral_bonus', 'signup_bonus', 'profile_bonus', 'topup_per_ks', 'checkin_points', 'checkin_streak_bonus', 'checkin_streak_max'] as $key) {
+        foreach (['per_ks', 'redeem_rate', 'convert_rate', 'redeem_min', 'referral_bonus', 'signup_bonus', 'profile_bonus', 'topup_per_ks', 'checkin_points', 'checkin_streak_bonus', 'checkin_streak_max'] as $key) {
             Setting::put('points.'.$key, (string) $data[$key]);
         }
 

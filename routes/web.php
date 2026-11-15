@@ -142,6 +142,7 @@ Route::middleware(['auth', 'active', 'nostore'])->prefix('account')->name('accou
 
     Route::get('/points', [PointsController::class, 'index'])->name('points');
     Route::post('/points/redeem', [PointsController::class, 'redeem'])->name('points.redeem')->middleware('throttle:10,1');
+    Route::post('/points/convert-wallet', [PointsController::class, 'convertWallet'])->name('points.convert-wallet')->middleware('throttle:10,1');
     Route::post('/points/check-in', [PointsController::class, 'checkIn'])->name('points.checkin')->middleware('throttle:10,1');
 
     Route::get('/reseller', [\App\Http\Controllers\Reseller\ResellerController::class, 'apply'])->name('reseller.apply');

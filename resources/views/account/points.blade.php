@@ -101,6 +101,32 @@
             @endif
         </form>
 
+        <section id="convert-wallet" class="card p-5 flex flex-col gap-3.5">
+            <div>
+                <h2 class="m-0 text-lg font-bold">{{ __('Convert wallet Ks to points') }}</h2>
+                @if (\App\Services\PointService::on('wallet_convert') && $rules['convert_rate'] > 0)
+                    <p class="m-0 mt-1 text-sm text-muted">{{ __('Every :ks Ks converts to 1 point.', ['ks' => number_format($rules['convert_rate'])]) }}</p>
+                @endif
+            </div>
+            @if (! \App\Services\PointService::on('wallet_convert') || $rules['convert_rate'] <= 0)
+                <div class="rounded-[10px] px-3 py-2.5 bg-surface-2 text-sm text-muted">{{ __('Wallet-to-points conversion is turned off right now. Your wallet balance and points are safe.') }}</div>
+            @elseif ((int) floor((float) $user->balance) < $rules['convert_rate'])
+                <div class="rounded-[10px] px-3 py-2.5 bg-surface-2 text-sm text-muted">{{ __('You need at least :amount in your wallet to convert.', ['amount' => money($rules['convert_rate'])]) }}</div>
+            @else
+                <form method="POST" action="{{ route('account.points.convert-wallet') }}" class="flex flex-col gap-3" data-wallet-convert data-rate="{{ $rules['convert_rate'] }}" data-balance="{{ (float) $user->balance }}">
+                    @csrf
+                    <div>
+                        <label for="ks_amount" class="label">{{ __('Ks to convert') }}</label>
+                        <input id="ks_amount" name="ks_amount" type="number" min="{{ $rules['convert_rate'] }}" max="{{ (int) floor((float) $user->balance) }}" step="{{ $rules['convert_rate'] }}" value="{{ old('ks_amount', $rules['convert_rate']) }}" class="input h-11" required>
+                        <x-field-error name="ks_amount" />
+                    </div>
+                    <div class="flex justify-between text-sm p-3 rounded-[10px] bg-point-soft text-point font-semibold"><span>{{ __('Points you get') }}</span><span data-wallet-convert-value>{{ number_format((int) floor((float) old('ks_amount', $rules['convert_rate']) / $rules['convert_rate'])) }} {{ __('pts') }}</span></div>
+                    <p class="m-0 text-xs text-muted">{{ __('Wallet balance after conversion:') }} <span data-wallet-after>{{ money(max(0, (float) $user->balance - (float) old('ks_amount', $rules['convert_rate']))) }}</span></p>
+                    <button class="btn btn-primary">{{ __('Convert Ks to points') }}</button>
+                </form>
+            @endif
+        </section>
+
         <section class="card p-5 flex flex-col gap-3">
             <h2 class="m-0 text-lg font-bold">{{ __('Invite friends') }}</h2>
             <p class="m-0 text-sm text-muted">{{ __('You get') }} <strong class="text-point">{{ number_format($rules['referral_bonus']) }} {{ __('points') }}</strong> {{ __('when a friend you invite completes their first order.') }}</p>

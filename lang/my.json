@@ -714,5 +714,15 @@
     "← All orders": "← Order အားလုံး",
     "← Back to login": "← Login သို့ ပြန်",
     "← Use a different account": "← အခြားအကောင့် သုံးရန်",
-    "← Wallet statement": "← Wallet စာရင်း"
+    "← Wallet statement": "← Wallet စာရင်း",
+    "Convert wallet Ks to points": "Wallet ထဲရှိ Ks ကို Point ပြောင်းရန်",
+    "Convert Ks to points": "Ks ကို Point ပြောင်းရန်",
+    "Every :ks Ks converts to 1 point.": "Ks :ks တိုင်းကို Point 1 မှတ် ပြောင်းလဲပေးပါမည်။",
+    "Ks to convert": "ပြောင်းလဲမည့် Ks ပမာဏ",
+    "Points you get": "ရရှိမည့် Point",
+    "Wallet balance after conversion:": "ပြောင်းပြီးနောက် Wallet လက်ကျန်:",
+    "Wallet-to-points conversion is turned off right now. Your wallet balance and points are safe.": "လောလောဆယ် Wallet မှ Point ပြောင်းခြင်းကို ပိတ်ထားပါသည်။ သင့်ငွေနှင့် Point များ လုံခြုံစွာရှိပါသည်။",
+    "You need at least :amount in your wallet to convert.": "ပြောင်းလဲရန် Wallet ထဲတွင် အနည်းဆုံး :amount ရှိရပါမည်။",
+    "Conversions are unavailable right now.": "ပြောင်းလဲခြင်းကို လောလောဆယ် ပိတ်ထားပါသည်။",
+    "Wallet to points": "Wallet မှ Point သို့"
 }

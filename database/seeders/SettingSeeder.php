@@ -17,6 +17,7 @@ class SettingSeeder extends Seeder
             // redeem 1 point = 10 Ks, minimum 100 points.
             'points.per_ks' => '1000',
             'points.redeem_rate' => '10',
+            'points.convert_rate' => '10',
             'points.redeem_min' => '100',
             'points.referral_bonus' => '50',
             'points.signup_bonus' => '20',

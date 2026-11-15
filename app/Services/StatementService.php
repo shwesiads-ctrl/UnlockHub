@@ -17,6 +17,7 @@ class StatementService
         'order' => 'Order',
         'refund' => 'Refund',
         'points_redeem' => 'Points redeemed',
+        'points_purchase' => 'Wallet converted to points',
         'admin_credit' => 'Admin credit',
         'admin_debit' => 'Admin debit',
         'transfer_in' => 'Transfer in',

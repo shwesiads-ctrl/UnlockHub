@@ -37,6 +37,20 @@ document.addEventListener('input', (e) => {
   if (out) out.textContent = ks.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' Ks';
 });
 
+// Wallet Ks to points: preview the points and remaining wallet balance
+document.addEventListener('input', (e) => {
+  const form = e.target.closest('[data-wallet-convert]');
+  if (!form || e.target.name !== 'ks_amount') return;
+  const amount = Math.max(0, Number(e.target.value || 0));
+  const rate = Math.max(1, Number(form.dataset.rate || 1));
+  const points = Math.floor(amount / rate);
+  const balance = Math.max(0, Number(form.dataset.balance || 0) - amount);
+  const pointsOut = form.querySelector('[data-wallet-convert-value]');
+  const balanceOut = form.querySelector('[data-wallet-after]');
+  if (pointsOut) pointsOut.textContent = points.toLocaleString('en-US') + ' pts';
+  if (balanceOut) balanceOut.textContent = balance.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' Ks';
+});
+
 // Copy-to-clipboard buttons: <button data-copy="text">
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-copy]');

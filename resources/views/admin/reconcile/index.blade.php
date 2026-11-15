@@ -37,7 +37,7 @@
         <table class="table">
             <thead><tr><th>Type</th><th class="text-right">Transactions</th><th class="text-right">Total</th></tr></thead>
             <tbody>
-            @foreach (['deposit' => 'Deposits (top-ups)', 'order' => 'Order debits', 'refund' => 'Refunds', 'points_redeem' => 'Point redemptions', 'admin_credit' => 'Admin adjustments (+)', 'admin_debit' => 'Admin adjustments (−)'] as $k => $label)
+            @foreach (['deposit' => 'Deposits (top-ups)', 'order' => 'Order debits', 'refund' => 'Refunds', 'points_redeem' => 'Point redemptions', 'points_purchase' => 'Wallet converted to points', 'admin_credit' => 'Admin adjustments (+)', 'admin_debit' => 'Admin adjustments (−)'] as $k => $label)
                 @php $row = $breakdown[$k] ?? null; @endphp
                 <tr>
                     <td>{{ $label }}</td>

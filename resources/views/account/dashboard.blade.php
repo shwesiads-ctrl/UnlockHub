@@ -26,7 +26,11 @@
     <div class="card p-5 flex flex-col gap-2">
         <span class="text-[13px] font-semibold text-muted">{{ __('Points') }}</span>
         <span class="font-display text-[30px] font-bold text-point">{{ number_format($user->points) }} {{ __('pts') }}</span>
-        <span class="text-[13px] text-muted">= {{ money($pointsValue) }} {{ __('credit') }} · <a href="{{ route('account.points') }}">{{ __('Redeem') }}</a></span>
+        <div class="flex flex-wrap gap-x-2 text-[13px] text-muted">
+            @if ($canRedeemPoints)<span>= {{ money($pointsValue) }} {{ __('credit') }} · <a href="{{ route('account.points') }}">{{ __('Redeem') }}</a></span>@endif
+            @if ($canConvertWallet)<a href="{{ route('account.points') }}#convert-wallet">{{ __('Convert Ks to points') }}</a>@endif
+            @if (! $canRedeemPoints && ! $canConvertWallet)<span>{{ __('Conversions are unavailable right now.') }}</span>@endif
+        </div>
     </div>
     @endif
     <div class="card p-5 flex flex-col gap-2">
