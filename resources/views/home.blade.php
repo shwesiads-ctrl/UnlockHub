@@ -55,7 +55,7 @@
                 <span class="text-base font-semibold leading-snug">{{ $service->name }}</span>
                 <span class="flex items-center gap-1.5 text-[13px] text-muted"><x-icon name="clock" size="14" />{{ $service->delivery_time }}</span>
                 <div class="flex justify-between items-center mt-1.5">
-                    <span class="font-display text-xl font-bold">{{ price($service->priceFor(auth()->user())) }}</span>
+                    <span class="font-display text-xl font-bold">{{ $service->formattedPriceFor(auth()->user()) }}</span>
                     <a href="{{ route('services.show', $service) }}" class="btn btn-primary h-10">{{ __('Order') }}</a>
                 </div>
             </div>

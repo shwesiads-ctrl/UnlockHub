@@ -53,7 +53,7 @@
                     @if ($o->api_failed) <div class="text-[11px] font-bold text-danger mt-1">API failed → manual</div> @endif
                     @if ($o->supplier) <div class="text-[11px] text-muted mt-1">{{ $o->supplier->name }}</div> @endif
                 </td>
-                <td class="text-right whitespace-nowrap">{{ money($o->price) }}</td>
+                <td class="text-right whitespace-nowrap">{{ $o->priceLabel() }}</td>
                 <td><x-status-badge :status="$o->status" /></td>
                 <td class="text-right"><a href="{{ route('admin.orders.show', $o) }}" @class(['btn h-9 text-xs', 'btn-primary' => $o->isOpen() && $o->processing_mode === 'manual'])>{{ $o->isOpen() && $o->processing_mode === 'manual' ? 'Process' : 'View' }}</a></td>
             </tr>

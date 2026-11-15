@@ -74,12 +74,19 @@ class OrderService
 
     private function placeOnce(User $user, Service $service, array $rows, ?string $note, ?string $key, array $options): Collection
     {
+        $priceCurrency = $service->price_currency ?? 'ks';
+        if ($priceCurrency === 'points' && ! PointService::systemOn()) {
+            throw new RuntimeException('Point payments are turned off right now.');
+        }
+
+        $reseller = $user->activeReseller();
+
         $price = round((float) $service->priceFor($user), 2);
+        $priceRate = $priceCurrency === 'points' ? max(1, (int) PointService::rawRules()['convert_rate']) : null;
         $cost = round((float) $service->cost_price, 2);
-        $points = $service->pointsFor((string) $price);
+        $points = $priceCurrency === 'points' ? 0 : $service->pointsFor((string) $price);
 
         // Reseller's customer: the site earns the reseller's own price; the reseller gets the difference
-        $reseller = $user->activeReseller();
         $resellerPrice = $reseller ? round(\App\Services\ResellerService::costFor($service, $reseller), 2) : null;
         if ($reseller) {
             $points = 0;
@@ -88,7 +95,15 @@ class OrderService
         $useApi = $service->usesApi();
 
         $replayed = null;
-        $orders = DB::transaction(function () use ($user, $service, $rows, $note, $price, $cost, $points, $total, $useApi, $key, $options, $reseller, $resellerPrice, &$replayed) {
+        $orders = DB::transaction(function () use ($user, $service, $rows, $note, $price, $priceCurrency, $priceRate, $cost, $points, $total, $useApi, $key, $options, $reseller, $resellerPrice, &$replayed) {
+            // Serialize against an admin switching the catalog between Ks and points.
+            $lockedService = Service::whereKey($service->id)->lockForUpdate()->firstOrFail();
+            $lockedService->load(['prices' => fn ($q) => $q->where('user_group_id', $user->user_group_id ?? 0)]);
+            $currentPointRate = max(1, (int) PointService::rawRules()['convert_rate']);
+            if ($lockedService->status !== 'active' || ($lockedService->price_currency ?? 'ks') !== $priceCurrency || abs((float) $lockedService->priceFor($user) - $price) >= 0.001 || ($priceCurrency === 'points' && $currentPointRate !== $priceRate)) {
+                throw new RuntimeException('The service price changed. Refresh the page and check the new price before ordering.');
+            }
+
             // The user row lock serialises this user's orders: checks below can't race
             $locked = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
 
@@ -98,10 +113,12 @@ class OrderService
 
             $this->checkDuplicates($user, $service, $rows, (bool) ($options['allow_duplicates'] ?? false));
 
-            if ((float) $locked->balance < $total) {
-                throw new InsufficientBalanceException(
-                    'Not enough balance. This order costs '.money($total).' and your wallet has '.money($locked->balance).'.'
-                );
+            if ($priceCurrency === 'points') {
+                if ($locked->points < $total) {
+                    throw new RuntimeException('Not enough points. This order costs '.number_format($total).' points and your balance is '.number_format($locked->points).'.');
+                }
+            } elseif ((float) $locked->balance < $total) {
+                throw new InsufficientBalanceException('Not enough balance. This order costs '.money($total).' and your wallet has '.money($locked->balance).'.');
             }
 
             $batch = count($rows) > 1 ? (string) Str::uuid() : null;
@@ -117,6 +134,8 @@ class OrderService
                     'imei' => $this->mainIdentifier($service, $input),
                     'user_note' => $note,
                     'price' => $price,
+                    'price_currency' => $priceCurrency,
+                    'price_rate' => $priceRate,
                     'cost' => $cost,
                     'reseller_id' => $reseller?->id,
                     'reseller_price' => $resellerPrice,
@@ -126,7 +145,11 @@ class OrderService
                     'supplier_id' => $useApi ? $service->supplier_id : null,
                 ]);
 
-                $this->wallet->debit($user, $price, 'order', $order, "Order #{$order->order_no} · {$service->name}");
+                if ($priceCurrency === 'points') {
+                    $this->points->subtract($user, (int) $price, 'service_order', $order, "Order #{$order->order_no} · {$service->name}");
+                } else {
+                    $this->wallet->debit($user, $price, 'order', $order, "Order #{$order->order_no} · {$service->name}");
+                }
                 $created->push($order);
             }
 
@@ -152,7 +175,7 @@ class OrderService
             $first = $orders->first();
             Notify::admin('manual_order', '🛠 <b>New manual order'.($orders->count() > 1 ? 's ×'.$orders->count() : '').'</b>'
                 ."\n".Notify::e($service->name)
-                ."\nUser: ".Notify::e($user->username).' · '.money($total)
+                ."\nUser: ".Notify::e($user->username).' · '.unit_price($total, $priceCurrency)
                 ."\n".route('admin.orders.show', $first));
         }
 
@@ -331,11 +354,11 @@ class OrderService
         $stats = Order::where('batch_id', $o->batch_id)->selectRaw(
             "SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) AS ok,"
             ." SUM(CASE WHEN status IN ('rejected', 'cancelled') THEN 1 ELSE 0 END) AS bad,"
-            .' SUM(CASE WHEN refunded = 1 THEN price ELSE 0 END) AS refunded'
+            .' SUM(CASE WHEN refunded = 1 THEN price ELSE 0 END) AS refunded, MAX(price_currency) AS price_currency'
         )->first();
 
         Notify::user($o->user, new BatchFinished(
-            $o->batch_id, $o->service_name, (int) $stats->ok, (int) $stats->bad, (float) $stats->refunded
+            $o->batch_id, $o->service_name, (int) $stats->ok, (int) $stats->bad, (float) $stats->refunded, $stats->price_currency ?? 'ks'
         ));
     }
 
@@ -344,7 +367,11 @@ class OrderService
         if ($o->refunded) {
             return;
         }
-        $this->wallet->credit($o->user, (float) $o->price, 'refund', $o, $description);
+        if (($o->price_currency ?? 'ks') === 'points') {
+            $this->points->add($o->user, (int) $o->price, 'order_refund', $o, $description);
+        } else {
+            $this->wallet->credit($o->user, (float) $o->price, 'refund', $o, $description);
+        }
         $o->forceFill(['refunded' => true])->save();
     }
 

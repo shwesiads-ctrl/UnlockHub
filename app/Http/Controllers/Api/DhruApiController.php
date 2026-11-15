@@ -137,9 +137,9 @@ class DhruApiController extends Controller
         return $this->success([
             'message' => 'Your Account Info',
             'AccoutInfo' => [
-                'credit' => number_format((float) $user->balance, 2, '.', ''),
+                'credit' => number_format(setting('catalog.price_currency', 'ks') === 'points' ? $user->points : (float) $user->balance, 2, '.', ''),
                 'mail' => $user->email,
-                'currency' => 'MMK',
+                'currency' => setting('catalog.price_currency', 'ks') === 'points' ? 'POINTS' : 'MMK',
             ],
         ]);
     }

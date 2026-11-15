@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\ActivityLog;
 use App\Models\PriceChangeRequest;
+use App\Models\ResellerPrice;
 use App\Models\Service;
 use App\Models\ServiceCostChange;
 use App\Models\Supplier;
@@ -57,10 +58,11 @@ class PricingService
         $groups = UserGroup::orderBy('sort')->get();
         $default = $groups->firstWhere('is_default', true) ?? $groups->first();
 
-        $out = ['default' => $default ? self::priceFromRule($cost, $default) : self::roundUp($cost * 1.15), 'groups' => []];
+        $defaultPrice = $default ? self::priceFromRule($cost, $default) : self::roundUp($cost * 1.15);
+        $out = ['default' => $this->toServiceUnit($service, $defaultPrice), 'groups' => []];
         foreach ($groups as $g) {
             if (! $default || $g->id !== $default->id) {
-                $out['groups'][$g->id] = self::priceFromRule($cost, $g);
+                $out['groups'][$g->id] = $this->toServiceUnit($service, self::priceFromRule($cost, $g));
             }
         }
 
@@ -144,7 +146,7 @@ class PricingService
                 'old_cost' => $oldCost, 'new_cost' => $service->cost_price, 'change_percent' => round($pct, 2),
             ]);
             Notify::admin('pricing', '💲 <b>Price change waiting for approval</b>'
-                ."\n".Notify::e($service->name).': '.money($old['default']).' → '.money($new['default']).' ('.round($pct, 1).'%)'
+                ."\n".Notify::e($service->name).': '.unit_price($old['default'], $service->price_currency ?? 'ks').' → '.unit_price($new['default'], $service->price_currency ?? 'ks').' ('.round($pct, 1).'%)'
                 ."\n".route('admin.pricing.index'));
 
             return $req;
@@ -191,6 +193,9 @@ class PricingService
         $cost = (float) $service->cost_price;
         $prices = $this->current($service);
         $lowest = min(array_merge([$prices['default']], array_values($prices['groups'])));
+        if (($service->price_currency ?? 'ks') === 'points') {
+            $lowest *= max(1, (int) PointService::rawRules()['convert_rate']);
+        }
         $loss = $cost > 0 && $lowest <= $cost;
         $minProfit = (float) setting('pricing.global_min_profit', 0);
         $thin = ! $loss && $minProfit > 0 && $cost > 0 && ($lowest - $cost) < $minProfit;
@@ -217,6 +222,90 @@ class PricingService
         }
 
         return $loss ? 'loss' : ($thin ? 'thin' : null);
+    }
+
+    /** Switch all catalog prices together and keep their approximate Ks value. */
+    public function switchCurrency(string $from, string $to, User $by, ?int $previousPointRate = null): void
+    {
+        if ($from === $to) {
+            return;
+        }
+
+        $rate = $from === 'points'
+            ? max(1, $previousPointRate ?? (int) PointService::rawRules()['convert_rate'])
+            : max(1, (int) PointService::rawRules()['convert_rate']);
+        DB::transaction(function () use ($from, $to, $by, $rate) {
+            \App\Models\Setting::put('catalog.price_currency', $to);
+            PriceChangeRequest::where('status', 'pending')->update(['status' => 'superseded']);
+
+            $resellerConvert = fn (float $value): float => $from === 'ks'
+                ? ($value > 0 ? (float) ceil($value / $rate) : 0)
+                : round($value * $rate, 2);
+            foreach (ResellerPrice::orderBy('id')->lockForUpdate()->get() as $resellerPrice) {
+                $resellerPrice->update(['price' => $resellerConvert((float) $resellerPrice->price)]);
+            }
+
+            foreach (Service::orderBy('id')->lockForUpdate()->get() as $service) {
+                $prices = $this->current($service);
+                $convert = fn (float $value): float => $from === 'ks'
+                    ? ($value > 0 ? (float) ceil($value / $rate) : 0)
+                    : round($value * $rate, 2);
+
+                $service->forceFill(['price_currency' => $to])->save();
+                if ($service->pricing_mode === 'auto') {
+                    $this->applyPrices($service, $this->compute($service));
+                } else {
+                    $this->applyPrices($service, [
+                        'default' => $convert($prices['default']),
+                        'groups' => array_map($convert, $prices['groups']),
+                    ]);
+                }
+                $this->guardLoss($service->fresh());
+            }
+
+            ActivityLog::record('pricing.currency_switched', null, ['from' => $from, 'to' => $to, 'by' => $by->username]);
+        });
+    }
+
+    /** Keep the approximate Ks value of manual point prices when the point rate changes. */
+    public function rebasePointPrices(int $oldRate, int $newRate, User $by): void
+    {
+        $oldRate = max(1, $oldRate);
+        $newRate = max(1, $newRate);
+        if ($oldRate === $newRate) {
+            return;
+        }
+
+        DB::transaction(function () use ($oldRate, $newRate, $by) {
+            PriceChangeRequest::where('status', 'pending')->update(['status' => 'superseded']);
+            foreach (ResellerPrice::orderBy('id')->lockForUpdate()->get() as $resellerPrice) {
+                $value = (float) $resellerPrice->price;
+                $resellerPrice->update(['price' => $value > 0 ? (float) ceil($value * $oldRate / $newRate) : 0]);
+            }
+            foreach (Service::where('price_currency', 'points')->orderBy('id')->lockForUpdate()->get() as $service) {
+                if ($service->pricing_mode === 'auto') {
+                    $this->applyPrices($service, $this->compute($service));
+                } else {
+                    $prices = $this->current($service);
+                    $convert = fn (float $value): float => $value > 0 ? (float) ceil($value * $oldRate / $newRate) : 0;
+                    $this->applyPrices($service, ['default' => $convert($prices['default']), 'groups' => array_map($convert, $prices['groups'])]);
+                }
+                $this->guardLoss($service->fresh());
+            }
+
+            ActivityLog::record('pricing.point_rate_changed', null, ['from' => $oldRate, 'to' => $newRate, 'by' => $by->username]);
+        });
+    }
+
+    private function toServiceUnit(Service $service, float $ks): float
+    {
+        if (($service->price_currency ?? 'ks') !== 'points') {
+            return $ks;
+        }
+
+        $rate = max(1, (int) PointService::rawRules()['convert_rate']);
+
+        return $ks > 0 ? (float) ceil($ks / $rate) : 0;
     }
 
     /** Pull the supplier's current prices and update costs of linked services. */

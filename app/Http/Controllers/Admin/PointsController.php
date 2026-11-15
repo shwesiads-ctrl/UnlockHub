@@ -50,10 +50,13 @@ class PointsController extends Controller
 
     public function updateRules(Request $request): RedirectResponse
     {
+        $previousCurrency = (string) setting('catalog.price_currency', 'ks');
+        $previousConvertRate = (int) PointService::rawRules()['convert_rate'];
         $data = $request->validate([
             'per_ks' => ['required', 'integer', 'min:0', 'max:100000000'],
             'redeem_rate' => ['required', 'numeric', 'min:0', 'max:1000000'],
             'convert_rate' => ['required', 'integer', 'min:1', 'max:100000000'],
+            'price_currency' => ['required', 'in:ks,points'],
             'redeem_min' => ['required', 'integer', 'min:1', 'max:100000000'],
             'referral_bonus' => ['required', 'integer', 'min:0', 'max:100000000'],
             'signup_bonus' => ['required', 'integer', 'min:0', 'max:100000000'],
@@ -65,6 +68,10 @@ class PointsController extends Controller
             'thresholds' => ['array'],
             'thresholds.*' => ['nullable', 'integer', 'min:1'],
         ]);
+
+        if ($data['price_currency'] === 'points' && ! $request->boolean('enabled')) {
+            throw ValidationException::withMessages(['enabled' => 'Enable the points system before accepting point-paid service orders.']);
+        }
 
         Setting::put('points.enabled', $request->boolean('enabled') ? '1' : '0');
         foreach (array_keys(PointService::FEATURES) as $feature) {
@@ -78,6 +85,12 @@ class PointsController extends Controller
         foreach (UserGroup::all() as $group) {
             $value = $data['thresholds'][$group->id] ?? null;
             $group->update(['min_points_for_auto_upgrade' => $group->is_default ? null : ($value ?: null)]);
+        }
+
+        $pricing = app(\App\Services\PricingService::class);
+        $pricing->switchCurrency($previousCurrency, $data['price_currency'], $request->user(), $previousConvertRate);
+        if ($previousCurrency === 'points' && $data['price_currency'] === 'points' && $previousConvertRate !== (int) $data['convert_rate']) {
+            $pricing->rebasePointPrices($previousConvertRate, (int) $data['convert_rate'], $request->user());
         }
 
         ActivityLog::record('points.rules_updated', null, $data);

@@ -164,8 +164,9 @@ class BulkUploadService
             'duplicate' => $counts['duplicate'] ?? 0,
             'open_duplicates' => count(array_filter($out, fn ($r) => ! empty($r['open_order']))),
             'price' => $price,
+            'price_currency' => $service->price_currency ?? 'ks',
             'total' => round($price * ($counts['valid'] ?? 0), 2),
-            'balance' => (float) $user->fresh()->balance,
+            'balance' => ($service->price_currency ?? 'ks') === 'points' ? (int) $user->fresh()->points : (float) $user->fresh()->balance,
         ];
     }
 

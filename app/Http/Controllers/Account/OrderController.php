@@ -57,7 +57,7 @@ class OrderController extends Controller
 
         $first = $placed->first();
         $message = $placed->count() > 1
-            ? "{$placed->count()} orders placed. Total ".money($placed->sum('price')).'.'
+            ? "{$placed->count()} orders placed. Total ".unit_price($placed->sum('price'), $first->price_currency ?? 'ks').'.'
             : "Order #{$first->order_no} placed.";
         if ($repeated) {
             $message .= ' '.count($repeated).' repeated line(s) were ordered only once: '.\Illuminate\Support\Str::limit(implode(', ', $repeated), 120);
@@ -126,6 +126,7 @@ class OrderController extends Controller
             ->with('reorder', [
                 'order_no' => $order->order_no,
                 'old_price' => (float) $order->price,
+                'old_price_currency' => $order->price_currency ?? 'ks',
                 'items' => $orders->count(),
             ]);
     }
@@ -140,7 +141,7 @@ class OrderController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('success', "Order #{$order->order_no} cancelled and ".money($order->price).' refunded.');
+        return back()->with('success', "Order #{$order->order_no} cancelled and ".$order->priceLabel().(($order->price_currency ?? 'ks') === 'points' ? ' returned.' : ' refunded.'));
     }
 
     /** Download a batch (or filtered list) as CSV: order, input, status, result. */
@@ -152,11 +153,11 @@ class OrderController extends Controller
 
         return response()->streamDownload(function () use ($query) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Order', 'Date', 'Service', 'Input', 'Price', 'Status', 'Result']);
+            fputcsv($out, ['Order', 'Date', 'Service', 'Input', 'Price', 'Currency', 'Status', 'Result']);
             foreach ($query->cursor() as $o) {
                 fputcsv($out, \App\Support\Spreadsheet::safeRow([
                     $o->order_no, $o->created_at->format('Y-m-d H:i'), $o->service_name,
-                    $o->imei, (float) $o->price, $o->statusLabel(), $o->result,
+                    $o->imei, (float) $o->price, $o->price_currency ?? 'ks', $o->statusLabel(), $o->result,
                 ]));
             }
             fclose($out);

@@ -20,6 +20,8 @@ class PointsController extends Controller
         'referral' => 'Referral',
         'redeem' => 'Redeemed',
         'wallet_convert' => 'Wallet to points',
+        'service_order' => 'Service order',
+        'order_refund' => 'Order refund',
         'admin' => 'Admin',
         'reversal' => 'Reversal',
         'signup' => 'Welcome',

@@ -99,6 +99,17 @@ class ServiceRequest extends FormRequest
                     $v->errors()->add('default_price', 'Set a price above 0 before making the service Active.');
                 }
 
+                if (setting('catalog.price_currency', 'ks') === 'points') {
+                    if (floor((float) $this->input('default_price')) !== (float) $this->input('default_price')) {
+                        $v->errors()->add('default_price', 'Point prices must be whole numbers.');
+                    }
+                    foreach ($this->input('prices', []) as $groupId => $price) {
+                        if (filled($price) && floor((float) $price) !== (float) $price) {
+                            $v->errors()->add("prices.$groupId", 'Point prices must be whole numbers.');
+                        }
+                    }
+                }
+
                 if ($this->boolean('allow_bulk') && ! collect($this->input('fields'))->contains('is_bulk_field', true)) {
                     $v->errors()->add('allow_bulk', 'Bulk orders need one field marked "Bulk (one per line)".');
                 }

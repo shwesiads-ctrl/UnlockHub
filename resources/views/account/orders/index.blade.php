@@ -47,7 +47,7 @@
                         <span class="text-muted">—</span>
                     @endif
                 </td>
-                <td class="text-right whitespace-nowrap">{{ price($order->price) }}</td>
+                <td class="text-right whitespace-nowrap">{{ $order->priceLabel() }}</td>
                 <td>
                     <x-status-badge :status="$order->status" />
                     @if ($order->refunded) <div class="text-[11px] text-muted mt-1">{{ __('refunded') }}</div> @endif

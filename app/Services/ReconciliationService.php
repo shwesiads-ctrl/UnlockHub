@@ -109,6 +109,7 @@ class ReconciliationService
 
         // 3. Rejected / cancelled orders without a refund
         $missing = Order::whereIn('status', [Order::REJECTED, Order::CANCELLED])
+            ->where('price_currency', 'ks')
             ->whereNotIn('id', $orderTx('refund')->select('reference_id'))
             ->limit(self::LIMIT)->get(['id', 'order_no', 'user_id', 'price', 'status']);
         foreach ($missing as $o) {
@@ -128,7 +129,7 @@ class ReconciliationService
         }
 
         // 6. Refund on an order that succeeded
-        $ok = Order::where('status', Order::SUCCESS)->whereIn('id', $orderTx('refund')->select('reference_id'))
+        $ok = Order::where('status', Order::SUCCESS)->where('price_currency', 'ks')->whereIn('id', $orderTx('refund')->select('reference_id'))
             ->limit(self::LIMIT)->get(['id', 'order_no', 'user_id', 'price']);
         foreach ($ok as $o) {
             yield $this->issue('refund_on_success', "order:{$o->id}:refund_on_success", 'high', $o->user_id, ['order', $o->id], 0, (float) $o->price,
@@ -136,7 +137,7 @@ class ReconciliationService
         }
 
         // 7. Order never charged
-        $uncharged = Order::whereNotIn('id', $orderTx('order')->select('reference_id'))
+        $uncharged = Order::where('price_currency', 'ks')->whereNotIn('id', $orderTx('order')->select('reference_id'))
             ->limit(self::LIMIT)->get(['id', 'order_no', 'user_id', 'price']);
         foreach ($uncharged as $o) {
             yield $this->issue('missing_debit', "order:{$o->id}:debit", 'high', $o->user_id, ['order', $o->id], (float) $o->price, 0,

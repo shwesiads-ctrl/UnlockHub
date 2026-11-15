@@ -172,8 +172,9 @@
     </section>
 
     <aside class="flex-[1_1_340px] min-w-0 flex flex-col gap-5">
-        <section class="card p-5 flex flex-col gap-4">
-            <h2 class="m-0 text-lg font-bold">Pricing (Ks)</h2>
+        <section class="card p-5 flex flex-col gap-4" data-service-pricing data-price-currency="{{ $priceCurrency ?? setting('catalog.price_currency', 'ks') }}" data-point-rate="{{ max(1, (int) setting('points.convert_rate', 10)) }}">
+            @php $priceCurrency = setting('catalog.price_currency', 'ks'); @endphp
+            <h2 class="m-0 text-lg font-bold">Pricing ({{ $priceCurrency === 'points' ? 'Points' : 'Ks' }})</h2>
             @php $pmode = old('pricing_mode', $service->pricing_mode ?? 'manual'); @endphp
             <div role="radiogroup" aria-label="Pricing mode" class="grid grid-cols-2 gap-2 text-sm">
                 <label class="cursor-pointer rounded-xl border p-3 flex flex-col gap-1 has-[:checked]:border-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft border-line">
@@ -188,8 +189,8 @@
             @if ($rulePrices)
                 <div class="rounded-[10px] bg-surface-2 p-3 text-xs flex flex-col gap-1">
                     <span class="font-semibold">Rule prices for cost {{ money($service->cost_price) }}{{ $pmode === 'auto' ? ' (in use)' : ' (if you switch to Auto)' }}</span>
-                    <span>Default: {{ money($rulePrices['default']) }}</span>
-                    @foreach ($groups as $g) @isset($rulePrices['groups'][$g->id]) <span>{{ $g->name }}: {{ money($rulePrices['groups'][$g->id]) }}</span> @endisset @endforeach
+                    <span>Default: {{ unit_price($rulePrices['default'], $priceCurrency) }}</span>
+                    @foreach ($groups as $g) @isset($rulePrices['groups'][$g->id]) <span>{{ $g->name }}: {{ unit_price($rulePrices['groups'][$g->id], $priceCurrency) }}</span> @endisset @endforeach
                 </div>
             @endif
             @if ($service->supplier_cost !== null && $service->supplier)
@@ -201,12 +202,12 @@
                 <x-field-error name="cost_price" />
             </div>
             <div>
-                <label for="default_price" class="label">Default selling price</label>
+                <label for="default_price" class="label">Default selling price ({{ $priceCurrency === 'points' ? 'Points' : 'Ks' }})</label>
                 <input id="default_price" name="default_price" type="number" min="0" step="1" value="{{ old('default_price', (float) ($service->default_price ?? 0)) }}" class="input" data-price>
                 <x-field-error name="default_price" />
             </div>
             <div class="flex flex-col gap-2.5">
-                <span class="text-sm font-semibold">Price by group <span class="font-normal text-muted">(empty = default)</span></span>
+                <span class="text-sm font-semibold">Price by group ({{ $priceCurrency === 'points' ? 'Points' : 'Ks' }}) <span class="font-normal text-muted">(empty = default)</span></span>
                 @foreach ($groups as $g)
                     <div class="grid grid-cols-[1fr_9rem] gap-2.5 items-center text-sm">
                         <label for="price_{{ $g->id }}">{{ $g->name }}</label>
@@ -237,13 +238,18 @@
         @endif
 
         <section class="card p-5 flex flex-col gap-3">
-            <h2 class="m-0 text-lg font-bold flex items-center gap-2"><x-icon name="star" class="text-point" />Points</h2>
-            <div>
-                <label for="points" class="label">Points per successful order</label>
-                <input id="points" name="points" type="number" min="0" value="{{ old('points', $service->points) }}" class="input">
-                <x-field-error name="points" />
-            </div>
-            <span class="text-[13px] text-muted">Empty = global rule (1 point per {{ number_format((int) setting('points.per_ks', 1000)) }} Ks).</span>
+            @if ($priceCurrency === 'points')
+                <h2 class="m-0 text-lg font-bold flex items-center gap-2"><x-icon name="star" class="text-point" />Points payment</h2>
+                <p class="m-0 text-[13px] text-muted">Successful orders paid with points do not earn points again.</p>
+            @else
+                <h2 class="m-0 text-lg font-bold flex items-center gap-2"><x-icon name="star" class="text-point" />Points reward</h2>
+                <div>
+                    <label for="points" class="label">Points per successful order</label>
+                    <input id="points" name="points" type="number" min="0" value="{{ old('points', $service->points) }}" class="input">
+                    <x-field-error name="points" />
+                </div>
+                <span class="text-[13px] text-muted">Empty = global rule (1 point per {{ number_format((int) setting('points.per_ks', 1000)) }} Ks).</span>
+            @endif
         </section>
 
         <div class="flex gap-2">

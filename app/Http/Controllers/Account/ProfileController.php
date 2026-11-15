@@ -18,11 +18,12 @@ class ProfileController extends Controller
     public function show(Request $request): View
     {
         $user = $request->user()->load(['group', 'socialAccounts']);
+        $pointRate = max(1, (int) setting('points.convert_rate', 10));
 
         $stats = [
             'orders' => $user->orders()->count(),
             'success' => $user->orders()->where('status', Order::SUCCESS)->count(),
-            'spent' => (float) $user->orders()->where('status', Order::SUCCESS)->sum('price'),
+            'spent' => (float) $user->orders()->where('status', Order::SUCCESS)->selectRaw("COALESCE(SUM(CASE WHEN price_currency = 'points' THEN price * COALESCE(price_rate, ?) ELSE price END), 0) AS total", [$pointRate])->value('total'),
             'referrals' => $user->referrals()->count(),
         ];
 

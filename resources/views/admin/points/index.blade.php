@@ -50,6 +50,20 @@
         <form method="POST" action="{{ route('admin.points.rules') }}" class="card p-5 flex flex-col gap-4">
             @csrf @method('PUT')
             <div><h2 class="m-0 text-lg font-bold">Point system</h2><p class="m-0 mt-1 text-xs text-muted">Control availability and configure how users earn or redeem points.</p></div>
+            <fieldset class="m-0 p-0 border-0 flex flex-col gap-2">
+                <legend class="label">Service payment system — choose one</legend>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="cursor-pointer rounded-xl border border-line p-3 flex items-start gap-2.5 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
+                        <input type="radio" name="price_currency" value="ks" class="mt-1 accent-[var(--uh-brand)]" @checked(old('price_currency', setting('catalog.price_currency', 'ks')) === 'ks')>
+                        <span><strong class="flex items-center gap-2">Ks system @if (old('price_currency', setting('catalog.price_currency', 'ks')) === 'ks') <span class="badge badge-success">On</span> @else <span class="badge bg-surface-2 text-muted">Off</span> @endif</strong><span class="text-xs text-muted">Service orders use wallet balance in Ks.</span></span>
+                    </label>
+                    <label class="cursor-pointer rounded-xl border border-line p-3 flex items-start gap-2.5 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
+                        <input type="radio" name="price_currency" value="points" class="mt-1 accent-[var(--uh-brand)]" @checked(old('price_currency', setting('catalog.price_currency', 'ks')) === 'points')>
+                        <span><strong class="flex items-center gap-2">Points system @if (old('price_currency', setting('catalog.price_currency', 'ks')) === 'points') <span class="badge badge-success">On</span> @else <span class="badge bg-surface-2 text-muted">Off</span> @endif</strong><span class="text-xs text-muted">Service orders use points. Ks service prices are converted at the rate below.</span></span>
+                    </label>
+                </div>
+                <p class="m-0 text-xs text-muted">Only one is on at a time. Switching converts manual prices and recalculates auto prices; existing orders keep their original unit. Point payments also require the Point system switch below to be on.</p>
+            </fieldset>
             <label class="flex items-center justify-between gap-3 p-3 rounded-xl {{ setting('points.enabled', '1') === '1' ? 'bg-ok-soft' : 'bg-danger-soft' }}">
                 <span class="flex flex-col">
                     <span class="font-bold">Point system</span>

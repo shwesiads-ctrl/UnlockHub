@@ -91,7 +91,7 @@ class OrderController extends Controller
                     break;
                 case 'reject':
                     $this->orders->reject($order, $data['result'], $data['admin_note'] ?? null);
-                    $msg = "Order #{$order->order_no} rejected · ".money($order->price).' refunded.';
+                    $msg = "Order #{$order->order_no} rejected · ".$order->priceLabel().(($order->price_currency ?? 'ks') === 'points' ? ' returned.' : ' refunded.');
                     break;
                 case 'retry_api':
                     $this->orders->retryApi($order);

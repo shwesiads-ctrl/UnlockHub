@@ -17,9 +17,9 @@
                 <td class="font-mono text-[13px]">#{{ $o->order_no }}<div class="text-xs text-muted">{{ $o->created_at->format('d M H:i') }}</div></td>
                 <td>{{ $o->user?->username }}</td>
                 <td>{{ \Illuminate\Support\Str::limit($o->service_name, 40) }}<div class="text-xs text-muted font-mono">{{ $o->imei }}</div></td>
-                <td class="text-right">{{ money($o->price) }}</td>
-                <td class="text-right text-muted">{{ money($o->reseller_price) }}</td>
-                <td @class(['text-right font-semibold', 'text-ok' => $o->status === 'success', 'text-muted' => $o->status !== 'success'])>{{ money((float) $o->price - (float) $o->reseller_price) }}</td>
+                <td class="text-right">{{ $o->priceLabel() }}</td>
+                <td class="text-right text-muted">{{ unit_price($o->reseller_price, $o->price_currency) }}</td>
+                <td @class(['text-right font-semibold', 'text-ok' => $o->status === 'success', 'text-muted' => $o->status !== 'success'])>{{ money(((float) $o->price - (float) $o->reseller_price) * (($o->price_currency ?? 'ks') === 'points' ? max(1, (int) ($o->price_rate ?: 1)) : 1)) }}</td>
                 <td><x-status-badge :status="$o->status" /></td>
             </tr>
         @empty

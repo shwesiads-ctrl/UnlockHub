@@ -724,5 +724,13 @@
     "Wallet-to-points conversion is turned off right now. Your wallet balance and points are safe.": "လောလောဆယ် Wallet မှ Point ပြောင်းခြင်းကို ပိတ်ထားပါသည်။ သင့်ငွေနှင့် Point များ လုံခြုံစွာရှိပါသည်။",
     "You need at least :amount in your wallet to convert.": "ပြောင်းလဲရန် Wallet ထဲတွင် အနည်းဆုံး :amount ရှိရပါမည်။",
     "Conversions are unavailable right now.": "ပြောင်းလဲခြင်းကို လောလောဆယ် ပိတ်ထားပါသည်။",
-    "Wallet to points": "Wallet မှ Point သို့"
+    "Wallet to points": "Wallet မှ Point သို့",
+    "Points balance": "Point လက်ကျန်",
+    "Points are deducted when you order and returned automatically if the order is rejected.": "Order တင်ချိန် Point ဖြတ်ပြီး ပယ်ချခံရပါက အလိုအလျောက် ပြန်အမ်းပါမည်။",
+    "Credit is deducted when you order and refunded automatically if the order is rejected.": "Order တင်ချိန် ငွေဖြတ်ပြီး ပယ်ချခံရပါက အလိုအလျောက် ပြန်အမ်းပါမည်။",
+    "Point payments are currently unavailable for this account.": "ဤအကောင့်အတွက် Point ဖြင့်ပေးချေမှုကို လောလောဆယ် အသုံးမပြုနိုင်ပါ။",
+    "You need :points points to place this order.": "ဤ Order တင်ရန် Point :points လိုအပ်ပါသည်။",
+    "Not enough points": "Point မလုံလောက်ပါ",
+    "Ordering unavailable": "Order တင်၍မရပါ",
+    ":amount was returned to your points balance.": "Point လက်ကျန်ထဲသို့ :amount ပြန်အမ်းပြီးပါပြီ။"
 }

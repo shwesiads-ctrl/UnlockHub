@@ -25,8 +25,8 @@
                 <td class="font-mono text-[13px]">#{{ $o->order_no }}</td>
                 <td>{{ $o->user?->username }}</td>
                 <td>{{ \Illuminate\Support\Str::limit($o->service_name, 40) }}</td>
-                <td class="text-right">{{ money($o->price) }}</td>
-                <td class="text-right text-ok">{{ money((float) $o->price - (float) $o->reseller_price) }}</td>
+                <td class="text-right">{{ $o->priceLabel() }}</td>
+                <td class="text-right text-ok">{{ money(((float) $o->price - (float) $o->reseller_price) * (($o->price_currency ?? 'ks') === 'points' ? max(1, (int) ($o->price_rate ?: 1)) : 1)) }}</td>
                 <td><x-status-badge :status="$o->status" /></td>
             </tr>
         @empty

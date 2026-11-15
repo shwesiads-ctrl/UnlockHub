@@ -43,9 +43,13 @@ class ResellerService
         }
 
         $p = $reseller->resellerProfile;
+        $pointsCurrency = ($service->price_currency ?? 'ks') === 'points';
         $markup = $p?->markup_type === 'fixed' ? (float) $p->markup_value : $cost * (float) ($p?->markup_value ?? 0) / 100;
+        if ($pointsCurrency && $p?->markup_type === 'fixed') {
+            $markup = ceil($markup / max(1, (int) PointService::rawRules()['convert_rate']));
+        }
 
-        return PricingService::roundUp($cost + max(0, $markup), max(1, (int) setting('reseller.rounding', 10)));
+        return PricingService::roundUp($cost + max(0, $markup), $pointsCurrency ? 1 : max(1, (int) setting('reseller.rounding', 10)));
     }
 
     /** On success: credit the reseller's profit once. */
@@ -56,6 +60,9 @@ class ResellerService
         }
 
         $profit = round((float) $order->price - (float) $order->reseller_price, 2);
+        if (($order->price_currency ?? 'ks') === 'points') {
+            $profit *= max(1, (int) ($order->price_rate ?: PointService::rawRules()['convert_rate']));
+        }
         $reseller = User::find($order->reseller_id);
 
         if ($profit > 0 && $reseller) {

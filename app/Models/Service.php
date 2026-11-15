@@ -19,7 +19,7 @@ class Service extends Model
         'service_category_id', 'type', 'name', 'slug', 'description', 'delivery_time',
         'cost_price', 'default_price', 'points', 'is_hot', 'allow_bulk', 'max_bulk',
         'allow_cancel_pending', 'duplicate_policy', 'status', 'processing_mode', 'supplier_id',
-        'supplier_service_id', 'fallback_to_manual', 'sort', 'pricing_mode', 'supplier_cost', 'cost_updated_at', 'sales_paused', 'paused_reason', 'max_delivery_minutes',
+        'supplier_service_id', 'fallback_to_manual', 'sort', 'pricing_mode', 'price_currency', 'supplier_cost', 'cost_updated_at', 'sales_paused', 'paused_reason', 'max_delivery_minutes',
     ];
 
     protected function casts(): array
@@ -94,9 +94,18 @@ class Service extends Model
         return (string) $this->default_price;
     }
 
+    public function formattedPriceFor(?User $user): string
+    {
+        return unit_price($this->priceFor($user), $this->price_currency ?? 'ks');
+    }
+
     /** Points earned for one successful order of this service. */
     public function pointsFor(string $price): int
     {
+        if (($this->price_currency ?? 'ks') === 'points') {
+            return 0;
+        }
+
         if (! \App\Services\PointService::on('order')) {
             return 0;
         }

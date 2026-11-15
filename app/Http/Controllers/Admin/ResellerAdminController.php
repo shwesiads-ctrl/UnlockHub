@@ -27,8 +27,9 @@ class ResellerAdminController extends Controller
             ->paginate(30)->withQueryString();
 
         $ids = $profiles->pluck('user_id');
+        $pointRate = max(1, (int) setting('points.convert_rate', 10));
         $stats = Order::whereIn('reseller_id', $ids)->where('status', Order::SUCCESS)->where('completed_at', '>=', now()->startOfMonth())
-            ->selectRaw('reseller_id, COUNT(*) AS n, SUM(reseller_price) AS site, SUM(price - reseller_price) AS profit')->groupBy('reseller_id')->get()->keyBy('reseller_id');
+            ->selectRaw("reseller_id, COUNT(*) AS n, SUM(CASE WHEN price_currency = 'points' THEN reseller_price * COALESCE(price_rate, ?) ELSE reseller_price END) AS site, SUM(CASE WHEN price_currency = 'points' THEN (price - reseller_price) * COALESCE(price_rate, ?) ELSE price - reseller_price END) AS profit", [$pointRate, $pointRate])->groupBy('reseller_id')->get()->keyBy('reseller_id');
         $customers = \App\Models\User::whereIn('parent_id', $ids)->selectRaw('parent_id, COUNT(*) AS n')->groupBy('parent_id')->pluck('n', 'parent_id');
 
         return view('admin.resellers.index', [

@@ -18,6 +18,7 @@ class SettingSeeder extends Seeder
             'points.per_ks' => '1000',
             'points.redeem_rate' => '10',
             'points.convert_rate' => '10',
+            'catalog.price_currency' => 'ks',
             'points.redeem_min' => '100',
             'points.referral_bonus' => '50',
             'points.signup_bonus' => '20',

@@ -11,8 +11,8 @@
     <div class="card p-4 flex flex-col"><span class="text-xs text-muted">{{ __('Valid') }}</span><span class="font-display text-2xl font-bold text-ok">{{ $preview['valid'] }}</span></div>
     <div class="card p-4 flex flex-col"><span class="text-xs text-muted">{{ __('Invalid') }}</span><span class="font-display text-2xl font-bold text-danger">{{ $preview['invalid'] }}</span></div>
     <div class="card p-4 flex flex-col"><span class="text-xs text-muted">{{ __('Duplicate') }}</span><span class="font-display text-2xl font-bold text-warn">{{ $preview['duplicate'] }}</span></div>
-    <div class="card p-4 flex flex-col"><span class="text-xs text-muted">{{ __('Total') }} ({{ $preview['valid'] }} × {{ price($preview['price']) }})</span><span class="font-display text-2xl font-bold">{{ price($preview['total']) }}</span></div>
-    <div class="card p-4 flex flex-col"><span class="text-xs text-muted">{{ __('Wallet') }}</span><span @class(['font-display text-2xl font-bold', 'text-danger' => ! $enough])>{{ price($preview['balance']) }}</span>
+    <div class="card p-4 flex flex-col"><span class="text-xs text-muted">{{ __('Total') }} ({{ $preview['valid'] }} × {{ unit_price($preview['price'], $preview['price_currency']) }})</span><span class="font-display text-2xl font-bold">{{ unit_price($preview['total'], $preview['price_currency']) }}</span></div>
+    <div class="card p-4 flex flex-col"><span class="text-xs text-muted">{{ $preview['price_currency'] === 'points' ? __('Points balance') : __('Wallet') }}</span><span @class(['font-display text-2xl font-bold', 'text-danger' => ! $enough])>{{ unit_price($preview['balance'], $preview['price_currency']) }}</span>
         @unless ($enough) <a href="{{ route('account.funds.index') }}" class="text-xs">{{ __('Add funds') }}</a> @endunless</div>
 </div>
 

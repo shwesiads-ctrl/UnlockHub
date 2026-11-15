@@ -51,7 +51,7 @@
                     @if ($service->processing_mode === 'api') <div class="text-xs text-muted mt-1">{{ $service->supplier?->name ?? 'No supplier' }}</div> @endif
                 </td>
                 <td class="text-right whitespace-nowrap text-muted">{{ money($service->cost_price) }}</td>
-                <td class="text-right whitespace-nowrap font-semibold">{{ money($service->default_price) }}</td>
+                <td class="text-right whitespace-nowrap font-semibold">{{ unit_price($service->default_price, $service->price_currency ?? 'ks') }}</td>
                 <td>{{ $service->orders_count }}</td>
                 <td>
                     @php $tone = ['active' => 'success', 'hidden' => 'pending', 'disabled' => 'rejected'][$service->status]; @endphp

@@ -18,7 +18,7 @@
 
             <dl class="m-0 grid gap-3 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] text-sm p-4 rounded-xl bg-surface-2">
                 <div><dt class="text-muted">User</dt><dd class="m-0 font-semibold">{{ $order->user->username }} <span class="font-normal text-muted">({{ $order->user->group?->name }})</span></dd></div>
-                <div><dt class="text-muted">Charged</dt><dd class="m-0 font-semibold">{{ money($order->price) }} <span class="font-normal text-muted">· cost {{ money($order->cost) }}</span></dd></div>
+                <div><dt class="text-muted">Charged</dt><dd class="m-0 font-semibold">{{ $order->priceLabel() }} <span class="font-normal text-muted">· cost {{ money($order->cost) }}</span></dd></div>
                 <div><dt class="text-muted">Placed</dt><dd class="m-0 font-semibold">{{ $order->created_at->format('d M Y H:i') }}</dd></div>
                 <div><dt class="text-muted">Points on success</dt><dd class="m-0 font-semibold text-point">+{{ $order->points }}</dd></div>
                 @foreach ($order->input as $key => $value)
@@ -89,10 +89,10 @@
                     <button name="action" value="note" class="btn flex-1">Save note</button>
                 </div>
                 <div class="flex gap-2">
-                    <button name="action" value="reject" class="btn btn-danger flex-1 h-12" onclick="return confirm('Reject and refund {{ money($order->price) }}?')">Reject &amp; refund</button>
+                    <button name="action" value="reject" class="btn btn-danger flex-1 h-12" onclick="return confirm('Reject and refund {{ $order->priceLabel() }}?')">Reject &amp; refund</button>
                     <button name="action" value="success" class="btn btn-success flex-1 h-12">Mark success</button>
                 </div>
-                <p class="m-0 text-xs text-muted leading-normal">Success gives the user +{{ $order->points }} points. Reject refunds {{ money($order->price) }} to the wallet automatically.</p>
+                <p class="m-0 text-xs text-muted leading-normal">Success gives the user +{{ $order->points }} points. Reject returns {{ $order->priceLabel() }} automatically.</p>
             </form>
         @else
             <form method="POST" action="{{ route('admin.orders.update', $order) }}" class="card p-5 flex flex-col gap-3">

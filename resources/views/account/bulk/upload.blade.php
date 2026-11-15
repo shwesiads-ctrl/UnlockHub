@@ -4,7 +4,7 @@
 <div class="card p-5 flex flex-col gap-1">
     <span class="text-[13px] text-muted">{{ __('Service') }}</span>
     <a href="{{ route('services.show', $service) }}" class="font-bold text-lg text-ink">{{ $service->name }}</a>
-    <span class="text-sm">{{ __('Price') }}: <strong>{{ price($service->priceFor(auth()->user())) }}</strong> / {{ __('item') }}</span>
+    <span class="text-sm">{{ __('Price') }}: <strong>{{ $service->formattedPriceFor(auth()->user()) }}</strong> / {{ __('item') }}</span>
 </div>
 
 <section class="card p-5 flex flex-col gap-3">

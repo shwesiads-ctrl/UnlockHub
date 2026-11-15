@@ -18,7 +18,7 @@
                 <tr>
                     <td><a href="{{ route('admin.services.edit', $r->service) }}">{{ \Illuminate\Support\Str::limit($r->service->name, 60) }}</a><div class="text-xs text-muted">{{ $r->created_at->diffForHumans() }}</div></td>
                     <td class="text-right whitespace-nowrap">{{ $r->old_cost !== null ? money($r->old_cost).' → ' : '' }}<strong>{{ money($r->new_cost) }}</strong></td>
-                    <td class="text-right whitespace-nowrap">{{ money($r->old_prices['default'] ?? 0) }} → <strong>{{ money($r->new_prices['default'] ?? 0) }}</strong>
+                    <td class="text-right whitespace-nowrap">{{ unit_price($r->old_prices['default'] ?? 0, $r->service->price_currency ?? 'ks') }} → <strong>{{ unit_price($r->new_prices['default'] ?? 0, $r->service->price_currency ?? 'ks') }}</strong>
                         @if (! empty($r->new_prices['groups'])) <div class="text-xs text-muted">+ {{ count($r->new_prices['groups']) }} group price(s)</div> @endif</td>
                     <td @class(['text-right font-bold', 'text-danger' => ($r->new_prices['default'] ?? 0) > ($r->old_prices['default'] ?? 0), 'text-ok' => ($r->new_prices['default'] ?? 0) < ($r->old_prices['default'] ?? 0)])>{{ number_format((float) $r->change_percent, 1) }}%</td>
                     <td class="text-right whitespace-nowrap">
@@ -46,8 +46,8 @@
                 <tr>
                     <td><a href="{{ route('admin.services.edit', $s) }}">{{ \Illuminate\Support\Str::limit($s->name, 60) }}</a>@if ($s->status !== 'active') <span class="badge bg-surface-2 text-muted">{{ $s->status }}</span>@endif</td>
                     <td class="text-right">{{ money($s->cost_price) }}</td>
-                    <td class="text-right">{{ money($s->lowest) }}</td>
-                    <td @class(['text-right font-bold', 'text-danger' => $s->lowest <= $s->cost_price, 'text-warn' => $s->lowest > $s->cost_price])>{{ money($s->lowest - $s->cost_price) }}</td>
+                    <td class="text-right">{{ unit_price($s->lowest, $s->price_currency ?? 'ks') }}</td>
+                    <td @class(['text-right font-bold', 'text-danger' => $s->lowest_ks <= $s->cost_price, 'text-warn' => $s->lowest_ks > $s->cost_price])>{{ money($s->lowest_ks - $s->cost_price) }}</td>
                     <td class="text-muted">{{ ucfirst($s->pricing_mode) }}</td>
                     <td>@if ($s->sales_paused) <span class="badge badge-rejected">Paused</span> @else <span class="badge badge-success">Open</span> @endif</td>
                 </tr>

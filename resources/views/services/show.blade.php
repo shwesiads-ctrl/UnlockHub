@@ -31,7 +31,7 @@
                     @if ($points > 0)
                         <span class="flex items-center gap-1.5 text-point font-semibold"><x-icon name="star" size="16" />{{ __('+:points points per success', ['points' => $points]) }}</span>
                     @endif
-                    <span>{{ __('Price:') }} <strong class="font-display text-ink text-base">{{ price($price) }}</strong>{{ $service->allow_bulk ? ' / '.__('item') : '' }}</span>
+                    <span>{{ __('Price:') }} <strong class="font-display text-ink text-base">{{ unit_price($price, $service->price_currency ?? 'ks') }}</strong>{{ $service->allow_bulk ? ' / '.__('item') : '' }}</span>
                 </div>
                 @if ($delivery && $delivery->reliable())
                     @php $hm = fn ($m) => \App\Services\DeliveryStatsService::human((int) $m); @endphp
@@ -102,13 +102,13 @@
                 <x-field-error name="confirm" />
 
                 @if ($re = session('reorder'))
-                    @php $balance = auth()->check() ? (float) auth()->user()->balance : 0; $total = (float) $price * max(1, $re['items']); @endphp
+                    @php $currency = $service->price_currency ?? 'ks'; $balance = auth()->check() ? ($currency === 'points' ? auth()->user()->points : (float) auth()->user()->balance) : 0; $total = (float) $price * max(1, $re['items']); @endphp
                     <div class="rounded-xl border border-brand/30 bg-brand-soft p-4 flex flex-col gap-1.5 text-sm" role="status">
                         <strong>{{ __('Ordering again from') }} #{{ $re['order_no'] }} — {{ __('check the details above, then place the order.') }}</strong>
-                        <span>{{ __('Price now') }}: <strong>{{ price($price) }}</strong>
-                            @if (abs((float) $price - $re['old_price']) >= 0.01) ({{ __('was') }} {{ price($re['old_price']) }}) @endif
-                            @if ($re['items'] > 1) × {{ $re['items'] }} = <strong>{{ price($total) }}</strong> @endif</span>
-                        <span @class(['text-danger font-semibold' => $balance < $total])>{{ __('Wallet') }}: {{ price($balance) }}{{ $balance < $total ? ' — '.__('not enough, add funds first') : '' }}</span>
+                        <span>{{ __('Price now') }}: <strong>{{ unit_price($price, $service->price_currency ?? 'ks') }}</strong>
+                            @if (($re['old_price_currency'] ?? 'ks') === $currency && abs((float) $price - $re['old_price']) >= 0.01) ({{ __('was') }} {{ unit_price($re['old_price'], $re['old_price_currency'] ?? 'ks') }}) @endif
+                            @if ($re['items'] > 1) × {{ $re['items'] }} = <strong>{{ unit_price($total, $currency) }}</strong> @endif</span>
+                        <span @class(['text-danger font-semibold' => $balance < $total])>{{ $currency === 'points' ? __('Points balance') : __('Wallet') }}: {{ unit_price($balance, $currency) }}{{ $balance < $total ? ' — '.__('not enough, add funds first') : '' }}</span>
                         <span class="text-xs text-muted">{{ __('Nothing is charged until you press Place order.') }}</span>
                     </div>
                 @endif
@@ -139,7 +139,13 @@
                 @guest
                     <a href="{{ route('login') }}" class="btn btn-primary btn-lg">{{ __('Log in to order') }}</a>
                 @else
-                    @if (Route::has('orders.store'))
+                    @if (($service->price_currency ?? 'ks') === 'points' && ! $canPayWithPoints)
+                        <div class="rounded-xl p-3 text-sm bg-warn-soft text-warn">{{ __('Point payments are currently unavailable for this account.') }}</div>
+                        <button class="btn btn-primary btn-lg opacity-60" disabled>{{ __('Ordering unavailable') }}</button>
+                    @elseif (($service->price_currency ?? 'ks') === 'points' && auth()->user()->points < (int) $price)
+                        <div class="rounded-xl p-3 text-sm bg-warn-soft text-warn">{{ __('You need :points points to place this order.', ['points' => number_format((int) $price)]) }}</div>
+                        <button class="btn btn-primary btn-lg opacity-60" disabled>{{ __('Not enough points') }}</button>
+                    @elseif (Route::has('orders.store'))
                         <button class="btn btn-primary btn-lg">{{ __('Place order') }}</button>
                     @else
                         <button class="btn btn-primary btn-lg opacity-60" disabled>{{ __('Ordering opens soon') }}</button>
@@ -152,14 +158,18 @@
         <aside class="flex-[1_1_340px] min-w-0 flex flex-col gap-4">
             <div class="card p-6 flex flex-col gap-3.5">
                 <h2 class="m-0 text-xl font-bold">{{ __('Summary') }}</h2>
-                <div class="flex justify-between text-sm"><span class="text-muted">{{ __('Unit price') }}</span><span class="font-semibold">{{ price($price) }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-muted">{{ __('Unit price') }}</span><span class="font-semibold">{{ unit_price($price, $service->price_currency ?? 'ks') }}</span></div>
                 @if ($points > 0)
                     <div class="flex justify-between text-sm"><span class="text-muted">{{ __('Points if successful') }}</span><span class="font-semibold text-point">+{{ $points }} {{ __('pts') }}</span></div>
                 @endif
                 @auth
-                    <div class="flex justify-between text-sm p-3 rounded-[10px] bg-ok-soft text-ok font-semibold"><span>{{ __('Wallet balance') }}</span><span>{{ price(auth()->user()->balance) }}</span></div>
+                    @if (($service->price_currency ?? 'ks') === 'points')
+                        <div class="flex justify-between text-sm p-3 rounded-[10px] bg-point-soft text-point font-semibold"><span>{{ __('Points balance') }}</span><span>{{ number_format(auth()->user()->points) }} {{ __('pts') }}</span></div>
+                    @else
+                        <div class="flex justify-between text-sm p-3 rounded-[10px] bg-ok-soft text-ok font-semibold"><span>{{ __('Wallet balance') }}</span><span>{{ price(auth()->user()->balance) }}</span></div>
+                    @endif
                 @endauth
-                <p class="m-0 text-xs text-muted leading-normal text-center">{{ __('Credit is deducted when you order and refunded automatically if the order is rejected.') }}</p>
+                <p class="m-0 text-xs text-muted leading-normal text-center">{{ ($service->price_currency ?? 'ks') === 'points' ? __('Points are deducted when you order and returned automatically if the order is rejected.') : __('Credit is deducted when you order and refunded automatically if the order is rejected.') }}</p>
             </div>
             <div class="card p-5 flex flex-col gap-2.5 text-sm">
                 <span class="font-bold">{{ __('Order status flow') }}</span>

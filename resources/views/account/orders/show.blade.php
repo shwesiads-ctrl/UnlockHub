@@ -20,10 +20,10 @@
             @elseif ($order->status === 'rejected')
                 <div class="rounded-xl p-4 bg-danger-soft text-danger text-sm leading-relaxed">
                     <strong>{{ __('Rejected:') }}</strong> {{ $order->result ?: __('No reason given.') }}
-                    @if ($order->refunded) <br>{{ __(':amount was refunded to your wallet.', ['amount' => money($order->price)]) }} @endif
+                    @if ($order->refunded) <br>{{ ($order->price_currency ?? 'ks') === 'points' ? __(':amount was returned to your points balance.', ['amount' => $order->priceLabel()]) : __(':amount was refunded to your wallet.', ['amount' => money($order->price)]) }} @endif
                 </div>
             @elseif ($order->status === 'cancelled')
-                <div class="rounded-xl p-4 bg-surface-2 text-sm">{{ __('Cancelled.') }} {{ __(':amount was refunded to your wallet.', ['amount' => money($order->price)]) }}</div>
+                <div class="rounded-xl p-4 bg-surface-2 text-sm">{{ __('Cancelled.') }} {{ ($order->price_currency ?? 'ks') === 'points' ? __(':amount was returned to your points balance.', ['amount' => $order->priceLabel()]) : __(':amount was refunded to your wallet.', ['amount' => money($order->price)]) }}</div>
             @else
                 <div class="rounded-xl p-4 bg-brand-soft text-brand-ink text-sm leading-relaxed">
                     {{ __('We\'re working on it. Estimated delivery:') }} <strong>{{ $order->service?->delivery_time ?: '—' }}</strong>. {{ __('This page shows the result as soon as it\'s ready.') }}
@@ -49,7 +49,7 @@
             @if ($order->completed_at)
                 <div class="flex justify-between"><span class="text-muted">{{ __('Finished') }}</span><span>{{ $order->completed_at->format('d M Y H:i') }}</span></div>
             @endif
-            <div class="flex justify-between"><span class="text-muted">{{ __('Price') }}</span><span class="font-semibold">{{ price($order->price) }}</span></div>
+            <div class="flex justify-between"><span class="text-muted">{{ __('Price') }}</span><span class="font-semibold">{{ $order->priceLabel() }}</span></div>
             <div class="flex justify-between"><span class="text-muted">{{ __('Points') }}</span><span class="font-semibold text-point">{{ $order->points_awarded ? '+'.$order->points.' earned' : '+'.$order->points.' on success' }}</span></div>
             @if ($order->batch_id)
                 <a href="{{ route('account.orders.index', ['batch' => $order->batch_id]) }}" class="text-[13px]">{{ __('View the whole bulk order') }}</a>
@@ -57,7 +57,7 @@
         </div>
 
         @if ($order->status === 'pending' && $order->service?->allow_cancel_pending && ! $order->supplier_order_id)
-            <form method="POST" action="{{ route('account.orders.cancel', $order) }}" onsubmit="return confirm('Cancel this order and refund {{ money($order->price) }}?')">
+            <form method="POST" action="{{ route('account.orders.cancel', $order) }}" onsubmit="return confirm('Cancel this order and return {{ $order->priceLabel() }}?')">
                 @csrf
                 <button class="btn btn-danger w-full">{{ __('Cancel order & refund') }}</button>
             </form>

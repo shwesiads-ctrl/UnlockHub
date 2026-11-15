@@ -108,7 +108,7 @@ class BulkOrderController extends Controller
         $first = $placed->first();
 
         return redirect()->route('account.orders.index', $first->batch_id ? ['batch' => $first->batch_id] : [])
-            ->with('success', $placed->count().' order(s) placed. Total '.money($placed->sum('price')).'.');
+            ->with('success', $placed->count().' order(s) placed. Total '.unit_price($placed->sum('price'), $first->price_currency ?? 'ks').'.');
     }
 
     private function available(Service $service): void

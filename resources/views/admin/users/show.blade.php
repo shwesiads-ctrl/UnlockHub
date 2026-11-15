@@ -24,7 +24,7 @@
                     <tr>
                         <td class="whitespace-nowrap"><a href="{{ route('admin.orders.show', $o) }}" class="font-semibold">#{{ $o->order_no }}</a><div class="text-xs text-muted">{{ $o->created_at->format('d M H:i') }}</div></td>
                         <td>{{ $o->service_name }}<div class="text-xs text-muted font-mono">{{ $o->imei }}</div></td>
-                        <td class="text-right whitespace-nowrap">{{ money($o->price) }}</td>
+                        <td class="text-right whitespace-nowrap">{{ $o->priceLabel() }}</td>
                         <td><x-status-badge :status="$o->status" /></td>
                     </tr>
                 @empty

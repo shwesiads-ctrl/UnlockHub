@@ -54,10 +54,11 @@ class UserController extends Controller
     public function show(User $user): View
     {
         $user->load(['group', 'referrer:id,username']);
+        $pointRate = max(1, (int) setting('points.convert_rate', 10));
 
         $stats = [
-            'spent' => (float) $user->orders()->where('status', Order::SUCCESS)->sum('price'),
-            'profit' => (float) $user->orders()->where('status', Order::SUCCESS)->selectRaw('COALESCE(SUM(price - cost), 0) AS p')->value('p'),
+            'spent' => (float) $user->orders()->where('status', Order::SUCCESS)->selectRaw("COALESCE(SUM(CASE WHEN price_currency = 'points' THEN price * COALESCE(price_rate, ?) ELSE price END), 0) AS total", [$pointRate])->value('total'),
+            'profit' => (float) $user->orders()->where('status', Order::SUCCESS)->selectRaw("COALESCE(SUM(CASE WHEN price_currency = 'points' THEN COALESCE(reseller_price, price) * COALESCE(price_rate, ?) ELSE COALESCE(reseller_price, price) END - cost), 0) AS p", [$pointRate])->value('p'),
             'deposited' => (float) $user->paymentRequests()->where('status', PaymentRequest::APPROVED)->sum('credited_amount'),
             'orders' => $user->orders()->selectRaw('status, count(*) AS n')->groupBy('status')->pluck('n', 'status'),
             'referrals' => $user->referrals()->count(),

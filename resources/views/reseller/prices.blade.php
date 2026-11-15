@@ -19,16 +19,16 @@
 
     <section class="card table-wrap">
         <table class="table min-w-[720px]">
-            <thead><tr><th>{{ __('Service') }}</th><th class="text-right">{{ __('Your cost') }}</th><th class="text-right">{{ __('Customers pay') }}</th><th class="w-40">{{ __('Own price (Ks)') }}</th><th class="text-right">{{ __('Profit') }}</th></tr></thead>
+            <thead><tr><th>{{ __('Service') }}</th><th class="text-right">{{ __('Your cost') }}</th><th class="text-right">{{ __('Customers pay') }}</th><th class="w-40">{{ __('Own price') }} ({{ setting('catalog.price_currency', 'ks') === 'points' ? __('Points') : __('Ks') }})</th><th class="text-right">{{ __('Profit') }}</th></tr></thead>
             <tbody>
             @foreach ($services as $s)
                 @php $cost = \App\Services\ResellerService::costFor($s, $me); $sell = \App\Services\ResellerService::sellPrice($s, $me); @endphp
                 <tr>
                     <td><span class="font-medium">{{ \Illuminate\Support\Str::limit($s->name, 60) }}</span><div class="text-xs text-muted">{{ $s->category?->name }}</div></td>
-                    <td class="text-right whitespace-nowrap">{{ money($cost) }}</td>
-                    <td class="text-right whitespace-nowrap font-semibold">{{ money($sell) }}</td>
+                    <td class="text-right whitespace-nowrap">{{ unit_price($cost, $s->price_currency ?? 'ks') }}</td>
+                    <td class="text-right whitespace-nowrap font-semibold">{{ unit_price($sell, $s->price_currency ?? 'ks') }}</td>
                     <td><label for="p{{ $s->id }}" class="sr-only">{{ __('Own price') }}</label><input id="p{{ $s->id }}" name="prices[{{ $s->id }}]" type="number" min="0" step="1" value="{{ isset($own[$s->id]) ? (float) $own[$s->id] : '' }}" placeholder="{{ __('auto') }}" class="input h-9"></td>
-                    <td class="text-right text-ok whitespace-nowrap">{{ money($sell - $cost) }}</td>
+                    <td class="text-right text-ok whitespace-nowrap">{{ unit_price($sell - $cost, $s->price_currency ?? 'ks') }}</td>
                 </tr>
             @endforeach
             </tbody>

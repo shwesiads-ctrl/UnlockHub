@@ -66,7 +66,7 @@
                     <tr>
                         <th>{{ __('Service') }}</th>
                         <th>{{ __('Delivery time') }}</th>
-                        @if ($pointsOn) <th>{{ __('Points') }}</th> @endif
+                        @if ($pointsOn && setting('catalog.price_currency', 'ks') === 'ks') <th>{{ __('Points') }}</th> @endif
                         <th class="text-right">{{ __('Price') }}</th>
                         <th><span class="sr-only">{{ __('Action') }}</span></th>
                     </tr>
@@ -74,7 +74,7 @@
                 <tbody>
                 @foreach ($categories as $category)
                     <tr>
-                        <td colspan="5" class="bg-bg font-bold text-[13px] text-brand-ink">{{ $category->name }}</td>
+                        <td colspan="{{ $pointsOn && setting('catalog.price_currency', 'ks') === 'ks' ? 5 : 4 }}" class="bg-bg font-bold text-[13px] text-brand-ink">{{ $category->name }}</td>
                     </tr>
                     @foreach ($category->services as $service)
                         @php $p = $service->priceFor(auth()->user()); @endphp
@@ -95,8 +95,8 @@
                                 @endif
                             </td>
                             <td class="text-muted whitespace-nowrap">{{ $service->delivery_time ?: '—' }}</td>
-                            @if ($pointsOn) <td class="text-point font-semibold whitespace-nowrap">+{{ $service->pointsFor($p) }}</td> @endif
-                            <td class="text-right font-display font-bold text-[15px] whitespace-nowrap">{{ price($p) }}</td>
+                            @if ($pointsOn && setting('catalog.price_currency', 'ks') === 'ks') <td class="text-point font-semibold whitespace-nowrap">+{{ $service->pointsFor($p) }}</td> @endif
+                            <td class="text-right font-display font-bold text-[15px] whitespace-nowrap">{{ $service->formattedPriceFor(auth()->user()) }}</td>
                             <td class="text-right"><a href="{{ route('services.show', $service) }}" class="btn btn-primary h-10">{{ __('Order') }}</a></td>
                         </tr>
                     @endforeach

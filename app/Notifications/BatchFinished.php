@@ -17,6 +17,7 @@ class BatchFinished extends Notification
         public int $success,
         public int $rejected,
         public float $refunded,
+        public string $priceCurrency = 'ks',
     ) {}
 
     public function via(object $notifiable): array
@@ -28,7 +29,7 @@ class BatchFinished extends Notification
     {
         return [
             'title' => "Bulk order finished: {$this->success} done, {$this->rejected} rejected",
-            'body' => $this->serviceName.($this->refunded > 0 ? ' · '.money($this->refunded).' refunded' : ''),
+            'body' => $this->serviceName.($this->refunded > 0 ? ' · '.unit_price($this->refunded, $this->priceCurrency).($this->priceCurrency === 'points' ? ' returned' : ' refunded') : ''),
             'url' => route('account.orders.index', ['batch' => $this->batchId]),
             'tone' => $this->rejected ? 'pending' : 'success',
         ];
@@ -43,7 +44,7 @@ class BatchFinished extends Notification
             ->greeting("Hello {$notifiable->name},")
             ->line("Your bulk order for **{$this->serviceName}** is finished.")
             ->line("Completed: **{$this->success}** · Rejected: **{$this->rejected}**")
-            ->lineIf($this->refunded > 0, money($this->refunded).' was refunded to your wallet for rejected items.')
+            ->lineIf($this->refunded > 0, $this->priceCurrency === 'points' ? unit_price($this->refunded, 'points').' were returned to your points balance for rejected items.' : money($this->refunded).' was refunded to your wallet for rejected items.')
             ->action('See results / download CSV', route('account.orders.index', ['batch' => $this->batchId]))
             ->salutation("— {$site}");
     }

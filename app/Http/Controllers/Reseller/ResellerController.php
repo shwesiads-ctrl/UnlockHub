@@ -15,6 +15,7 @@ use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
@@ -79,6 +80,9 @@ class ResellerController extends Controller
         $month = now()->startOfMonth();
         $orders = Order::where('reseller_id', $me->id);
         $done = (clone $orders)->where('status', Order::SUCCESS)->where('completed_at', '>=', $month);
+        $rate = max(1, (int) setting('points.convert_rate', 10));
+        $saleExpr = "CASE WHEN price_currency = 'points' THEN price * COALESCE(price_rate, {$rate}) ELSE price END";
+        $profitExpr = "CASE WHEN price_currency = 'points' THEN (price - reseller_price) * COALESCE(price_rate, {$rate}) ELSE price - reseller_price END";
 
         return view('reseller.dashboard', [
             'me' => $me,
@@ -86,8 +90,8 @@ class ResellerController extends Controller
             'customerBalance' => (float) $me->subUsers()->sum('balance'),
             'month' => [
                 'orders' => (clone $orders)->where('created_at', '>=', $month)->count(),
-                'sales' => (float) (clone $done)->sum('price'),
-                'profit' => (float) (clone $done)->selectRaw('COALESCE(SUM(price - reseller_price), 0) AS p')->value('p'),
+                'sales' => (float) (clone $done)->sum(\Illuminate\Support\Facades\DB::raw($saleExpr)),
+                'profit' => (float) (clone $done)->selectRaw("COALESCE(SUM({$profitExpr}), 0) AS p")->value('p'),
             ],
             'open' => (clone $orders)->whereIn('status', [Order::PENDING, Order::IN_PROCESS])->count(),
             'recent' => (clone $orders)->with('user:id,username')->latest('id')->limit(10)->get(),
@@ -200,6 +204,17 @@ class ResellerController extends Controller
             'prices' => ['array'],
             'prices.*' => ['nullable', 'numeric', 'min:0', 'max:9999999999'],
         ]);
+
+        $validator = Validator::make($data, []);
+        foreach ($data['prices'] ?? [] as $serviceId => $price) {
+            $service = Service::find((int) $serviceId);
+            if ($service && ($service->price_currency ?? 'ks') === 'points' && filled($price) && floor((float) $price) !== (float) $price) {
+                $validator->errors()->add("prices.$serviceId", 'Point prices must be whole numbers.');
+            }
+        }
+        if ($validator->errors()->isNotEmpty()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
 
         $me->resellerProfile->update(['markup_type' => $data['markup_type'], 'markup_value' => $data['markup_value']]);
 

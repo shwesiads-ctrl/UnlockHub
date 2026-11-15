@@ -49,7 +49,9 @@ class AffiliateService
             return;
         }
 
-        $siteSale = (float) ($order->reseller_price ?? $order->price);
+        $siteSale = ($order->price_currency ?? 'ks') === 'points'
+            ? (float) ($order->reseller_price ?? $order->price) * max(1, (int) ($order->price_rate ?: PointService::rawRules()['convert_rate']))
+            : (float) ($order->reseller_price ?? $order->price);
         $base = setting('affiliate.basis', 'profit') === 'sale' ? $siteSale : max(0, $siteSale - (float) $order->cost);
         $amount = round($base * (float) setting('affiliate.percent', 0) / 100, 2);
 

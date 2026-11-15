@@ -62,7 +62,7 @@
                 <a href="{{ route('services.show', $f) }}" class="rounded-xl border border-line bg-bg p-3 flex flex-col gap-1 no-underline text-ink hover:border-brand">
                     <span class="font-semibold text-sm leading-snug">{{ \Illuminate\Support\Str::limit($f->name, 70) }}</span>
                     <span class="text-xs text-muted">{{ $f->delivery_time ?: '—' }}</span>
-                    <span class="font-display font-bold">{{ price($f->priceFor($user)) }}</span>
+                    <span class="font-display font-bold">{{ $f->formattedPriceFor($user) }}</span>
                 </a>
             @endforeach
         </div>

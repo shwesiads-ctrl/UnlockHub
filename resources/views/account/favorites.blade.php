@@ -20,7 +20,7 @@
                     @elseif ($s->sales_paused) <span class="badge badge-pending">{{ __('Temporarily unavailable') }}</span> @endif
                 </td>
                 <td class="text-muted whitespace-nowrap">{{ $s->delivery_time ?: '—' }}</td>
-                <td class="text-right font-display font-bold whitespace-nowrap">{{ price($s->priceFor(auth()->user())) }}</td>
+                <td class="text-right font-display font-bold whitespace-nowrap">{{ $s->formattedPriceFor(auth()->user()) }}</td>
                 <td class="text-right whitespace-nowrap">
                     @if ($s->status === 'active') <a href="{{ route('services.show', $s) }}" class="btn btn-primary h-9 text-xs">{{ __('Order') }}</a> @endif
                     <form method="POST" action="{{ route('account.favorites.toggle', $s) }}" class="inline">@csrf<button class="btn h-9 text-xs" aria-label="{{ __('Remove from favourites') }}">★ {{ __('Remove') }}</button></form>

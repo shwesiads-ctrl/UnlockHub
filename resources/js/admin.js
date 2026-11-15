@@ -26,7 +26,10 @@ document.addEventListener('click', (e) => {
     const cost = Number(form.querySelector('[data-cost]')?.value || 0);
     const pct = Number(form.querySelector('[data-profit]')?.value || 0);
     if (!cost) return;
-    const round = (n) => Math.ceil(n / 100) * 100; // round up to 100 Ks
+    const pricing = form.querySelector('[data-service-pricing]');
+    const isPoints = pricing?.dataset.priceCurrency === 'points';
+    const pointRate = Math.max(1, Number(pricing?.dataset.pointRate || 1));
+    const round = (n) => isPoints ? Math.ceil(n / pointRate) : Math.ceil(n / 100) * 100;
     form.querySelector('[data-price]').value = round(cost * (1 + pct / 100));
     // Lower groups get a smaller margin: Customer full %, next groups step down
     const groups = [...form.querySelectorAll('[data-group-price]')];

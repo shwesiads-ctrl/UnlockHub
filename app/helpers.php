@@ -22,6 +22,14 @@ if (! function_exists('price')) {
     }
 }
 
+if (! function_exists('unit_price')) {
+    /** Format an order/service price in its stored unit. */
+    function unit_price(string|int|float|null $amount, string $unit = 'ks'): string
+    {
+        return $unit === 'points' ? number_format((float) ($amount ?? 0)).' pts' : price($amount);
+    }
+}
+
 if (! function_exists('money')) {
     /** Format an MMK amount: 125000 → "125,000 Ks". */
     function money(string|int|float|null $amount, string $currency = 'MMK'): string

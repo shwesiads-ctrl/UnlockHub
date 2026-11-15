@@ -32,7 +32,7 @@ class OrderUpdated extends Notification
             'title' => $ok ? "Order #{$o->order_no} completed" : "Order #{$o->order_no} rejected",
             'body' => $ok
                 ? $o->service_name.($o->imei ? ' · '.$o->imei : '').' — result is ready.'
-                : $o->service_name.' — '.Str::limit((string) $o->result, 120).' '.money($o->price).' refunded.',
+                : $o->service_name.' — '.Str::limit((string) $o->result, 120).' '.$o->priceLabel().(($o->price_currency ?? 'ks') === 'points' ? ' returned.' : ' refunded.'),
             'url' => route('account.orders.show', $o),
             'tone' => $ok ? 'success' : 'rejected',
         ];
@@ -60,7 +60,7 @@ class OrderUpdated extends Notification
             ->greeting("Hello {$notifiable->name},")
             ->line("Your order **{$o->service_name}**".($o->imei ? " for **{$o->imei}**" : '').' could not be completed.')
             ->line('Reason: '.Str::limit((string) $o->result, 500))
-            ->line(money($o->price).' has been refunded to your wallet.')
+            ->line(($o->price_currency ?? 'ks') === 'points' ? $o->priceLabel().' has been returned to your points balance.' : money($o->price).' has been refunded to your wallet.')
             ->action('View order', route('account.orders.show', $o))
             ->salutation("— {$site}");
     }

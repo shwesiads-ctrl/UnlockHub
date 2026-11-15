@@ -25,7 +25,7 @@ class Order extends Model
 
     protected $fillable = [
         'reseller_id', 'reseller_price', 'order_no', 'batch_id', 'user_id', 'service_id', 'service_name', 'input', 'imei',
-        'user_note', 'price', 'cost', 'points', 'status', 'processing_mode', 'supplier_id',
+        'user_note', 'price', 'price_currency', 'price_rate', 'cost', 'points', 'status', 'processing_mode', 'supplier_id',
         'supplier_order_id', 'api_attempts', 'api_failed', 'api_error', 'api_next_check_at',
         'result', 'admin_note', 'refunded', 'points_awarded', 'processed_by', 'completed_at',
     ];
@@ -103,6 +103,11 @@ class Order extends Model
     public function statusLabel(): string
     {
         return self::STATUS_LABELS[$this->status] ?? ucfirst($this->status);
+    }
+
+    public function priceLabel(): string
+    {
+        return unit_price($this->price, $this->price_currency ?? 'ks');
     }
 
     /** Orders waiting for a human: manual mode (incl. API fallbacks) that are still open. */

@@ -90,6 +90,7 @@ class ReportController extends Controller
 
     private function build(Carbon $from, Carbon $to): array
     {
+        $pointRate = max(1, (int) setting('points.convert_rate', 10));
         $orders = Order::whereBetween('created_at', [$from, $to]);
 
         $placedByDay = (clone $orders)->selectRaw('DATE(created_at) AS d, COUNT(*) AS n')->groupBy('d')->pluck('n', 'd');
@@ -98,8 +99,8 @@ class ReportController extends Controller
             ->selectRaw("DATE(completed_at) AS d,
                 SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) AS ok,
                 SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS bad,
-                SUM(CASE WHEN status = 'success' THEN COALESCE(reseller_price, price) ELSE 0 END) AS sales,
-                SUM(CASE WHEN status = 'success' THEN cost ELSE 0 END) AS cost")
+                SUM(CASE WHEN status = 'success' THEN CASE WHEN price_currency = 'points' THEN COALESCE(reseller_price, price) * COALESCE(price_rate, ?) ELSE COALESCE(reseller_price, price) END ELSE 0 END) AS sales,
+                SUM(CASE WHEN status = 'success' THEN cost ELSE 0 END) AS cost", [$pointRate])
             ->groupBy('d')->get()->keyBy('d');
 
         $deposits = PaymentRequest::where('status', PaymentRequest::APPROVED)->whereBetween('reviewed_at', [$from, $to])
@@ -137,7 +138,7 @@ class ReportController extends Controller
         $totals['success_rate'] = $finishedCount ? round($totals['success'] / $finishedCount * 100, 1) : null;
 
         $topServices = Order::where('status', Order::SUCCESS)->whereBetween('completed_at', [$from, $to])
-            ->selectRaw('service_id, service_name, COUNT(*) AS n, SUM(COALESCE(reseller_price, price)) AS sales, SUM(COALESCE(reseller_price, price) - cost) AS profit')
+            ->selectRaw('service_id, service_name, COUNT(*) AS n, SUM(CASE WHEN price_currency = \'points\' THEN COALESCE(reseller_price, price) * COALESCE(price_rate, ?) ELSE COALESCE(reseller_price, price) END) AS sales, SUM(CASE WHEN price_currency = \'points\' THEN COALESCE(reseller_price, price) * COALESCE(price_rate, ?) ELSE COALESCE(reseller_price, price) END - cost) AS profit', [$pointRate, $pointRate])
             ->groupBy('service_id', 'service_name')->orderByDesc('sales')->orderBy('service_id')->paginate(10, ['*'], 'services_page')->withQueryString();
 
         $byMethod = PaymentRequest::where('payment_requests.status', PaymentRequest::APPROVED)->whereBetween('payment_requests.reviewed_at', [$from, $to])
@@ -147,7 +148,7 @@ class ReportController extends Controller
 
         $topUsers = Order::where('orders.status', Order::SUCCESS)->whereBetween('orders.completed_at', [$from, $to])
             ->join('users', 'users.id', '=', 'orders.user_id')
-            ->selectRaw('users.id, users.username, COUNT(*) AS n, SUM(COALESCE(orders.reseller_price, orders.price)) AS sales')
+            ->selectRaw('users.id, users.username, COUNT(*) AS n, SUM(CASE WHEN orders.price_currency = \'points\' THEN COALESCE(orders.reseller_price, orders.price) * COALESCE(orders.price_rate, ?) ELSE COALESCE(orders.reseller_price, orders.price) END) AS sales', [$pointRate])
             ->groupBy('users.id', 'users.username')->orderByDesc('sales')->orderBy('users.id')->paginate(10, ['*'], 'customers_page')->withQueryString();
 
         return compact('days', 'totals', 'topServices', 'byMethod', 'topUsers');
