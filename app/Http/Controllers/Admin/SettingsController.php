@@ -18,8 +18,11 @@ class SettingsController extends Controller
 {
     public function index(): View
     {
+        $sponsorSlides = json_decode((string) setting('home.sponsor_slides', '[]'), true);
+
         return view('admin.settings.index', [
             'general' => collect(self::GENERAL)->mapWithKeys(fn ($rule, $key) => [$key => setting($key)])->all(),
+            'sponsorSlides' => is_array($sponsorSlides) ? $sponsorSlides : [],
             'kbPages' => \App\Models\Post::where('type', 'kb')->orderBy('title')->get(['title', 'slug']),
             'socialProviders' => \App\Services\Social\SocialProviders::PROVIDERS,
             'telegramConfigured' => (bool) Notify::telegramToken(),
@@ -172,6 +175,65 @@ class SettingsController extends Controller
         ActivityLog::record('settings.home_page_updated');
 
         return redirect()->to(route('admin.settings.index').'#home-page')->with('success', 'Home page settings saved.');
+    }
+
+    public function updateSponsorSlides(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'slides' => ['nullable', 'array', 'max:8'],
+            'slides.*.title' => ['nullable', 'string', 'max:100'],
+            'slides.*.link' => ['nullable', 'url:http,https', 'max:255'],
+            'slides.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'slides.*.remove' => ['sometimes', 'boolean'],
+            'enabled' => ['sometimes', 'boolean'],
+        ]);
+
+        $existing = json_decode((string) setting('home.sponsor_slides', '[]'), true);
+        $existing = is_array($existing) ? $existing : [];
+        $slides = [];
+        foreach ($data['slides'] ?? [] as $index => $item) {
+            $previous = $existing[$index] ?? [];
+            $path = $previous['image'] ?? null;
+            $managedPath = is_string($path) && str_starts_with($path, 'sponsors/');
+            if (! $managedPath) {
+                $path = null;
+            }
+
+            if ($request->boolean("slides.{$index}.remove") && $managedPath) {
+                Storage::disk('public')->delete($path);
+                $path = null;
+            }
+
+            if ($request->hasFile("slides.{$index}.image")) {
+                if ($managedPath) {
+                    Storage::disk('public')->delete($path);
+                }
+                $path = $request->file("slides.{$index}.image")->store('sponsors', 'public');
+            }
+
+            if (! $path) {
+                continue;
+            }
+
+            $slides[] = [
+                'image' => $path,
+                'title' => trim((string) ($item['title'] ?? '')),
+                'link' => trim((string) ($item['link'] ?? '')),
+            ];
+        }
+
+        // Remove images for slides deleted from the submitted list entirely.
+        foreach (array_slice($existing, count($data['slides'] ?? [])) as $removed) {
+            if (is_string($removed['image'] ?? null) && str_starts_with($removed['image'], 'sponsors/')) {
+                Storage::disk('public')->delete($removed['image']);
+            }
+        }
+
+        Setting::put('home.sponsor_slides', json_encode($slides, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+        Setting::put('home.sponsor_slides_enabled', $request->boolean('enabled') ? '1' : '0');
+        ActivityLog::record('settings.sponsor_slides_updated', null, ['count' => count($slides), 'enabled' => $request->boolean('enabled')]);
+
+        return redirect()->to(route('admin.settings.index').'#sponsor-slider')->with('success', 'Sponsor slider saved.');
     }
 
     public function updateSeo(Request $request): RedirectResponse

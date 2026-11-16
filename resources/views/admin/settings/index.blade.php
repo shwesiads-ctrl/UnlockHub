@@ -12,6 +12,7 @@
     <a href="#telegram-alerts">Telegram alerts</a>
     <a href="#mobile-app">Mobile app (PWA)</a>
     <a href="#monthly-statements">Monthly statements</a>
+    <a href="#sponsor-slider">Sponsor slider</a>
     <a href="#footer-settings">Footer</a>
 </nav>
 <div class="settings-content">
@@ -315,10 +316,11 @@
             </p>
     </section>
 </div>
+@include('admin.settings._sponsor-slider')
 @include('admin.settings._footer')
 <div class="settings-page-nav" aria-label="Settings page navigation">
     <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings page">‹ Previous</a>
-    <span class="settings-page-count" aria-live="polite">Page 1 of 9</span>
+    <span class="settings-page-count" aria-live="polite">Page 1 of 10</span>
     <a class="btn btn-primary" data-settings-next href="#site-mode" aria-label="Next settings page">Next ›</a>
 </div>
 </div>

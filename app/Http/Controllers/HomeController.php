@@ -24,6 +24,9 @@ class HomeController extends Controller
             ->with(['category', 'prices' => fn ($p) => $p->where('user_group_id', auth()->user()?->user_group_id ?? 0)])
             ->orderBy('sort')->limit(8)->get();
 
+        $sponsorSlides = json_decode((string) setting('home.sponsor_slides', '[]'), true);
+        $sponsorSlides = is_array($sponsorSlides) ? $sponsorSlides : [];
+
         return view('home', [
             'hot' => $hot,
             'payCountry' => $country,
@@ -31,6 +34,11 @@ class HomeController extends Controller
             // Other countries that have methods turned on, for the switcher.
             'payCountries' => collect(config('unlockhub.countries'))
                 ->filter(fn ($label, $code) => $active->contains('country', $code)),
+            'sponsorSlides' => setting('home.sponsor_slides_enabled', '0') === '1'
+                ? collect($sponsorSlides)
+                    ->filter(fn ($slide) => is_array($slide) && ! empty($slide['image']) && \Illuminate\Support\Facades\Storage::disk('public')->exists($slide['image']))
+                    ->take(8)->values()
+                : collect(),
         ]);
     }
 }

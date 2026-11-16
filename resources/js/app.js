@@ -5,6 +5,7 @@ import './popup-editor';
 import './pwa';
 import './receipt-preview';
 import './support-chat';
+import './sponsor-slider';
 
 // Quick-fill buttons: <button data-fill="#input" data-value="10000">
 document.addEventListener('click', (e) => {

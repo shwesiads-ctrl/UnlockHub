@@ -133,4 +133,43 @@
     </div>
 </section>
 @endif
+
+@if ($sponsorSlides->isNotEmpty())
+<section class="max-w-7xl mx-auto px-4 sm:px-8 py-6" aria-labelledby="sponsor-slider-heading">
+    <div class="flex items-center justify-between gap-4 mb-3">
+        <h2 id="sponsor-slider-heading" class="m-0 text-lg font-bold">{{ __('Our sponsors') }}</h2>
+        @if ($sponsorSlides->count() > 1)
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn h-9 w-9 p-0" data-sponsor-previous aria-label="{{ __('Previous sponsor') }}">‹</button>
+                <button type="button" class="btn h-9 w-9 p-0" data-sponsor-next aria-label="{{ __('Next sponsor') }}">›</button>
+            </div>
+        @endif
+    </div>
+    <div class="card overflow-hidden" data-sponsor-slider data-interval="5000" aria-roledescription="carousel">
+        <div class="relative">
+            @foreach ($sponsorSlides as $index => $slide)
+                @php $slideTitle = trim((string) ($slide['title'] ?? '')); @endphp
+                <div data-sponsor-slide role="group" aria-roledescription="slide" aria-label="{{ __('Sponsor :number of :total', ['number' => $index + 1, 'total' => $sponsorSlides->count()]) }}" @if ($index > 0) hidden @endif>
+                    @if (filled($slide['link'] ?? null))
+                        <a href="{{ $slide['link'] }}" target="_blank" rel="noopener noreferrer" class="block no-underline text-ink hover:text-ink">
+                            <img src="{{ Storage::disk('public')->url($slide['image']) }}" alt="{{ $slideTitle ?: __('Sponsor image') }}" @if ($index > 0) loading="lazy" @endif class="w-full h-40 sm:h-56 md:h-64 object-contain bg-surface-2">
+                            @if ($slideTitle) <span class="block px-4 py-3 text-sm font-semibold">{{ $slideTitle }}</span> @endif
+                        </a>
+                    @else
+                        <img src="{{ Storage::disk('public')->url($slide['image']) }}" alt="{{ $slideTitle ?: __('Sponsor image') }}" @if ($index > 0) loading="lazy" @endif class="w-full h-40 sm:h-56 md:h-64 object-contain bg-surface-2">
+                        @if ($slideTitle) <span class="block px-4 py-3 text-sm font-semibold">{{ $slideTitle }}</span> @endif
+                    @endif
+                </div>
+            @endforeach
+        </div>
+        @if ($sponsorSlides->count() > 1)
+            <div class="flex justify-center gap-2 p-3" role="group" aria-label="{{ __('Choose sponsor slide') }}">
+                @foreach ($sponsorSlides as $index => $slide)
+                    <button type="button" data-sponsor-dot="{{ $index }}" class="w-2.5 h-2.5 rounded-full bg-line" aria-label="{{ __('Sponsor :number of :total', ['number' => $index + 1, 'total' => $sponsorSlides->count()]) }}" @if ($index === 0) aria-current="true" @endif></button>
+                @endforeach
+            </div>
+        @endif
+    </div>
+</section>
+@endif
 @endsection

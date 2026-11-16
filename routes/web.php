@@ -320,6 +320,7 @@ Route::middleware(['auth', 'active', 'admin', 'staff', 'nostore'])->prefix('admi
     Route::put('/settings/general', [Admin\SettingsController::class, 'updateGeneral'])->name('settings.general');
     Route::put('/settings/site-mode', [Admin\SettingsController::class, 'updateSiteMode'])->name('settings.site-mode');
     Route::put('/settings/home-page', [Admin\SettingsController::class, 'updateHomePage'])->name('settings.home-page');
+    Route::put('/settings/sponsor-slider', [Admin\SettingsController::class, 'updateSponsorSlides'])->name('settings.sponsor-slider');
     Route::put('/settings/seo', [Admin\SettingsController::class, 'updateSeo'])->name('settings.seo');
     Route::put('/settings/analytics', [Admin\SettingsController::class, 'updateAnalytics'])->name('settings.analytics');
     Route::put('/settings/account-display', [Admin\SettingsController::class, 'updateAccountDisplay'])->name('settings.account-display');
