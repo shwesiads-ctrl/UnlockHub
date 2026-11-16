@@ -5,6 +5,7 @@
 <nav class="settings-nav" aria-label="Settings sections">
     <span class="text-xs font-bold uppercase tracking-wide text-muted">Manage settings</span>
     <a href="#site-settings">Site &amp; branding</a>
+    <a href="#home-page">Home page</a>
     <a href="#site-mode">Availability &amp; mode</a>
     <a href="#security">Security &amp; access</a>
     <a href="#smtp">Email (SMTP)</a>
@@ -105,6 +106,7 @@
     </div>
 </form>
 
+@include('admin.settings._home-page')
 @include('admin.settings._site-mode')
 <div id="security" class="settings-page-panel flex flex-col gap-5">
     <div class="flex flex-wrap gap-2" role="tablist" aria-label="Security settings">
@@ -320,7 +322,7 @@
 @include('admin.settings._footer')
 <div class="settings-page-nav" aria-label="Settings page navigation">
     <a class="btn" data-settings-previous href="#site-settings" aria-label="Previous settings page">‹ Previous</a>
-    <span class="settings-page-count" aria-live="polite">Page 1 of 10</span>
+    <span class="settings-page-count" aria-live="polite">Page 1 of 11</span>
     <a class="btn btn-primary" data-settings-next href="#site-mode" aria-label="Next settings page">Next ›</a>
 </div>
 </div>
